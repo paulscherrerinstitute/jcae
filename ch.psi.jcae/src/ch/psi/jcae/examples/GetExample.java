@@ -1,4 +1,4 @@
-/*
+/**
  *  Copyright (C) 2010 Paul Scherrer Institute
  * 
  *  This program is free software: you can redistribute it and/or modify
@@ -22,9 +22,6 @@ import gov.aps.jca.CAException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Example
- */
 public class GetExample {
 
     public static void main(String[] args) throws CAException, InterruptedException {

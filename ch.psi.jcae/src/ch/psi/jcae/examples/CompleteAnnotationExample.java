@@ -25,21 +25,25 @@ import gov.aps.jca.CAException;
 import ch.psi.jcae.ChannelBean;
 import ch.psi.jcae.ChannelBeanFactory;
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.annotation.CaPostDestroy;
+import ch.psi.jcae.annotation.CaPostInit;
+import ch.psi.jcae.annotation.CaPreDestroy;
+import ch.psi.jcae.annotation.CaPreInit;
 
-public class AnnotationExample {
+public class CompleteAnnotationExample {
 
 	public static void main(String[] args) throws CAException, InterruptedException {
 		// Get channel factory
         ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
 
-        ChannelBeanContainer container = new ChannelBeanContainer();
+        ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
         // Connect to channel(s) in the container
         factory.createChannelBeans(container);
         
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
-        Logger.getLogger(AnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
+        Logger.getLogger(CompleteAnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
         
         // Disconnect channel(s) in the container
         factory.destroyChannelBeans(container);
@@ -52,7 +56,7 @@ public class AnnotationExample {
 /**
  * Container class
  */
-class ChannelBeanContainer {
+class ChannelBeanContainerComplete {
 
 	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
 	private ChannelBean<Double> current;
@@ -60,6 +64,26 @@ class ChannelBeanContainer {
 	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
 	private ChannelBean<String> unit;
 
+	@CaPreInit
+	public void preInit(){
+		// Code executed before connecting the channels
+	}
+	
+	@CaPostInit
+	public void postInit(){
+		// Code executed after connecting channels
+	}
+	
+	@CaPreDestroy
+	public void preDestroy(){
+		// Code executed before destroying channels
+	}
+	
+	@CaPostDestroy
+	public void postDestroy(){
+		// Code executed after destroying channels
+	}
+	
 	/**
 	 * @return the current
 	 */

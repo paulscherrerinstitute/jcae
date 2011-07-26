@@ -1,4 +1,4 @@
-/*
+/**
  *  Copyright (C) 2011 Paul Scherrer Institute
  * 
  *  This program is free software: you can redistribute it and/or modify
@@ -24,9 +24,6 @@ import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Example
- */
 public class MonitorExample {
 
     public static void main(String[] args) throws CAException, InterruptedException {
