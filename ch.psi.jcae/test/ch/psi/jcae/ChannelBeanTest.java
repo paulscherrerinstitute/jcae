@@ -57,6 +57,35 @@ public class ChannelBeanTest {
 	}
 
 	/**
+	 * Test to continuously set and get a string waveform
+	 * @throws CAException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testSetGetValueStringWaveform() throws CAException, InterruptedException {
+		
+		ChannelBean<String[]> bean = factory.createChannelBean(String[].class, channelPrefix+"SWAVE", false);
+
+		// Set test string to waveform
+		String[] value = {"one....................", "two....................", "three....................", "four....................", "five....................", "six....................", "seven....................", "eight....................", "nine....................", "ten...................."};
+		String[] value2 = {"", "", "", "", "", "", "", ""};
+		for(int i=0;i<1000;i++){
+			// Alternate values to set
+			if(i%2==0){
+				bean.setValue(value);
+			}
+			else{
+				bean.setValue(value2);
+			}
+			Thread.sleep(10);
+			bean.getValue();
+			
+		}
+		
+	}
+	
+	
+	/**
 	 * Test to verify whether a char waveform can be easily accessed and
 	 * be converted to a String
 	 * @throws CAException 

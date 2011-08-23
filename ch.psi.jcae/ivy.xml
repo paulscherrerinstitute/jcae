@@ -3,7 +3,7 @@
     <info
         organisation="ch.psi"
         module="jcae"
-        revision="1.0.27"
+        revision="1.0.28"
         status="integration">
 	</info>
 	
@@ -21,7 +21,8 @@
 	 
 	<dependencies>
 		 <!-- Channel Access Libraries -->
-         <dependency org="com.cosylab.epics" name="caj" rev="1.1.8beta"/>
+         <!-- <dependency org="com.cosylab.epics" name="caj" rev="1.1.8beta"/> -->
+         <dependency org="epics" name="caj" rev="1.1.8-SNAPSHOT"/>
          
          <!-- Dependency for testing only -->
          <dependency org="org.junit" name="junit" rev="4.8.1" conf="test->default"/>

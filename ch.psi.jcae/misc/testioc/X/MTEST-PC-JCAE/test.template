@@ -79,6 +79,13 @@ record(waveform, "$(P)DWAVE") {
   field(NELM, "200")
 }
 
+# String waveform with 10 elements
+record(waveform, "$(P)SWAVE") {
+  field(DESC, "String Waveform")
+  field(FTVL, "STRING")
+  field(NELM, "10")
+}
+
 #! Further lines contain data used by VisualDCT
 #! View(0,0,1.0)
 #! Record("$(P)CWAVE",20,28,0,0,"$(P)CWAVE")
