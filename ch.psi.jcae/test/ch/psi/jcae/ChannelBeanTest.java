@@ -23,8 +23,10 @@ import static org.junit.Assert.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import junit.framework.Assert;
@@ -58,18 +60,23 @@ public class ChannelBeanTest {
 
 	/**
 	 * Test to continuously set and get a string waveform
-	 * @throws CAException
-	 * @throws InterruptedException
+	 * @throws Exception 
 	 */
 	@Test
-	public void testSetGetValueStringWaveform() throws CAException, InterruptedException {
-		
+	public void testSetGetValueStringWaveform() throws Exception {
+		try{
 		ChannelBean<String[]> bean = factory.createChannelBean(String[].class, channelPrefix+"SWAVE", false);
-
+		
+//		List<String> list = new ArrayList<String>();
+		
 		// Set test string to waveform
 		String[] value = {"one....................", "two....................", "three....................", "four....................", "five....................", "six....................", "seven....................", "eight....................", "nine....................", "ten...................."};
+//		for(String v : value){
+//			list.add(v);
+//		}
+		
 		String[] value2 = {"", "", "", "", "", "", "", ""};
-		for(int i=0;i<1000;i++){
+		for(int i=0;i<10000;i++){
 			// Alternate values to set
 			if(i%2==0){
 				bean.setValue(value);
@@ -77,9 +84,22 @@ public class ChannelBeanTest {
 			else{
 				bean.setValue(value2);
 			}
+			
+//			list.add("");
+//			bean.setValue(list.toArray(new String[list.size()]));
+			
+			System.out.print(i+" ");
+			if(i%100==0){
+				System.out.println();
+			}
 			Thread.sleep(10);
 			bean.getValue();
 			
+		}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			throw e;
 		}
 		
 	}
@@ -145,6 +165,8 @@ public class ChannelBeanTest {
 			Assert.fail("Ioc name returned does not match the expected ioc name");
 		}
 	}
+	
+	
 
 	
 	/**
@@ -554,5 +576,33 @@ public class ChannelBeanTest {
 	public void doit(){
 		logger.fine("Method called ...");
 		methodCalled=true;
+	}
+	
+	
+	@Test
+	public void testDestruction() throws CAException, InterruptedException {
+		final ChannelBean<Double> b = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
+		
+		Thread t = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					b.waitForValue(0d);
+				} catch (CAException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}//Wait forever
+				System.out.println("Reached");
+			}
+			
+		});
+		t.start();
+		factory.getChannelFactory().destroyContext();
+//		b.destroy();
+		
+		System.out.println("Exit");
+		
 	}
 }
