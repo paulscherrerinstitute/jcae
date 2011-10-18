@@ -342,7 +342,7 @@ public class ChannelBean<E> {
 				}
 
 				if (t == false) {
-					throw new CAException("Put to channel [" + channel.getName() + "] failed");
+					throw new CAException("Set to channel [" + channel.getName() + "] failed");
 				}
 
 				// update local value
@@ -351,14 +351,14 @@ public class ChannelBean<E> {
 
 			} catch (CAException e) {
 				if (cnt <= this.retries) {
-					logger.log(Level.WARNING, "Get value failed CAException - will retry");
+					logger.log(Level.WARNING, "Set to channel ["+channel.getName()+"]  failed - "+e.getMessage()+" - will retry");
 				} else {
 					throw e;
 				}
 			} catch (IllegalStateException e) {
 				// If the channel is not connected while the channel.get(...) function is called this exception will be thrown
 				if (cnt <= this.retries) {
-					logger.log(Level.WARNING, "Get value failed with IllegalStateException (channel not connected) - will retry after 500ms");
+					logger.log(Level.WARNING, "Set value failed with IllegalStateException (channel not connected) - will retry after 500ms");
 					// Will wait for 500 milliseconds a second
 					Thread.sleep(500);
 				} else {
@@ -431,7 +431,7 @@ public class ChannelBean<E> {
 			} catch (CAException e) {
 
 				if (cnt <= this.retries) {
-					logger.log(Level.WARNING, "Get value failed CAException - will retry");
+					logger.log(Level.WARNING, "Get value from channel ["+channel.getName()+"] failed - "+e.getMessage()+" - will retry");
 				} else {
 					throw e;
 				}
