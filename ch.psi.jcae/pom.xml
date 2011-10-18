@@ -1,0 +1,109 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ch.psi</groupId>
+	<artifactId>jcae</artifactId>
+	<version>1.0.29</version>
+
+	<dependencies>
+		<dependency>
+			<groupId>epics</groupId>
+			<artifactId>caj</artifactId>
+			<version>1.1.8-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Generate Javadoc Jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Generate Source Jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Assembly Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<!-- Specifies the configuration file of the assembly plugin -->
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+			</plugin>
+			<!-- Google Code Upload Plugin -->
+			<plugin>
+				<groupId>org.riedelcastro</groupId>
+				<artifactId>gcupload-maven-plugin</artifactId>
+				<version>0.9</version>
+				<configuration>
+					<projectName>jcae</projectName>
+					<uploads>
+						<upload>
+							<extensions>jar</extensions>
+ 							<labels>Binaries</labels>
+ 							<summary>Binaries</summary>
+						</upload>
+						<upload>
+							<postfix>sources</postfix>
+							<extensions>jar</extensions>
+ 							<labels>Sources</labels>
+ 							<summary>Sources</summary>
+						</upload>
+						<upload>
+							<postfix>javadoc</postfix>
+							<extensions>jar</extensions>
+ 							<labels>Javadoc</labels>
+ 							<summary>Javadoc</summary>
+						</upload>
+					</uploads>
+				</configuration>
+
+			</plugin>
+		</plugins>
+	</build>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>i.snapshots</id>
+			<name>Artifactory Snapshots</name>
+			<url>http://slsyoke1/artifactory/libs-snapshots-local</url>
+		</snapshotRepository>
+		<repository>
+			<id>i.releases</id>
+			<name>Atrifactory Releases</name>
+			<url>http://slsyoke1/artifactory/libs-releases-local</url>
+		</repository>
+	</distributionManagement>
+</project>
