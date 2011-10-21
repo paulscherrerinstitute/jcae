@@ -352,6 +352,7 @@ public class ChannelBean<E> {
 			} catch (CAException e) {
 				if (cnt <= this.retries) {
 					logger.log(Level.WARNING, "Set to channel ["+channel.getName()+"]  failed - "+e.getMessage()+" - will retry");
+					logger.log(Level.FINE, "Exception retrieved: ", e);
 				} else {
 					throw e;
 				}

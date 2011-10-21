@@ -603,4 +603,14 @@ public class ChannelBeanTest {
 		System.out.println("Exit");
 		
 	}
+	
+	@Test
+	public void testSetChannel() throws CAException, InterruptedException {
+		ChannelBean<Double> bean = factory.createChannelBean(Double.class, "MTEST-HW3:MOT1", true);
+		for(int i=0;i<100;i++){
+			logger.info("Set value [iteration: "+i+"]");
+			bean.setValue(2.0);
+			Thread.sleep(100);
+		}
+	}
 }
