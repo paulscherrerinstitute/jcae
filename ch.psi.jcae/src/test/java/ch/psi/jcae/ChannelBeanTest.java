@@ -47,7 +47,7 @@ public class ChannelBeanTest {
 	
 	private static Logger logger = Logger.getLogger(ChannelBeanTest.class.getName());
 	
-	private static String channelPrefix = "MTEST-PC-JCAE:";
+//	private static String channelPrefix = "MTEST-PC-JCAE:";
 	private static String iocname = "psi-softioc.psi.ch";
 	private ChannelBeanFactory factory;
 	
@@ -63,7 +63,7 @@ public class ChannelBeanTest {
 	@Test
 	public void testSetGetValueStringWaveform() throws Exception {
 		try{
-		ChannelBean<String[]> bean = factory.createChannelBean(String[].class, channelPrefix+"SWAVE", false);
+		ChannelBean<String[]> bean = factory.createChannelBean(String[].class, TestChannels.STRING_WAVEFORM, false);
 		
 //		List<String> list = new ArrayList<String>();
 		
@@ -74,7 +74,7 @@ public class ChannelBeanTest {
 //		}
 		
 		String[] value2 = {"", "", "", "", "", "", "", ""};
-		for(int i=0;i<10000;i++){
+		for(int i=0;i<5000;i++){
 			// Alternate values to set
 			if(i%2==0){
 				bean.setValue(value);
@@ -111,7 +111,7 @@ public class ChannelBeanTest {
 	 */
 	@Test
 	public void testGetValueWaveform() throws CAException, InterruptedException {
-		ChannelBean<byte[]> bean = factory.createChannelBean(byte[].class, channelPrefix+"CWAVE", false);
+		ChannelBean<byte[]> bean = factory.createChannelBean(byte[].class, TestChannels.CHARACTER_WAVEFORM, false);
 
 		// Set test string to waveform
 		String setvalue = "some value";
@@ -157,7 +157,7 @@ public class ChannelBeanTest {
 	 */
 	@Test
 	public void testGetHostname() throws CAException, InterruptedException {
-		ChannelBean<String> bean = factory.createChannelBean(String.class, channelPrefix+"BI", false);
+		ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_IN, false);
 		logger.fine("Size of the Channel: "+bean.getHostname());
 		if(! bean.getHostname().equals(iocname)){
 			Assert.fail("Ioc name returned does not match the expected ioc name");
@@ -175,20 +175,20 @@ public class ChannelBeanTest {
 	@Test
 	public void testGetValue() throws CAException, InterruptedException {
 		// Test if array and getValue(int size) is called
-		ChannelBean<double[]> bean = factory.createChannelBean(double[].class, channelPrefix+"CWAVE", false);
+		ChannelBean<double[]> bean = factory.createChannelBean(double[].class, TestChannels.CHARACTER_WAVEFORM, false);
 		bean.getValue(10); // Get a subarray
 		bean.getValue(); // Get first value of the array
 
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Double> beand = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
+		ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 		beand.getValue(1);
 
 		// Test how ChannelBean does behave is Scaler attached to waveform
-		ChannelBean<Double> beandd = factory.createChannelBean(Double.class, channelPrefix+"DWAVE", false);
+		ChannelBean<Double> beandd = factory.createChannelBean(Double.class, TestChannels.DOUBLE_WAVEFORM, false);
 		beandd.getValue();
 
 		// Test get on a MBBI record
-		ChannelBean<String> beans = factory.createChannelBean(String.class, channelPrefix+"MBBI", true);
+		ChannelBean<String> beans = factory.createChannelBean(String.class, TestChannels.MBBI, true);
 		beans.getValue();
 	}
 	
@@ -202,7 +202,7 @@ public class ChannelBeanTest {
 		
 
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Double> beand = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
+		ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 		Thread.sleep(5000);
 		
 		// TODO NEED TO MANUALLY REBOOT IOC
@@ -221,11 +221,11 @@ public class ChannelBeanTest {
 	public void testSetValue() throws CAException, InterruptedException {
 		Double value = 1d;
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Double> beand = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
+		ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 		beand.setValue(value, 0); // Wait forever
 
 		// Test how ChannelBean does behave is Scaler attached to waveform
-		ChannelBean<Double> beandd = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
+		ChannelBean<Double> beandd = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 		Double v = beandd.getValue();
 		
 		if(!v.equals(value)){
@@ -244,10 +244,10 @@ public class ChannelBeanTest {
 	@Test
 	public void testWaitForValue() throws CAException, InterruptedException {
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
 		
-		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -279,11 +279,11 @@ public class ChannelBeanTest {
 	@Test( expected=CAException.class )
 	public void testWaitForValueTimeout() throws CAException, InterruptedException {
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
 		beand.setWaitTimeout(1000); // For testing purpose set wait timeout to 1000 milliseconds
 		
-		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -313,7 +313,7 @@ public class ChannelBeanTest {
 	@Ignore
 	public void testUseCorrectProperties() throws CAException, InterruptedException {
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 
 		if(beand.getWaitTimeout() != 2000){
 			fail("The wait timeout for a ChannelBean found is not the value specified in jcae.properties");
@@ -330,10 +330,10 @@ public class ChannelBeanTest {
 	@Test(expected=CAException.class)
 	public void testWaitForValueComparator() throws CAException, InterruptedException {
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
 		
-		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -374,10 +374,10 @@ public class ChannelBeanTest {
 	@Test
 	public void testWaitForValueComparatorTwo() throws CAException, InterruptedException {
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
 		
-		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -422,10 +422,10 @@ public class ChannelBeanTest {
 	@Test
 	public void testWaitForValueNoTimeout() throws CAException, InterruptedException {
 		// Test if scalar and getValue(int size) is called
-		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
 		
-		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, channelPrefix+"BI", false);
+		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -458,7 +458,7 @@ public class ChannelBeanTest {
 	@Test
 	public void testConnectionListener() throws InterruptedException, CAException {
 
-		ChannelBean<Double> bean = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
+		ChannelBean<Double> bean = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 
 		logger.info("Bean connected: " + bean.isConnected());
 		
@@ -483,7 +483,7 @@ public class ChannelBeanTest {
 	@Test
 	public void testPropertyChangeSupportArray() throws CAException, InterruptedException {
 		// Test if array and getValue(int size) is called
-		ChannelBean<double[]> bean = factory.createChannelBean(double[].class, channelPrefix+"DWAVE", true);
+		ChannelBean<double[]> bean = factory.createChannelBean(double[].class, TestChannels.DOUBLE_WAVEFORM, true);
 		
 		valueFromListener = null;
 		bean.addPropertyChangeListener(new PropertyChangeListener() {
@@ -510,8 +510,8 @@ public class ChannelBeanTest {
 	@Test
 	public void testTimestampMonitor() throws CAException, InterruptedException {
 		// Test if array and getValue(int size) is called
-		ChannelBean<Double> c = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
-		ChannelBean<Double> bean = factory.createChannelBean(Double.class, channelPrefix+"BI", true);
+		ChannelBean<Double> c = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
+		ChannelBean<Double> bean = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, true);
 		MonitorListenerDoubleTimestamp l = new MonitorListenerDoubleTimestamp(){
 
 			@Override
@@ -553,7 +553,7 @@ public class ChannelBeanTest {
 	@Test
 	public void testFunctionMonitorListener() throws CAException, InterruptedException, SecurityException, NoSuchMethodException {
 
-		ChannelBean<String> bean = factory.createChannelBean(String.class, channelPrefix+"SOUT1", true);
+		ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.STRING_OUT, true);
 		bean.addMonitorListener(this, this.getClass().getMethod("doit"));
 
 		methodCalled=false;
@@ -579,7 +579,7 @@ public class ChannelBeanTest {
 	
 	@Test
 	public void testDestruction() throws CAException, InterruptedException {
-		final ChannelBean<Double> b = factory.createChannelBean(Double.class, channelPrefix+"BI", false);
+		final ChannelBean<Double> b = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 		
 		Thread t = new Thread(new Runnable(){
 
@@ -606,7 +606,7 @@ public class ChannelBeanTest {
 	
 	@Test
 	public void testSetChannel() throws CAException, InterruptedException {
-		ChannelBean<Double> bean = factory.createChannelBean(Double.class, "MTEST-HW3:MOT1", true);
+		ChannelBean<Double> bean = factory.createChannelBean(Double.class, TestChannels.BINARY_OUT, true);
 		for(int i=0;i<100;i++){
 			logger.info("Set value [iteration: "+i+"]");
 			bean.setValue(2.0);

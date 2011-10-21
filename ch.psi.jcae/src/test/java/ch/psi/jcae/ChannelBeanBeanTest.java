@@ -45,7 +45,6 @@ public class ChannelBeanBeanTest {
 	// Get Logger
 	private static final Logger logger = Logger.getLogger(ChannelBeanBeanTest.class.getName());
 	
-	private static final String channelPrefix = "MTEST-PC-JCAE:";
 	private ChannelBeanFactory factory;
 	
 	private HashMap<String, Long> timestamps = new HashMap<String,Long>();
@@ -75,7 +74,7 @@ public class ChannelBeanBeanTest {
 	@Test
 	public void testConnectChannelBeans() throws CAException, InterruptedException {
 		TestObject object = new TestObject();
-		factory.createChannelBeans(object, channelPrefix);
+		factory.createChannelBeans(object, TestChannels.PREFIX);
 		
 		// Check whether pre and post methods are executed
 		if(timestamps.get("pre")!=null && timestamps.get("post")!=null){

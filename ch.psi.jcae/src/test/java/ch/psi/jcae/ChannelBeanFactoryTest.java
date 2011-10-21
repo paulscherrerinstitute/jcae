@@ -40,7 +40,6 @@ public class ChannelBeanFactoryTest {
 	// Get Logger
 	private static Logger logger = Logger.getLogger(ChannelBeanFactoryTest.class.getName());
 	
-	private static String channelPrefix = "MTEST-PC-JCAE:";
 	private ChannelBeanFactory factory;
 	
 	/**
@@ -67,11 +66,9 @@ public class ChannelBeanFactoryTest {
 	@Test
 	public void testCreateChannelBean() throws CAException, InterruptedException {
 		for(int i=0;i<100;i++){
-			String cname = channelPrefix+"BO";
-			cname = "MTEST-HW3:MOT1";
 			
 			long s = System.currentTimeMillis();
-			ChannelBean<String> bean = factory.createChannelBean(String.class, cname, false);
+			ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
 			long e = System.currentTimeMillis();
 			
 			// Print the elapsed time for creating the channel
@@ -102,7 +99,7 @@ public class ChannelBeanFactoryTest {
 		TestObject one = new TestObject();
 
 		// Manage Bean
-		factory.createChannelBeans(one, channelPrefix);
+		factory.createChannelBeans(one, TestChannels.PREFIX);
 
 		// Check to get values
 		one.getType().getValue();
@@ -131,11 +128,8 @@ public class ChannelBeanFactoryTest {
 		for(int i=0;i<10;i++){
 			factory = ChannelBeanFactory.getFactory();
 			
-//			String cname = channelPrefix+"BO";
-			String cname = "MTEST-HW3:MOT1";
-			
 			long s = System.currentTimeMillis();
-			ChannelBean<String> bean = factory.createChannelBean(String.class, cname, false);
+			ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
 			long e = System.currentTimeMillis();
 			
 			// Print the elapsed time for creating the channel
@@ -167,7 +161,7 @@ public class ChannelBeanFactoryTest {
 		@CaChannel( name="SOUT1", type=String.class, monitor=true)
 		private ChannelBean<String> type;
 
-		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4"}, type=String.class, monitor=true)
+		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
 		private List<ChannelBean<String>> mylist;
 		
 		public ChannelBean<String> getType() {

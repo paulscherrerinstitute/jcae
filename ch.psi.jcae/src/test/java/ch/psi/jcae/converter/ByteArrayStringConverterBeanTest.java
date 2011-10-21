@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import ch.psi.jcae.ChannelBean;
 import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.TestChannels;
 
 /**
  * @author ebner
@@ -48,8 +49,7 @@ public class ByteArrayStringConverterBeanTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		String channel = "MTEST-PC-JCAE:CWAVE";
-		ChannelBean<byte[]> cbean = ChannelBeanFactory.getFactory().createChannelBean(byte[].class, channel, false);
+		ChannelBean<byte[]> cbean = ChannelBeanFactory.getFactory().createChannelBean(byte[].class, TestChannels.CHARACTER_WAVEFORM, false);
 		b = new ByteArrayStringConverterBean(cbean);
 	}
 

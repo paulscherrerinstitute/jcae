@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import ch.psi.jcae.ChannelBean;
 import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.TestChannels;
 
 /**
  * @author ebner
@@ -49,8 +50,7 @@ public class IntegerStringConverterBeanTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		String channel = "MTEST-PC-JCAE:BI";
-		cbean = ChannelBeanFactory.getFactory().createChannelBean(Integer.class, channel, true);
+		cbean = ChannelBeanFactory.getFactory().createChannelBean(Integer.class, TestChannels.BINARY_IN, true);
 		b = new IntegerStringConverterBean(cbean);
 	}
 
@@ -84,8 +84,6 @@ public class IntegerStringConverterBeanTest {
 				logger.info("Value changed: "+evt.getNewValue());
 			}
 		});
-		
-//		Thread.sleep(100000);
 	}
 
 }

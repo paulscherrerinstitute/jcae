@@ -43,7 +43,6 @@ public class ChannelFactoryTest {
 	
 	private static Logger logger = Logger.getLogger(ChannelFactoryTest.class.getName());
 
-	private static String channelPrefix = "MTEST-PC-JCAE:";
 	private ChannelFactory factory;
 	
 	@Before
@@ -61,7 +60,7 @@ public class ChannelFactoryTest {
 	public void testCreateChannel() throws CAException, InterruptedException {
 		// Create channel
 		long s = System.currentTimeMillis();
-		Channel channel = factory.createChannel(channelPrefix+"BO");
+		Channel channel = factory.createChannel(TestChannels.BINARY_OUT);
 		long e = System.currentTimeMillis();
 		
 		// Print the elapsed time for creating the channel
@@ -81,7 +80,7 @@ public class ChannelFactoryTest {
 	 */
 	@Test(expected=CAException.class)
 	public void testCreateChannelNonexistent() throws CAException, InterruptedException {
-		Channel channel = factory.createChannel(channelPrefix+"BOX");
+		Channel channel = factory.createChannel(TestChannels.BINARY_OUT_NOT_EXIST);
 		logger.info("Channel ["+channel.getName()+"]: "+channel.getConnectionState().getName());
 	}
 	
@@ -93,9 +92,9 @@ public class ChannelFactoryTest {
 	@Test
 	public void testCreateChannels() throws CAException, InterruptedException {
 		List<String> channelNames = new ArrayList<String>();
-		channelNames.add(channelPrefix+"BO");
-		channelNames.add(channelPrefix+"BI");
-		channelNames.add(channelPrefix+"CWAVE");
+		channelNames.add(TestChannels.BINARY_OUT);
+		channelNames.add(TestChannels.BINARY_IN);
+		channelNames.add(TestChannels.CHARACTER_WAVEFORM);
 		
 		long s = System.currentTimeMillis();
 		List<Channel> channels = factory.createChannels(channelNames);
@@ -121,9 +120,9 @@ public class ChannelFactoryTest {
 	@Test(expected=CAException.class)
 	public void testCreateChannelsNonexistent() throws CAException, InterruptedException {
 		List<String> channelNames = new ArrayList<String>();
-		channelNames.add(channelPrefix+"BO");
-		channelNames.add(channelPrefix+"BIX");
-		channelNames.add(channelPrefix+"CWAVE");
+		channelNames.add(TestChannels.BINARY_OUT);
+		channelNames.add(TestChannels.BINARY_OUT_NOT_EXIST);
+		channelNames.add(TestChannels.CHARACTER_WAVEFORM);
 		
 		// Create channels
 		factory.createChannels(channelNames);
