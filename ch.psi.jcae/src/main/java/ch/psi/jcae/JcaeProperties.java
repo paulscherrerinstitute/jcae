@@ -84,7 +84,7 @@ public class JcaeProperties {
 	/**
 	 * Default request timeout for get/set operations of a ChannelBean
 	 */
-	private long requestTimeout = 10000;
+	private long requestTimeout = 60000; // 1 minute
 	
 	/**
 	 * Default wait timeout for wait operations of a ChannelBean (default is wait forever)
