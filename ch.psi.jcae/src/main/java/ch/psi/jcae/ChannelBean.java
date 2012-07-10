@@ -979,6 +979,11 @@ public class ChannelBean<E> {
 		return monitor;
 	}
 	
+	/**
+	 * Remove monitor from the channel
+	 * @param monitor
+	 * @throws CAException
+	 */
 	public void removeMonitor(Monitor monitor) throws CAException{
 		if(additionalMonitors.contains(monitor)){
 			monitor.clear();

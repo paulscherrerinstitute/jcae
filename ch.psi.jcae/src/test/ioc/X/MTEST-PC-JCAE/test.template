@@ -62,6 +62,11 @@ record(stringout, "$(P)SOUT5") {
   field(VAL, "FIVE")
 }
 
+# Analog Output
+record(ao, "$(P)AO") {
+  field(PREC, "6")
+  field(DESC, "Analog Output")
+}
 
 # MBBI (Test the behavior if there is no string value for the mbbi record)
 record(mbbi, "$(P)MBBI") {

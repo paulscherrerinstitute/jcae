@@ -613,4 +613,53 @@ public class ChannelBeanTest {
 			Thread.sleep(100);
 		}
 	}
+	
+	/**
+	 * Test to check how a wait can be aborted on request.
+	 * 
+	 * @throws CAException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testWaitForValueAbort() throws CAException, InterruptedException {
+		// Test if scalar and getValue(int size) is called
+		final ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.ANALOG_OUT, true);
+		beand.setValue(0.0);
+
+		Thread t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					for(double i=0;i<=1.1;i=i+0.1){
+						logger.info("Set value: "+i);
+						beand.setValue(i);
+						Thread.sleep(500);
+					}
+					
+				
+					// Abort wait ...
+
+					// TODO implement
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		t.start();
+		
+		beand.waitForValue(1.0, new Comparator<Double>() {
+			@Override
+			public int compare(Double setvalue, Double value) {
+				if(value>(setvalue-0.1) && value<=(setvalue+0.1)){
+					return 0;
+				}
+				return 1;
+			}
+		}, 20000L);
+		
+		
+		// TODO Test if channel is already on the given value (measure time)
+	}
 }

@@ -33,6 +33,8 @@ public class TestChannels {
 	public static final String BINARY_OUT = PREFIX+"BO";
 	public static final String BINARY_OUT_NOT_EXIST = PREFIX+"BOX";
 	
+	public static final String ANALOG_OUT = PREFIX+"AO";
+	
 	public static final String MBBI = PREFIX+"MBBI";
 	
 	public static final String STRING_OUT = PREFIX+"SOUT1";

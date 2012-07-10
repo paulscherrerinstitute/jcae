@@ -3,7 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ch.psi</groupId>
 	<artifactId>jcae</artifactId>
-	<version>1.0.29</version>
+	<version>1.0.30</version>
+	<packaging>bundle</packaging>    <!-- (1) -->
 
 	<dependencies>
 		<dependency>
@@ -72,25 +73,38 @@
 					<uploads>
 						<upload>
 							<extensions>jar</extensions>
- 							<labels>Binaries</labels>
- 							<summary>Binaries</summary>
+							<labels>Binaries</labels>
+							<summary>Binaries</summary>
 						</upload>
 						<upload>
 							<postfix>sources</postfix>
 							<extensions>jar</extensions>
- 							<labels>Sources</labels>
- 							<summary>Sources</summary>
+							<labels>Sources</labels>
+							<summary>Sources</summary>
 						</upload>
 						<upload>
 							<postfix>javadoc</postfix>
 							<extensions>jar</extensions>
- 							<labels>Javadoc</labels>
- 							<summary>Javadoc</summary>
+							<labels>Javadoc</labels>
+							<summary>Javadoc</summary>
 						</upload>
 					</uploads>
 				</configuration>
 
 			</plugin>
+
+			<plugin>    <!-- (2) START -->
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>ch.psi.jcae</Export-Package>
+						<!-- <Private-Package>com.my.company.*</Private-Package>
+						<Bundle-Activator>com.my.company.Activator</Bundle-Activator> -->
+					</instructions>
+				</configuration>
+			</plugin>    <!-- (2) END -->
 		</plugins>
 	</build>
 
