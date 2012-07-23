@@ -23,6 +23,15 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
 			<!-- Generate Javadoc Jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -100,8 +109,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>ch.psi.jcae</Export-Package>
-						<!-- <Private-Package>com.my.company.*</Private-Package>
-						<Bundle-Activator>com.my.company.Activator</Bundle-Activator> -->
+						<!-- <Private-Package>com.my.company.*</Private-Package> <Bundle-Activator>com.my.company.Activator</Bundle-Activator> -->
 					</instructions>
 				</configuration>
 			</plugin>    <!-- (2) END -->
