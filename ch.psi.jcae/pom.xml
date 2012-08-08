@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ch.psi</groupId>
 	<artifactId>jcae</artifactId>
-	<version>1.0.30</version>
+	<version>1.1.0</version>
 	<packaging>bundle</packaging>    <!-- (1) -->
 
 	<dependencies>
 		<dependency>
 			<groupId>epics</groupId>
 			<artifactId>caj</artifactId>
-			<version>1.1.8-SNAPSHOT</version>
+			<version>1.1.10</version>
 		</dependency>
 
 		<dependency>
