@@ -19,7 +19,7 @@
 
 package ch.psi.jcae.converter;
 
-import ch.psi.jcae.ChannelBean;
+import ch.psi.jcae.impl.ChannelBean;
 
 /**
  * @author ebner

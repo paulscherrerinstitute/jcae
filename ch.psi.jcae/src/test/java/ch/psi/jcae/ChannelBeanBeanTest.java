@@ -35,6 +35,8 @@ import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
+import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelBeanFactory;
 
 /**
  * @author ebner

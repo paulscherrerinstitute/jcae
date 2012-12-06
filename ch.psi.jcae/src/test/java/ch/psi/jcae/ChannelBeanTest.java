@@ -35,8 +35,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelBeanFactory;
+import ch.psi.jcae.impl.MonitorListenerDoubleTimestamp;
 
 /**
  * JUnit test case for testing the functionality of a <code>ChannelBean</code>

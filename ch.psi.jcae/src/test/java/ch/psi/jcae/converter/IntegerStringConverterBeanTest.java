@@ -29,9 +29,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
 import ch.psi.jcae.TestChannels;
+import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelBeanFactory;
 
 /**
  * @author ebner

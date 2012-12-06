@@ -17,7 +17,7 @@
  * 
  */
 
-package ch.psi.jcae;
+package ch.psi.jcae.impl;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

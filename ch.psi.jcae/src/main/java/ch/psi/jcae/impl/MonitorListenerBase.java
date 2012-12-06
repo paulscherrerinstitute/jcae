@@ -17,47 +17,44 @@
  * 
  */
 
-package ch.psi.jcae;
+package ch.psi.jcae.impl;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import gov.aps.jca.CAStatus;
+import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Channel.ConnectionState;
-import gov.aps.jca.dbr.DBR_TIME_Double;
+import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.util.Date;
-import java.util.logging.Logger;
 
 /**
  * @author ebner
  *
  */
-public abstract class MonitorListenerDoubleTimestamp implements MonitorListener {
+public abstract class MonitorListenerBase implements MonitorListener{
 	
 	// Get Logger
-	private static final Logger logger = Logger.getLogger(MonitorListenerDoubleTimestamp.class.getName());
+	private static final Logger logger = Logger.getLogger(MonitorListenerBase.class.getName());
 	
-	/* (non-Javadoc)
-	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
-	 */
 	@Override
 	public void monitorChanged(MonitorEvent event) {
 		if (event.getStatus() == CAStatus.NORMAL){
-			DBR_TIME_Double v = (DBR_TIME_Double) event.getDBR();
-			Double value = v.getDoubleValue()[0];
-			long seconds = v.getTimeStamp().secPastEpoch();
-			long nanosecondsOffset = v.getTimeStamp().nsec();
-			Date timestamp = new Date((seconds+631152000L)*1000+nanosecondsOffset/1000000);
-			valueChanged(value, timestamp, nanosecondsOffset%1000000);
+			try {
+				updateValue(event.getDBR());
+			} catch (Exception e) {
+				logger.log(Level.WARNING, "Exception occured while calling callback", e);
+			}
 		}
 		else{
 			if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
 				logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
 			}
 		}
+			
 	}
 	
-	public abstract void valueChanged(Double value, Date timestamp, long nanosecondsOffset);
-	
+	public abstract void updateValue(DBR dbr) throws CAStatusException;
 }

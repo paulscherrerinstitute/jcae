@@ -22,13 +22,13 @@ package ch.psi.jcae.examples;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import gov.aps.jca.CAException;
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
+import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelBeanFactory;
 
 public class CompleteAnnotationExample {
 

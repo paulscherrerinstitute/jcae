@@ -32,7 +32,7 @@ import gov.aps.jca.Channel.ConnectionState;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.psi.jcae.ChannelFactory;
+import ch.psi.jcae.impl.ChannelFactory;
 
 /**
  * JUnit test class for testing the <code>ChannelFactory</code> class

@@ -17,8 +17,8 @@
 
 package ch.psi.jcae.examples;
 
-import ch.psi.jcae.ChannelBean;
 import ch.psi.jcae.converter.AbstractConverterBean;
+import ch.psi.jcae.impl.ChannelBean;
 
 /**
  *

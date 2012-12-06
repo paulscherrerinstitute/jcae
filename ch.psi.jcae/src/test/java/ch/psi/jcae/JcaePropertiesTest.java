@@ -26,6 +26,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.psi.jcae.impl.JcaeProperties;
+
 /**
  * @author ebner
  *

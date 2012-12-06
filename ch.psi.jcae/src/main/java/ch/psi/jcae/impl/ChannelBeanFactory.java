@@ -17,7 +17,7 @@
  * 
  */
 
-package ch.psi.jcae;
+package ch.psi.jcae.impl;
 
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;

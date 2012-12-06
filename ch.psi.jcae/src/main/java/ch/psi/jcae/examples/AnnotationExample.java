@@ -22,9 +22,9 @@ package ch.psi.jcae.examples;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import gov.aps.jca.CAException;
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelBeanFactory;
 
 public class AnnotationExample {
 

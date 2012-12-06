@@ -25,7 +25,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import ch.psi.jcae.ChannelBean;
+import ch.psi.jcae.impl.ChannelBean;
 
 /**
  * Abstract converter class to automatically convert channel values

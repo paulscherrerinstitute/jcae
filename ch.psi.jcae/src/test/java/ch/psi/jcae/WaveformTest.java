@@ -17,9 +17,9 @@
 
 package ch.psi.jcae;
 
+import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelBeanFactory;
 import ch.psi.jcae.server.CaServer;
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
 import gov.aps.jca.CAException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

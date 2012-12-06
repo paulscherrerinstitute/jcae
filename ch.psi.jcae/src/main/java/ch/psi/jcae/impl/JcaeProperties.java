@@ -17,7 +17,7 @@
  * 
  */
 
-package ch.psi.jcae;
+package ch.psi.jcae.impl;
 
 import java.io.File;
 import java.io.FileInputStream;

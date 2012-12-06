@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelBeanFactory;
 
 /**
  * @author ebner
@@ -59,7 +61,7 @@ public class ChannelBeanFactoryTest {
 	}
 
 	/**
-	 * Test method for {@link ch.psi.jcae.ChannelBeanFactory#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
+	 * Test method for {@link ch.psi.jcae.impl.ChannelBeanFactory#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
 	 * @throws CAException 
 	 * @throws InterruptedException 
 	 */

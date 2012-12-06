@@ -17,7 +17,7 @@
  * 
  */
 
-package ch.psi.jcae;
+package ch.psi.jcae.impl;
 
 import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
