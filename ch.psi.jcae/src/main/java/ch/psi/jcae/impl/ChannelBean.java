@@ -147,17 +147,18 @@ public class ChannelBean<E> {
 			throw new IllegalArgumentException("Type "+type.getName()+" not supported");
 		}
 		
+		if(waitTimeout!=null && waitTimeout < 1){
+			throw new IllegalArgumentException("Wait timeout either need to be null or > 0");
+		}
+		
+		if(waitRetryPeriod!=null && waitRetryPeriod < 1){
+			throw new IllegalArgumentException("Wait retry period either need to be null or > 0");
+		}
 		
 		this.type = type;
 		this.channel = channel;
 		this.timeout = timeout;
-		if(waitTimeout!=null && waitTimeout < 1){
-			throw new IllegalArgumentException("Wait timeout either need to be null or > 0");
-		}
 		this.waitTimeout = waitTimeout;
-		if(waitRetryPeriod!=null && waitRetryPeriod < 1){
-			throw new IllegalArgumentException("Wait retry period either need to be null or > 0");
-		}
 		this.waitRetryPeriod = waitRetryPeriod;
 		this.retries = retries;
 		this.connected = channel.getConnectionState().isEqualTo(ConnectionState.CONNECTED);
@@ -1059,66 +1060,6 @@ public class ChannelBean<E> {
 		// Cleanup Object state
 		destroy();
 	}
-	
-
-	// We eventually need this to keep track of the connection state
-//	/**
-//	 * Add connection listener calling the callback function to the channel managed
-//	 * by this bean.
-//	 * This function ideally should not be used. It is used by the annotation classes
-//	 * to register annotated methods as callback functions.
-//	 * 
-//	 * @param object	Object holding the callback function
-//	 * @param method	Callback function for the listner to call
-//	 * @throws CAException
-//	 */
-//	private void addConnectionListener(final Object object, final Method method) throws CAException {
-//		Class<?>[] params = method.getParameterTypes();
-//
-//		ConnectionListener listener = null;
-//		// Support of callback functions with no parameters
-//		if(params.length == 0){
-//			listener = new ConnectionListener() {
-//				
-//				@Override
-//				public void connectionChanged(ConnectionEvent event){
-//					try {
-//						method.invoke(object);
-//					} catch (Exception e) {
-//						logger.log(Level.SEVERE, "Exception occured while calling callback", e);
-//					}
-//				}
-//			};
-//			channel.addConnectionListener(listener);
-//		}
-//		else{
-//			throw new CAException("Method '"+method.toString()+"' is not supported as connection monitor callback function (parameter(s) of function are/is not supported)");
-//		}
-//		
-//		clisteners.put((object.hashCode()+method.hashCode()), listener);
-//	}
-//	
-//	/**
-//	 * Remove connection listener that is registered for the given object and method.
-//	 * Ideally this function should not be called inside normal code.
-//	 * 
-//	 * @param object	Object holding the callback function
-//	 * @param method	Callback method that is configured for the connection listener
-//	 * @throws CAException
-//	 */
-//	private void removeConnectionListener(Object object, Method method) throws CAException{
-//
-//		ConnectionListener listener = clisteners.get((object.hashCode()+method.hashCode()));
-//		
-//		// Remove connection listener
-//		if(listener != null){
-//			logger.fine("Remove connection listener for object ["+object+"] method: "+method.getName());
-//			channel.removeConnectionListener(listener);			
-//			channel.getContext().flushIO();
-//			
-//			clisteners.remove((object.hashCode()+method.hashCode()));
-//		}
-//	}
 	
 	/**
 	 * Add/register a property change listener for this object
