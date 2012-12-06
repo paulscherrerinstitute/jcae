@@ -33,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import ch.psi.jcae.ChannelException;
+
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
@@ -140,6 +142,18 @@ public class ChannelBean<E> {
 	 */
 	public ChannelBean(Class<E> type, Channel channel, long timeout, Long waitTimeout, Long waitRetryPeriod, int retries, boolean monitored) throws CAException, InterruptedException {
 		
+		// We currently only support these types
+		if( !(	type.equals(String.class) || type.equals(String[].class) ||
+				type.equals(Integer.class) || type.equals(int[].class) ||
+				type.equals(Double.class) || type.equals(double[].class) ||
+				type.equals(Short.class) || type.equals(short[].class) ||
+				type.equals(Byte.class) || type.equals(byte[].class) ||
+				type.equals(Boolean.class) || type.equals(boolean[].class)
+			 ) ){
+			throw new IllegalArgumentException("Type "+type.getName()+" not supported");
+		}
+		
+		
 		this.type = type;
 		this.channel = channel;
 		this.timeout = timeout;
@@ -187,12 +201,13 @@ public class ChannelBean<E> {
 	@SuppressWarnings("unchecked")
 	public E getValue(int size) throws CAException, InterruptedException {
 		int c = elementCount;
+		
+		// Check conditions 
+		if(size<1||size>elementCount){
+			throw new IndexOutOfBoundsException("Cannot get value of channel "+channel.getName()+" - Size ["+size+"] must between limits 0<size<"+elementCount);
+		}
+		
 		try{
-			// Check conditions 
-			if(size<1||size>elementCount){
-				throw new CAException("Cannot get value of channel "+channel.getName()+" - Size ["+size+"] must between limits 0<size<"+elementCount);
-			}
-			
 			elementCount = size;
 			E v;
 			if(!monitored){
@@ -696,7 +711,7 @@ public class ChannelBean<E> {
 			value = (E) barray;
 		}
 		else{
-			throw new CAException("Type "+type.getName()+" not supported");
+			throw new IllegalArgumentException("Type "+type.getName()+" not supported");
 		}
 	}
 	
