@@ -970,6 +970,7 @@ public class ChannelBean<E> {
 	}
 	
 	
+	// TODO REMOVE THIS
 	/**
 	 * Attach a custom monitor listener to monitor double channels (including change timestamp)
 	 * @param t
@@ -986,6 +987,7 @@ public class ChannelBean<E> {
 		return monitor;
 	}
 	
+	// TODO REMOVE THIS
 	/**
 	 * Remove monitor from the channel
 	 * @param monitor
