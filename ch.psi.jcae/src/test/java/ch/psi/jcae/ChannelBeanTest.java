@@ -542,42 +542,6 @@ public class ChannelBeanTest {
 	}
 	
 	
-	
-	/**
-	 * Test whether registering a function as monitor works
-	 * @throws CAException
-	 * @throws InterruptedException
-	 * @throws SecurityException
-	 * @throws NoSuchMethodException
-	 */
-	private boolean methodCalled = false;
-	@Test
-	public void testFunctionMonitorListener() throws CAException, InterruptedException, SecurityException, NoSuchMethodException {
-
-		ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.STRING_OUT, true);
-		bean.addMonitorListener(this, this.getClass().getMethod("doit"));
-
-		methodCalled=false;
-		bean.setValue("hallihallo");
-		
-		// Ensure that the monitor has enough time to call the function
-		Thread.sleep(1000);
-		
-		if(!methodCalled){
-			Assert.fail("Registered method was not called");
-		}
-	}
-	
-	/**
-	 * Test function to be called by a monitor. 
-	 * @see #testFunctionMonitorListener()
-	 */
-	public void doit(){
-		logger.fine("Method called ...");
-		methodCalled=true;
-	}
-	
-	
 	@Test
 	public void testDestruction() throws CAException, InterruptedException {
 		final ChannelBean<Double> b = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);

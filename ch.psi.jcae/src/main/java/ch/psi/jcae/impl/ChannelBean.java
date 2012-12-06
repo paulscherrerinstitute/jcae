@@ -21,7 +21,6 @@ package ch.psi.jcae.impl;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,10 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ch.psi.jcae.ChannelException;
-
 import gov.aps.jca.CAException;
-import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Context;
@@ -57,8 +53,6 @@ import gov.aps.jca.dbr.SHORT;
 import gov.aps.jca.dbr.STRING;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 
 /**
  * Wrapper for the JCA Channel class. Introduces an additional layer of abstraction
@@ -824,7 +818,7 @@ public class ChannelBean<E> {
 				}
 			});
 		}
-		else if(type.equals(Integer.class) || type.equals(int.class)){
+		else if(type.equals(Integer.class)){
 			monitor = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
 
 				@SuppressWarnings("unchecked")
@@ -850,7 +844,7 @@ public class ChannelBean<E> {
 				}
 			});
 		}
-		else if(type.equals(Double.class) || type.equals(double.class)){
+		else if(type.equals(Double.class)){
 			monitor = channel.addMonitor(DBR_Double.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
 				
 				@SuppressWarnings("unchecked")
@@ -876,7 +870,7 @@ public class ChannelBean<E> {
 				}
 			});
 		}
-		else if(type.equals(Short.class) || type.equals(short.class)){
+		else if(type.equals(Short.class)){
 			monitor = channel.addMonitor(DBR_Short.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
 				
 				@SuppressWarnings("unchecked")
@@ -902,7 +896,7 @@ public class ChannelBean<E> {
 				}
 			});
 		}
-		else if(type.equals(Byte.class) || type.equals(byte.class)){
+		else if(type.equals(Byte.class)){
 			monitor = channel.addMonitor(DBR_Byte.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
 				
 				@SuppressWarnings("unchecked")
@@ -928,7 +922,7 @@ public class ChannelBean<E> {
 				}
 			});
 		}
-		else if(type.equals(Boolean.class) || type.equals(boolean.class)){
+		else if(type.equals(Boolean.class)){
 			monitor = channel.addMonitor(DBR_Int.TYPE, elementCount,Monitor.VALUE, new MonitorListenerBase() {
 				
 				@SuppressWarnings("unchecked")
@@ -967,9 +961,6 @@ public class ChannelBean<E> {
 					changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
 				}
 			});
-		}
-		else{
-			throw new CAException("Datatype "+type.getName()+" not supported");
 		}
 		
 		// Register monitor
@@ -1069,412 +1060,65 @@ public class ChannelBean<E> {
 		destroy();
 	}
 	
-	/**
-	 * Add monitor listener that is calling the callback function to the channel
-	 * managed by this bean.
-	 * This function ideally should not be used directly. It is used by the Annotation
-	 * classes to register annotated methods as MonitorListener.
-	 * 
-	 * @param object
-	 * @param method
-	 * @throws CAException 
-	 */
-	public void addMonitorListener(final Object object, final Method method) throws CAException{
-		
-		Monitor monitor = null;
-		
-		Class<?>[] params = method.getParameterTypes();
-		
-		// Support of callback functions with no parameters
-		if(params.length == 0){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-	
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							method.invoke(object);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else{
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-						
-				}
-				
-			});
-		}
-		// Support String callback functions
-		else if(params.length == 1 && params[0].equals(String.class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							String value = ((STRING) event.getDBR().convert(DBRType.STRING)).getStringValue()[0];
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support double callback functions
-		else if(params.length == 1 && params[0].equals(double.class)){
-			// Support callback functions that have a String argument
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							double value = ((DOUBLE)event.getDBR().convert(DBRType.DOUBLE)).getDoubleValue()[0];
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support int callback functions
-		else if(params.length == 1 && params[0].equals(int.class)){
-			// Support callback functions that have a String argument
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							int value = ((INT)event.getDBR().convert(DBRType.INT)).getIntValue()[0];
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support short callback functions
-		else if(params.length == 1 && params[0].equals(short.class)){
-			// Support callback functions that have a String argument
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							short value = ((SHORT)event.getDBR().convert(DBRType.SHORT)).getShortValue()[0];
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support byte callback functions
-		else if(params.length == 1 && params[0].equals(byte.class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							byte value = ((BYTE)event.getDBR().convert(DBRType.BYTE)).getByteValue()[0];
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support boolean callback functions
-		else if(params.length == 1 && params[0].equals(boolean.class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							int value = ((INT)event.getDBR().convert(DBRType.INT)).getIntValue()[0];
-							if(value>0){
-								method.invoke(object, true);
-							}
-							else{
-								method.invoke(object, false);
-							}
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support String array callback functions
-		else if(params.length == 1 && params[0].equals(String[].class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							String[] value = ((STRING) event.getDBR().convert(DBRType.STRING)).getStringValue();
-							method.invoke(object, (Object[])value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support double array callback functions
-		else if(params.length == 1 && params[0].equals(double[].class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							double[] value = ((DOUBLE)event.getDBR().convert(DBRType.DOUBLE)).getDoubleValue();
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support int array callback functions
-		else if(params.length == 1 && params[0].equals(int[].class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							int[] value = ((INT)event.getDBR().convert(DBRType.INT)).getIntValue();
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support short array callback functions
-		else if(params.length == 1 && params[0].equals(short[].class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							short[] value = ((SHORT)event.getDBR().convert(DBRType.SHORT)).getShortValue();
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support byte array callback functions
-		else if(params.length == 1 && params[0].equals(byte[].class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							byte[] value = ((BYTE)event.getDBR().convert(DBRType.BYTE)).getByteValue();
-							method.invoke(object, value);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		// Support boolean array callback functions
-		else if(params.length == 1 && params[0].equals(boolean[].class)){
-			monitor = channel.addMonitor(Monitor.VALUE, new MonitorListener(){
-				
-				@Override
-				public void monitorChanged(MonitorEvent event) {
-					if (event.getStatus() == CAStatus.NORMAL)
-						try {
-							int[] value = ((INT)event.getDBR().convert(DBRType.INT)).getIntValue();
-							boolean[] v = new boolean[value.length];
-							for(int i=0;i<value.length;i++){
-								if(value[i]>0){
-									v[i]=true;
-								}
-								else{
-									v[i]=false;
-								}
-							}
-							method.invoke(object, v);
-						} catch (Exception e) {
-							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
-					else {
-						if(!((Channel)event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)){
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: "+ event.getStatus() + " - Channel: "+event.getSource().toString());
-						}
-					}
-				}
-				
-			});
-		}
-		else{
-			throw new CAException("Method '"+method.toString()+"' is not supported as channel monitor callback function (i.e. the parameter(s) of the function are/is not supported)");
-		}
-		
-		fmonitors.put((object.hashCode()+method.hashCode()), monitor);
-//		return monitor;
-	}
-	
-	/**
-	 * Remove registered MonitorListener for given object method
-	 * Ideally this method should not be called directly
-	 * 
-	 * @param object	Object holding callback function
-	 * @param method	Registered callback function
-	 * @throws CAException
-	 */
-	public void removeMonitorListener(Object object, Method method) throws CAException{
-		
-		Monitor monitor = fmonitors.get((object.hashCode()+method.hashCode()));
-		
-		if(monitor != null){
-			// Clear monitor
-			logger.finest("Clear monitor ["+monitor.hashCode()+"] for object ["+object+"] method: "+method.getName());
-			monitor.clear();
-			channel.getContext().flushIO();
-			
-			fmonitors.remove((object.hashCode()+method.hashCode()));
-		}
-	}
-	
-	/**
-	 * Add connection listener calling the callback function to the channel managed
-	 * by this bean.
-	 * This function ideally should not be used. It is used by the annotation classes
-	 * to register annotated methods as callback functions.
-	 * 
-	 * @param object	Object holding the callback function
-	 * @param method	Callback function for the listner to call
-	 * @throws CAException
-	 */
-	public void addConnectionListener(final Object object, final Method method) throws CAException {
-		Class<?>[] params = method.getParameterTypes();
 
-		ConnectionListener listener = null;
-		// Support of callback functions with no parameters
-		if(params.length == 0){
-			listener = new ConnectionListener() {
-				
-				@Override
-				public void connectionChanged(ConnectionEvent event){
-					try {
-						method.invoke(object);
-					} catch (Exception e) {
-						logger.log(Level.SEVERE, "Exception occured while calling callback", e);
-					}
-				}
-			};
-			channel.addConnectionListener(listener);
-		}
-		else{
-			throw new CAException("Method '"+method.toString()+"' is not supported as connection monitor callback function (parameter(s) of function are/is not supported)");
-		}
-		
-		clisteners.put((object.hashCode()+method.hashCode()), listener);
-	}
-	
-	/**
-	 * Remove connection listener that is registered for the given object and method.
-	 * Ideally this function should not be called inside normal code.
-	 * 
-	 * @param object	Object holding the callback function
-	 * @param method	Callback method that is configured for the connection listener
-	 * @throws CAException
-	 */
-	public void removeConnectionListener(Object object, Method method) throws CAException{
-
-		ConnectionListener listener = clisteners.get((object.hashCode()+method.hashCode()));
-		
-		// Remove connection listener
-		if(listener != null){
-			logger.fine("Remove connection listener for object ["+object+"] method: "+method.getName());
-			channel.removeConnectionListener(listener);			
-			channel.getContext().flushIO();
-			
-			clisteners.remove((object.hashCode()+method.hashCode()));
-		}
-	}
+	// We eventually need this to keep track of the connection state
+//	/**
+//	 * Add connection listener calling the callback function to the channel managed
+//	 * by this bean.
+//	 * This function ideally should not be used. It is used by the annotation classes
+//	 * to register annotated methods as callback functions.
+//	 * 
+//	 * @param object	Object holding the callback function
+//	 * @param method	Callback function for the listner to call
+//	 * @throws CAException
+//	 */
+//	private void addConnectionListener(final Object object, final Method method) throws CAException {
+//		Class<?>[] params = method.getParameterTypes();
+//
+//		ConnectionListener listener = null;
+//		// Support of callback functions with no parameters
+//		if(params.length == 0){
+//			listener = new ConnectionListener() {
+//				
+//				@Override
+//				public void connectionChanged(ConnectionEvent event){
+//					try {
+//						method.invoke(object);
+//					} catch (Exception e) {
+//						logger.log(Level.SEVERE, "Exception occured while calling callback", e);
+//					}
+//				}
+//			};
+//			channel.addConnectionListener(listener);
+//		}
+//		else{
+//			throw new CAException("Method '"+method.toString()+"' is not supported as connection monitor callback function (parameter(s) of function are/is not supported)");
+//		}
+//		
+//		clisteners.put((object.hashCode()+method.hashCode()), listener);
+//	}
+//	
+//	/**
+//	 * Remove connection listener that is registered for the given object and method.
+//	 * Ideally this function should not be called inside normal code.
+//	 * 
+//	 * @param object	Object holding the callback function
+//	 * @param method	Callback method that is configured for the connection listener
+//	 * @throws CAException
+//	 */
+//	private void removeConnectionListener(Object object, Method method) throws CAException{
+//
+//		ConnectionListener listener = clisteners.get((object.hashCode()+method.hashCode()));
+//		
+//		// Remove connection listener
+//		if(listener != null){
+//			logger.fine("Remove connection listener for object ["+object+"] method: "+method.getName());
+//			channel.removeConnectionListener(listener);			
+//			channel.getContext().flushIO();
+//			
+//			clisteners.remove((object.hashCode()+method.hashCode()));
+//		}
+//	}
 	
 	/**
 	 * Add/register a property change listener for this object
