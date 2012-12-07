@@ -133,7 +133,7 @@ public class JcaeProperties {
 			}			
 		} catch (Exception e) {
 			// We will silently ignore the fact that there is no jca.properties file as in some cases this file is not required 
-			logger.log(Level.FINE, "Unable to load jca.properties file - will use defaults", e);
+			logger.log(Level.FINE, "Unable to load jcae.properties file - will use defaults", e);
 		}
 	}
 	
@@ -160,7 +160,8 @@ public class JcaeProperties {
 		/**
 		 * Get properties for the ContextFactory
 		 */
-		String prefix = ContextFactory.class.getCanonicalName() + ".";
+//		String prefix = ContextFactory.class.getCanonicalName() + ".";
+		String prefix = "ch.psi.jcae.ContextFactory.";
 		String key = "";
 
 		if (bundle.keySet().contains(prefix + "addressList")) {
@@ -206,7 +207,7 @@ public class JcaeProperties {
 		/**
 		 * Get properties for the ChannelFactory
 		 */
-		prefix = ChannelFactory.class.getCanonicalName()+".";
+		prefix = "ch.psi.jcae.ChannelFactory.";
 		if(bundle.keySet().contains(prefix+"timeout")){
 			
 			String s = bundle.getProperty(prefix+"timeout");
