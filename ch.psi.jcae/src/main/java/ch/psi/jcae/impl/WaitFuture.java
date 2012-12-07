@@ -40,7 +40,7 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @param <E>
  */
-public class MonitorListenerWait<E> implements MonitorListener {
+public class WaitFuture<E> implements MonitorListener {
 
 	/**
 	 * Value to wait for
@@ -65,7 +65,7 @@ public class MonitorListenerWait<E> implements MonitorListener {
 	 * 						The Comparator need to return 0 if condition is met.
 	 * @param latch			Latch to signal other thread that condition was met
 	 */
-	public MonitorListenerWait(E value, Comparator<E> comparator, CountDownLatch latch){
+	public WaitFuture(E value, Comparator<E> comparator, CountDownLatch latch){
 		this.waitValue = value;
 		this.comparator = comparator;
 		this.latch = latch;

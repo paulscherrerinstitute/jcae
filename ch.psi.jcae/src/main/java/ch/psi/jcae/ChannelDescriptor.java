@@ -13,6 +13,7 @@ public class ChannelDescriptor<T> {
 	private String name;
 	private Class<T> type;
 	private Boolean monitored = false;
+	private Integer size = null; // Size of the value. If size==null original size is taken
 	
 	public ChannelDescriptor(){
 	}
@@ -63,6 +64,20 @@ public class ChannelDescriptor<T> {
 	 */
 	public void setMonitored(Boolean monitored) {
 		this.monitored = monitored;
+	}
+
+	/**
+	 * @return the size
+	 */
+	public Integer getSize() {
+		return size;
+	}
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(Integer size) {
+		this.size = size;
 	}
 	
 }

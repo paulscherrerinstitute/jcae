@@ -111,7 +111,7 @@ public class ChannelBeanFactory {
 	 * @throws TimeoutException 
 	 */
 	public <T> ChannelBean<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException{
-		ChannelBean<T> bean = new ChannelBean<T>(type, channel, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 		return(bean);
 	}
 	
@@ -134,7 +134,7 @@ public class ChannelBeanFactory {
 	public <T> ChannelBean<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException{
 		Channel channel = channelFactory.createChannel(channelName);
 		
-		ChannelBean<T> bean = new ChannelBean<T>(type, channel, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 		return(bean);
 	}
 	
@@ -160,7 +160,7 @@ public class ChannelBeanFactory {
 		
 		List<ChannelBean<T>> beans = new ArrayList<ChannelBean<T>>();
 		for(Channel channel: channels){
-			ChannelBean<T> bean = new ChannelBean<T>(type, channel, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+			ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 			beans.add(bean);
 		}
 		return(beans);
@@ -282,8 +282,9 @@ public class ChannelBeanFactory {
 	 * @param object
 	 * @throws CAException
 	 * @throws InterruptedException
+	 * @throws ChannelException 
 	 */
-	public void destroyChannelBeans(Object object) throws CAException, InterruptedException{
+	public void destroyChannelBeans(Object object) throws CAException, InterruptedException, ChannelException{
 		try{
 			
 			Class<?> c = object.getClass();

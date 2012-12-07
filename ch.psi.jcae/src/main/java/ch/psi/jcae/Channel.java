@@ -12,16 +12,17 @@ import java.util.Comparator;
  */
 public interface Channel<T> {
 
+	public Integer getSize();
+	
+	
 	public T getValue();
+	
+	public T getValue(Long timeout);
 	
 	public T getValue(Boolean force);
 	
+	public T getValue(Boolean force, Long timeout);
 	
-	public T getValue(Integer size);
-	
-	public T getValue(Integer size, Boolean force); // new
-	
-	public Integer getSize();
 	
 	
 	public void setValue(T value);
@@ -36,14 +37,7 @@ public interface Channel<T> {
 	public void waitForValue(T rvalue, Long timeout);
 	
 	public void waitForValue(T rvalue);
-	
-	
-	public void setDefaultTimeout(Long timeout);
-	public Long getDefaultTimeout();
-	
-	public void setDefaultWaitTimeout(Long timeout);
-	public Long getDefaultWaitTimeout();
-	
+
 	
 	/**
 	 * Hostname of the machine serving the channel.
@@ -56,4 +50,12 @@ public interface Channel<T> {
 	 * @return Unique name of the channel
 	 */
 	public ChannelDescriptor<T> getDescriptor();
+	
+	
+	// To be discussed
+	public void setDefaultTimeout(Long timeout);
+	public Long getDefaultTimeout();
+	
+	public void setDefaultWaitTimeout(Long timeout);
+	public Long getDefaultWaitTimeout();
 }

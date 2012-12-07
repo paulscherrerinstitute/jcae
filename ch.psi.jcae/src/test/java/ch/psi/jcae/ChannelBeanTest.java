@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.concurrent.TimeoutException;
@@ -144,7 +145,7 @@ public class ChannelBeanTest {
 		
 		
 		// Test whether only a substring can be retrieved from the waveform channel
-		value = bean.getValue(4);// only get the 4 first characters
+		value = Arrays.copyOf(bean.getValue(),4);// only get the 4 first characters
 		svalue = new String(value);
 		svalue = svalue.trim();
 		if(! "some".equals(svalue)){
@@ -184,12 +185,11 @@ public class ChannelBeanTest {
 	public void testGetValue() throws CAException, InterruptedException, TimeoutException, ChannelException {
 		// Test if array and getValue(int size) is called
 		ChannelBean<double[]> bean = factory.createChannelBean(double[].class, TestChannels.CHARACTER_WAVEFORM, false);
-		bean.getValue(10); // Get a subarray
 		bean.getValue(); // Get first value of the array
 
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
-		beand.getValue(1);
+		beand.getValue();
 
 		// Test how ChannelBean does behave is Scaler attached to waveform
 		ChannelBean<Double> beandd = factory.createChannelBean(Double.class, TestChannels.DOUBLE_WAVEFORM, false);

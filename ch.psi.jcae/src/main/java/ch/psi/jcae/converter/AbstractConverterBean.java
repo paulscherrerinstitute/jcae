@@ -74,20 +74,6 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	
 	/**
 	 * Get converted channel value
-	 * @param size	Size of the array/value to get and return
-	 * @return Converted value
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws CAException
-	 * @throws InterruptedException 
-	 */
-	public T getValue(int size) throws InterruptedException, TimeoutException, ChannelException {
-		E o = channelBean.getValue(size);
-		return(convertForward(o));
-	}
-	
-	/**
-	 * Get converted channel value
 	 * @param force	Force the library to get the value over the network
 	 * @return	Converted value
 	 * @throws ChannelException 
@@ -103,10 +89,11 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	/**
 	 * Set converted value to channel
 	 * @param value	Value to convert and to set on the channel
-	 * @throws CAException
+	 * @throws ChannelException
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
-	public void setValue(T value) throws CAException, InterruptedException{
+	public void setValue(T value) throws ChannelException, InterruptedException, TimeoutException{
 		E o = convertReverse(value);
 		channelBean.setValue(o);
 	}
@@ -115,10 +102,11 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * Set converted value to channel
 	 * @param value		Value to convert and to set on the channel
 	 * @param timeout 	Time to wait until set is done. If timeout <=0 wait forever. Timeout in milliseconds
-	 * @throws CAException
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 * @throws ChannelException 
 	 */
-	public void setValue(T value, long timeout) throws CAException, InterruptedException{
+	public void setValue(T value, long timeout) throws CAException, InterruptedException, ChannelException, TimeoutException{
 		E o = convertReverse(value);
 		channelBean.setValue(o, timeout);
 	}
@@ -127,10 +115,11 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * Set converted value to channel without waiting the set to return
 	 * @param value		Value to convert and to set to the channel
 	 * @throws CAException
+	 * @throws ChannelException 
 	 */
-	public void setValueNoWait(T value) throws CAException{
+	public void setValueNoAsynchronous(T value) throws ChannelException{
 		E o = convertReverse(value);
-		channelBean.setValueNoWait(o);
+		channelBean.setValueAsynchronous(o);
 	}
 	
 	/**

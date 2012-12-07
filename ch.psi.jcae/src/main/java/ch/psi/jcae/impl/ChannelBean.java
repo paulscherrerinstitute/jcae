@@ -21,13 +21,13 @@ package ch.psi.jcae.impl;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -92,9 +92,6 @@ public class ChannelBean<E> {
 	private Channel channel;
 	private int elementCount = 1;
 	
-	private HashMap<Integer, Monitor> fmonitors = new HashMap<Integer,Monitor>();
-	private HashMap<Integer, ConnectionListener> clisteners = new HashMap<Integer,ConnectionListener>();
-	
 	private E value = null;
 	private boolean connected = false;
 	private boolean monitored = false;
@@ -139,7 +136,7 @@ public class ChannelBean<E> {
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
 	 */
-	public ChannelBean(Class<E> type, Channel channel, long timeout, Long waitTimeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException {
+	public ChannelBean(Class<E> type, Channel channel, Integer size, long timeout, Long waitTimeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException {
 		
 		// We currently only support these types
 		if( !(	type.equals(String.class) || type.equals(String[].class) ||
@@ -166,102 +163,50 @@ public class ChannelBean<E> {
 		this.waitTimeout = waitTimeout;
 		this.waitRetryPeriod = waitRetryPeriod;
 		this.retries = retries;
+		this.monitored = monitored;
 		this.connected = channel.getConnectionState().isEqualTo(ConnectionState.CONNECTED);
 		
-		if(type.isArray()){
-			logger.fine("Channel element count: "+channel.getElementCount());
+		// Set channel size
+		int csize = channel.getElementCount();
+		logger.fine("Channel size: "+ csize);
+		if(size != null){
+			if(size>0 && size<=csize){
+				logger.fine("Set channel size to "+size);
+				elementCount=size;
+			}
+			else{
+				throw new IllegalArgumentException("Specified size ["+size+"]  is not applicable. Maximum size is "+csize);
+			}
+		}
+		else{
 			elementCount = channel.getElementCount();
 		}
 		
-		// Attach connection listener
+		
 		attachConnectionListener();
 		
-		this.monitored = monitored;
-
 		if(monitored){
-			// Attach monitor
-			attachMonitor(type);
+			attachMonitor();
 			
 			// Get initial value
 			updateValue();
 		}
+		
 		
 		additionalMonitors = new HashSet<Monitor>();
 	}
 	
 	
 	/**
-	 * Get current value of the channel.
-	 * 
-	 * @param size			Size of the array/value to get and return
-	 * @return				Value of the channel in the type of the ChannelBean
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws Exception	If ChannelBean is not of type Array and when size is outside accepted range.
-	 */
-	@SuppressWarnings("unchecked")
-	public E getValue(int size) throws InterruptedException, TimeoutException, ChannelException {
-		int c = elementCount;
-		
-		// Check conditions 
-		if(size<1||size>elementCount){
-			throw new IndexOutOfBoundsException("Cannot get value of channel "+channel.getName()+" - Size ["+size+"] must between limits 0<size<"+elementCount);
-		}
-		
-		try{
-			elementCount = size;
-			E v;
-			if(!monitored){
-				updateValue();
-				v = value;
-			}
-			else{
-				
-				// FIXME This is very inefficient! only allow arrays of fixed sizes!
-				
-				// If value is monitored copy requested array
-//				v = (E) Arrays.copyOf((E[])value,elementCount);
-				v=value;
-				if(type.equals(String[].class)){
-					v = (E) Arrays.copyOf((String[])value,elementCount);
-				}
-				else if(type.equals(int[].class)){
-					v = (E) Arrays.copyOf((int[])value,elementCount);
-				}
-				else if(type.equals(double[].class)){
-					v = (E) Arrays.copyOf((double[])value,elementCount);
-				}
-				else if(type.equals(short[].class)){
-					v = (E) Arrays.copyOf((short[])value,elementCount);
-				}
-				else if(type.equals(byte[].class)){
-					v = (E) Arrays.copyOf((byte[])value,elementCount);
-				}
-				else if(type.equals(boolean[].class)){
-					v = (E) Arrays.copyOf((boolean[])value,elementCount);
-				}
-			}
-			elementCount = c;
-			
-			return(v);
-		}
-		finally{
-			elementCount = c;
-		}
-	}
-	
-	/**
 	 * Get current value of the channel and force the API to directly fetch it from the network.
 	 * @param force		Force the library to get the value via the network
 	 * @return			Value of the channel in the type of the ChannelBean
-	 * @throws CAException
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
 	 */
 	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException{
-		if( (force && monitored) || !monitored ){
+		if( !monitored || (monitored && force)  ){
 			updateValue();
 		}
 		return(value);
@@ -270,7 +215,6 @@ public class ChannelBean<E> {
 	/**
 	 * Get current value of the channel. 
 	 * @return			Value of the channel in the type of the ChannelBean
-	 * @throws CAException 
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
@@ -285,10 +229,11 @@ public class ChannelBean<E> {
 	/**
 	 * Set value of channel
 	 * @param value
-	 * @throws CAException
+	 * @throws ChannelException
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
-	public void setValue(E value) throws CAException, InterruptedException {
+	public void setValue(E value) throws ChannelException, InterruptedException, TimeoutException {
 		setValue(value, this.timeout);
 	}
 	
@@ -296,79 +241,40 @@ public class ChannelBean<E> {
 	 * Set value of channel.
 	 * @param value
 	 * @param timeout	Timeout to wait until set is done. If timeout <= 0 this function will wait forever ...
-	 * @throws CAException
+	 * @throws ChannelException
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
-	public void setValue(E value, long timeout) throws CAException, InterruptedException {
-		// TODO Retries
-
+	public void setValue(E value, long timeout) throws ChannelException, InterruptedException, TimeoutException {
 		int cnt = 0;
 		while (cnt <= this.retries) {
 			cnt++;
 
 			try {
-
-				CountDownLatch latch = new CountDownLatch(1);
-				PutListenerImpl listener = new PutListenerImpl(latch);
-
-				if (type.equals(String.class)) {
-					channel.put(((String) value), listener);
-				} else if (type.equals(String[].class)) {
-					channel.put(((String[]) value), listener);
-				} else if (type.equals(Integer.class)) {
-					channel.put(((Integer) value), listener);
-				} else if (type.equals(int[].class)) {
-					channel.put(((int[]) value), listener);
-				} else if (type.equals(Double.class)) {
-					channel.put(((Double) value), listener);
-				} else if (type.equals(double[].class)) {
-					channel.put(((double[]) value), listener);
-				} else if (type.equals(Short.class)) {
-					channel.put(((Short) value), listener);
-				} else if (type.equals(short[].class)) {
-					channel.put(((short[]) value), listener);
-				} else if (type.equals(Byte.class)) {
-					channel.put(((Byte) value), listener);
-				} else if (type.equals(byte[].class)) {
-					channel.put(((byte[]) value), listener);
-				} else if (type.equals(Boolean.class)) {
-					channel.put(((Boolean) value)? 1 : 0, listener);
-				} else if (type.equals(boolean[].class)) {
-					boolean[] values = (boolean[]) value;
-					int[] v = new int[values.length];
-					for (int i = 0; i < values.length; i++) {
-						v[i] = values[i] ? 1 : 0;
-					}
-					channel.put(((int[]) v), listener);
-				}
-
-				channel.getContext().flushIO();
+				Future<Boolean> listener = setValueAsynchronous(value);
 
 				boolean t;
 				if (timeout > 0) {
-					t = latch.await(timeout, TimeUnit.MILLISECONDS);
+					t = listener.get(timeout, TimeUnit.MILLISECONDS);
 				} else {
-					// Wait for ever
-					latch.await();
-					t = true;
+					t = listener.get(); // Wait for ever
 				}
 
 				if (t == false) {
-					throw new CAException("Set to channel [" + channel.getName() + "] failed");
+					throw new TimeoutException("Timeout occured while setting channel [" + channel.getName() + "] failed");
 				}
 
-				// update local value
 				this.value = value;
 				return;
 
-			} catch (CAException e) {
+			} catch (ExecutionException e) {
 				if (cnt <= this.retries) {
 					logger.log(Level.WARNING, "Set to channel ["+channel.getName()+"]  failed - "+e.getMessage()+" - will retry");
-					logger.log(Level.FINE, "Exception retrieved: ", e);
 				} else {
-					throw e;
+					throw new ChannelException("Unable to set channel", e);
 				}
-			} catch (IllegalStateException e) {
+			}
+			catch (IllegalStateException e) {
 				// If the channel is not connected while the channel.get(...) function is called this exception will be thrown
 				if (cnt <= this.retries) {
 					logger.log(Level.WARNING, "Set value failed with IllegalStateException (channel not connected) - will retry after 500ms");
@@ -388,74 +294,48 @@ public class ChannelBean<E> {
 	 * @param value
 	 * @throws CAException
 	 */
-	public void setValueNoWait(E value) throws CAException {
+	public Future<Boolean> setValueAsynchronous(E value) throws ChannelException {
+		SetFuture listener = new SetFuture();
 
-		// TODO Retries
-		int cnt = 0;
-		while (cnt <= this.retries) {
-			cnt++;
-
-			try {
-
-				if (type.equals(String.class)) {
-					channel.put(((String) value));
-				} else if (type.equals(String[].class)) {
-					channel.put(((String[]) value));
-				} else if (type.equals(Integer.class)) {
-					channel.put(((Integer) value));
-				} else if (type.equals(int[].class)) {
-					channel.put(((int[]) value));
-				} else if (type.equals(Double.class)) {
-					channel.put(((Double) value));
-				} else if (type.equals(double[].class)) {
-					channel.put(((double[]) value));
-				} else if (type.equals(Short.class)) {
-					channel.put(((Short) value));
-				} else if (type.equals(short[].class)) {
-					channel.put(((short[]) value));
-				} else if (type.equals(Byte.class)) {
-					channel.put(((Byte) value));
-				} else if (type.equals(byte[].class)) {
-					channel.put(((byte[]) value));
-				} else if (type.equals(Boolean.class)) {
-					channel.put(((Boolean) value)? 1 : 0);
-				} else if (type.equals(boolean[].class)) {
-					boolean[] values = (boolean[]) value;
-					int[] v = new int[values.length];
-					for (int i = 0; i < values.length; i++) {
-						v[i] = values[i] ? 1 : 0;
-					}
-					channel.put(((int[]) v));
+		try{
+			if (type.equals(String.class)) {
+				channel.put(((String) value), listener);
+			} else if (type.equals(String[].class)) {
+				channel.put(((String[]) value), listener);
+			} else if (type.equals(Integer.class)) {
+				channel.put(((Integer) value), listener);
+			} else if (type.equals(int[].class)) {
+				channel.put(((int[]) value), listener);
+			} else if (type.equals(Double.class)) {
+				channel.put(((Double) value), listener);
+			} else if (type.equals(double[].class)) {
+				channel.put(((double[]) value), listener);
+			} else if (type.equals(Short.class)) {
+				channel.put(((Short) value), listener);
+			} else if (type.equals(short[].class)) {
+				channel.put(((short[]) value), listener);
+			} else if (type.equals(Byte.class)) {
+				channel.put(((Byte) value), listener);
+			} else if (type.equals(byte[].class)) {
+				channel.put(((byte[]) value), listener);
+			} else if (type.equals(Boolean.class)) {
+				channel.put(((Boolean) value)? 1 : 0, listener);
+			} else if (type.equals(boolean[].class)) {
+				boolean[] values = (boolean[]) value;
+				int[] v = new int[values.length];
+				for (int i = 0; i < values.length; i++) {
+					v[i] = values[i] ? 1 : 0;
 				}
-
-				channel.getContext().flushIO();
-				return;
-				
-			} catch (CAException e) {
-
-				if (cnt <= this.retries) {
-					logger.log(Level.WARNING, "Get value from channel ["+channel.getName()+"] failed - "+e.getMessage()+" - will retry");
-				} else {
-					throw e;
-				}
-			} catch (IllegalStateException e) {
-				// If the channel is not connected while the channel.get(...) function is called this exception will be thrown
-				if (cnt <= this.retries) {
-					logger.log(Level.WARNING, "Get value failed with IllegalStateException (channel not connected) - will retry after 500ms");
-					// Will wait for 500 milliseconds a second
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e1) {
-						// Restore interrupted state and return
-						Thread.currentThread().interrupt();
-						return;
-					}
-				} else {
-					throw e;
-				}
+				channel.put(((int[]) v), listener);
 			}
-
+	
+			channel.getContext().flushIO();
 		}
+		catch(CAException e){
+			throw new ChannelException("Unable to set value to channel", e);
+		}
+		
+		return listener;
 	}
 	
 	/**
@@ -493,7 +373,7 @@ public class ChannelBean<E> {
 			// No wait retries
 			CountDownLatch latch = new CountDownLatch(1);
 
-			MonitorListenerWait<E> l = new MonitorListenerWait<E>(rvalue, comparator, latch);
+			WaitFuture<E> l = new WaitFuture<E>(rvalue, comparator, latch);
 			Monitor monitorw;
 
 			if (type.equals(String.class)) {
@@ -756,18 +636,32 @@ public class ChannelBean<E> {
 	 */
 	private void attachConnectionListener() throws ChannelException{
 		try{
-		listener = new ConnectionListener() {
-			@Override
-			public void connectionChanged(ConnectionEvent event){
-				boolean ov = connected;
-				connected = event.isConnected();
-				changeSupport.firePropertyChange( PROPERTY_CONNECTED, ov, connected );
-			}
-		};
-		channel.addConnectionListener(listener);
+			listener = new ConnectionListener() {
+				@Override
+				public void connectionChanged(ConnectionEvent event){
+					boolean ov = connected;
+					connected = event.isConnected();
+					changeSupport.firePropertyChange( PROPERTY_CONNECTED, ov, connected );
+				}
+			};
+			channel.addConnectionListener(listener);
 		}
 		catch(CAException e){
 			throw new ChannelException("Unable to attach connection listener to channel",e);
+		}
+	}
+	
+	/**
+	 * Remove connection listener
+	 * @throws ChannelException
+	 */
+	private void removeConnectionListener() throws ChannelException{
+		try{
+			channel.removeConnectionListener(listener);
+			channel.getContext().flushIO();
+		}
+		catch(CAException e){
+			throw new ChannelException("Unable to remove connection listener",e);
 		}
 	}
 	
@@ -776,11 +670,16 @@ public class ChannelBean<E> {
 	 * @throws CAException
 	 * @throws InterruptedException 
 	 */
-	private void attachMonitor(Class<?> type) throws ChannelException, InterruptedException{
+	private void attachMonitor() throws ChannelException, InterruptedException{
+		
+		if(monitor!=null){
+			logger.warning("There is already an monitor attached");
+			return;
+		}
+		
 		try{
 			if(type.equals(String.class)){
 				monitor = channel.addMonitor(DBR_String.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -793,7 +692,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(String[].class)){
 				monitor = channel.addMonitor(DBR_String.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -806,7 +704,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(Integer.class)){
 				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-	
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -819,7 +716,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(int[].class)){
 				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-	
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -832,7 +728,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(Double.class)){
 				monitor = channel.addMonitor(DBR_Double.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -845,7 +740,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(double[].class)){
 				monitor = channel.addMonitor(DBR_Double.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -858,7 +752,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(Short.class)){
 				monitor = channel.addMonitor(DBR_Short.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -871,7 +764,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(short[].class)){
 				monitor = channel.addMonitor(DBR_Short.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -884,7 +776,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(Byte.class)){
 				monitor = channel.addMonitor(DBR_Byte.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -897,7 +788,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(byte[].class)){
 				monitor = channel.addMonitor(DBR_Byte.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -910,7 +800,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(Boolean.class)){
 				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount,Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -923,7 +812,6 @@ public class ChannelBean<E> {
 			}
 			else if(type.equals(boolean[].class)){
 				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount,Monitor.VALUE, new MonitorListenerBase() {
-					
 					@SuppressWarnings("unchecked")
 					@Override
 					public void updateValue(DBR dbr) throws CAStatusException {
@@ -944,6 +832,26 @@ public class ChannelBean<E> {
 		}
 		catch(CAException e){
 			throw new ChannelException("Unable to attach monitor to channel",e);
+		}
+	}
+	
+	/**
+	 * Remove monitor of channel
+	 * @throws ChannelException
+	 */
+	private void removeMonitor() throws ChannelException{
+		try{
+			if(monitor != null){
+				logger.finest("Clear monitor - "+monitor.hashCode());
+				monitor.clear();
+				channel.getContext().flushIO();
+			}
+		}
+		catch(CAException e){
+			throw new ChannelException("Unable to remove monitor to channel");
+		}
+		finally{
+			monitor = null;
 		}
 	}
 	
@@ -987,50 +895,29 @@ public class ChannelBean<E> {
 	 * Destroy channel bean. Method will detach a possible monitor of this bean for the channel and 
 	 * destroy the channel of the bean.
 	 * @throws CAException 
+	 * @throws ChannelException 
 	 */
-	public void destroy() throws CAException{
-		Context c = channel.getContext();
-		if(monitored){
-			// Clear monitor
-			logger.finest("Clear monitor - "+monitor.hashCode());
-			monitor.clear();
-			c.flushIO();
-		}
+	public void destroy() throws CAException, ChannelException{
+		
+		removeMonitor();
 		
 		// Clear additional monitors
 		for(Monitor m: additionalMonitors){
 			logger.finest("Clear monitor - "+m.hashCode());
 			m.clear();
 		}
-		c.flushIO();
+		channel.getContext().flushIO();
 		
-		// Clear connection listener
-		channel.removeConnectionListener(listener);
-		c.flushIO();
+		removeConnectionListener();
 		
-		// Clear monitor listener(s)
-		if(!fmonitors.isEmpty()){
-			for(Monitor m: fmonitors.values()){
-				// Clear monitor
-				logger.finest("Clear monitor (listener) - "+m.hashCode());
-				m.clear();
-			}
-			fmonitors.clear();
+		try{
+			Context c = channel.getContext();
+			channel.destroy();
 			c.flushIO();
 		}
-		
-		// Remove connection listener(s)
-		if(!clisteners.isEmpty()){
-			for(ConnectionListener cl: clisteners.values()){
-				channel.removeConnectionListener(cl);
-			}
-			clisteners.clear();
-			c.flushIO();
+		catch(CAException e){
+			throw new ChannelException("Unable to destroy channel",e);
 		}
-		
-		// Destroy the channel
-		channel.destroy();
-		c.flushIO();
 	}
 	
 	@Override
