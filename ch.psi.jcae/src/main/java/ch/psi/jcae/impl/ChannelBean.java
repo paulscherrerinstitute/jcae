@@ -367,84 +367,42 @@ public class ChannelBean<E> {
 	 * @throws CAException		Timeout occured, ...
 	 * @throws InterruptedException
 	 */
-	public void waitForValue(E rvalue, Comparator<E> comparator, Long timeout) throws CAException, InterruptedException {
-
-		if (waitRetryPeriod == null) {
-			// No wait retries
-			CountDownLatch latch = new CountDownLatch(1);
-
-			WaitFuture<E> l = new WaitFuture<E>(rvalue, comparator, latch);
-			Monitor monitorw;
-
-			if (type.equals(String.class)) {
-				monitorw = channel.addMonitor(DBR_String.TYPE, elementCount, Monitor.VALUE, l);
-			} else if (type.equals(Integer.class) || type.equals(int.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, l);
-			} else if (type.equals(Double.class) || type.equals(double.class)) {
-				monitorw = channel.addMonitor(DBR_Double.TYPE, elementCount, Monitor.VALUE, l);
-			} else if (type.equals(Short.class) || type.equals(short.class)) {
-				monitorw = channel.addMonitor(DBR_Short.TYPE, elementCount, Monitor.VALUE, l);
-			} else if (type.equals(Byte.class) || type.equals(byte.class)) {
-				monitorw = channel.addMonitor(DBR_Byte.TYPE, elementCount, Monitor.VALUE, l);
-			} else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, l);
-			} else {
-				throw new CAException("Datatype " + type.getName() + " not supported");
-			}
-
-			channel.getContext().flushIO();
-
-			boolean t;
-			try{
-				if (timeout != null) {
-					t = latch.await(timeout, TimeUnit.MILLISECONDS);
-				} else {
-					latch.await();
-					t = true;
-				}
-			}
-			finally{
-				// If interrupted we also have to clear the monitor, therefore this is in a finally clause 
-
-				// Clear the monitor
-				monitorw.clear();
-				channel.getContext().flushIO();
-			}
-
-			if (t == false) {
-				throw new CAException("Timeout [" + timeout + "] occured while waiting for channel [" + channel.getName() + "] reaching specified value [" + rvalue + "]");
-			}
-		} else {
-			logger.fine("Wait for value with periodic monitor refresh");
-			CountDownLatch latch = new CountDownLatch(1);
-
-			Timer timer = new Timer(true);
-			MonitorListenerTimerTask<E> task = new MonitorListenerTimerTask<E>(channel, rvalue, elementCount, comparator, latch);
-
-			// Start timer to start a new monitor every *waitRetryPeriod* milliseconds
-			timer.scheduleAtFixedRate(task, 0l, waitRetryPeriod);
-
-			try{
-				if (timeout != null) {
-					boolean t = latch.await(timeout, TimeUnit.MILLISECONDS);
-					if (!t) {
-						// Throw an exception if a timeout occured
-						throw new CAException("Timeout [" + timeout + "] occured while waiting for channel [" + channel.getName() + "] reaching specified value [" + rvalue + "]");
-					}
-				} else {
-					// Wait for ever
-					latch.await();
-				}
-			}
-			finally{
-				// If interrupted we also have to clear the monitor, therefore this is in a finally clause
-				
-				// Terminate timer
-				timer.cancel();
+	public Future<E> waitForValue(E rvalue, Comparator<E> comparator) throws ChannelException, InterruptedException, TimeoutException {
+		WaitFuture<E> l = new WaitFuture<E>(channel, rvalue, comparator);
+		l.startWaitForValue();
+		return l;
+	}
 	
-				// Clear the last monitor
-				task.terminateCurrentMonitor();
+	public void waitForValueRetry(E rvalue, Comparator<E> comparator, Long timeout) throws InterruptedException, IllegalStateException, TimeoutException, CAException{
+		logger.fine("Wait for value with periodic monitor refresh");
+		CountDownLatch latch = new CountDownLatch(1);
+
+		Timer timer = new Timer(true);
+		MonitorListenerTimerTask<E> task = new MonitorListenerTimerTask<E>(channel, rvalue, elementCount, comparator, latch);
+
+		// Start timer to start a new monitor every *waitRetryPeriod* milliseconds
+		timer.scheduleAtFixedRate(task, 0l, waitRetryPeriod);
+
+		try{
+			if (timeout != null) {
+				boolean t = latch.await(timeout, TimeUnit.MILLISECONDS);
+				if (!t) {
+					// Throw an exception if a timeout occured
+					throw new TimeoutException("Timeout [" + timeout + "] occured while waiting for channel [" + channel.getName() + "] reaching specified value [" + rvalue + "]");
+				}
+			} else {
+				// Wait for ever
+				latch.await();
 			}
+		}
+		finally{
+			// If interrupted we also have to clear the monitor, therefore this is in a finally clause
+			
+			// Terminate timer
+			timer.cancel();
+
+			// Clear the last monitor
+			task.terminateCurrentMonitor();
 		}
 	}
 	
@@ -452,10 +410,12 @@ public class ChannelBean<E> {
 	 * Wait until channel has reached the specified value.
 	 * @param rvalue	Value the channel should reach
 	 * @param timeout	Wait timeout in milliseconds. (if timeout=0 wait forever)
+	 * @throws TimeoutException 
+	 * @throws ChannelException 
 	 * @throws CAException
 	 * @throws InterruptedException 
 	 */
-	public void waitForValue(E rvalue, Long timeout) throws CAException, InterruptedException{
+	public Future<E> waitForValue(E rvalue) throws ChannelException, InterruptedException, TimeoutException {
 		
 		// Default comparator checking for equality
 		Comparator<E> comparator = new Comparator<E>() {
@@ -467,19 +427,7 @@ public class ChannelBean<E> {
 				return -1;
 			}
 		};
-		waitForValue(rvalue, comparator, timeout);
-	}
-	
-	/**
-	 * Wait until the channel has reached a specified value using a default timeout that is specified
-	 * in waitTimeout property.
-	 * 
-	 * @param rvalue
-	 * @throws CAException
-	 * @throws InterruptedException
-	 */
-	public void waitForValue(E rvalue) throws CAException, InterruptedException{
-		waitForValue(rvalue, this.waitTimeout);
+		return waitForValue(rvalue, comparator);
 	}
 	
 	/**

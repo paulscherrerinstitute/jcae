@@ -39,7 +39,7 @@ import gov.aps.jca.event.PutListener;
 public class SetFuture implements PutListener, Future<Boolean>
 {
 	
-	private CountDownLatch latch = new CountDownLatch(1);
+	private final CountDownLatch latch = new CountDownLatch(1);
 	private boolean done = false;
 	
 
@@ -56,7 +56,7 @@ public class SetFuture implements PutListener, Future<Boolean>
 	 */
 	@Override
 	public boolean cancel(boolean cancel) {
-		return false; // cannot be canceled
+		throw new UnsupportedOperationException("Cannot be canceled");
 	}
 
 	/* (non-Javadoc)
@@ -83,7 +83,7 @@ public class SetFuture implements PutListener, Future<Boolean>
 	 */
 	@Override
 	public boolean isCancelled() {
-		return false; // as this future cannot be canceled this method always returns null.
+		throw new UnsupportedOperationException("Cannot be canceled");
 	}
 
 	/* (non-Javadoc)

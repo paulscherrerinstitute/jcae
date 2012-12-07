@@ -80,7 +80,7 @@ public class MonitorListenerTimerTask<E> extends TimerTask {
 		
 		try{
 			
-			WaitFuture<E> l = new WaitFuture<E>(value, comparator, latch);
+			WaitFuture<E> l = new WaitFuture<E>(channel, value, comparator); // FIXME Totally hacked code
 			Monitor monitorw;
 	
 			if (type.equals(String.class)) {

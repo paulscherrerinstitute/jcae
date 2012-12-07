@@ -21,12 +21,26 @@ package ch.psi.jcae.impl;
 
 import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import ch.psi.jcae.ChannelException;
+
+import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.BYTE;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.dbr.DBR_Byte;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.dbr.DBR_Short;
+import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.dbr.DOUBLE;
 import gov.aps.jca.dbr.INT;
 import gov.aps.jca.dbr.SHORT;
@@ -40,7 +54,7 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @param <E>
  */
-public class WaitFuture<E> implements MonitorListener {
+public class WaitFuture<E> implements MonitorListener, Future<E> {
 
 	/**
 	 * Value to wait for
@@ -50,7 +64,13 @@ public class WaitFuture<E> implements MonitorListener {
 	/**
 	 * Countdown latch to indicate whether the value is reached 
 	 */
-	private final CountDownLatch latch;
+	private final CountDownLatch latch = new CountDownLatch(1);
+	
+	private E value;
+	private Class<E> type;
+	
+	private Channel channel;
+	private Monitor monitorw = null;
 	
 	/**
 	 * Comparator that defines when condition to wait for is met. (Comparator need to return 0 if condition is met)
@@ -65,12 +85,40 @@ public class WaitFuture<E> implements MonitorListener {
 	 * 						The Comparator need to return 0 if condition is met.
 	 * @param latch			Latch to signal other thread that condition was met
 	 */
-	public WaitFuture(E value, Comparator<E> comparator, CountDownLatch latch){
+	@SuppressWarnings("unchecked")
+	public WaitFuture(Channel channel, E value, Comparator<E> comparator){
+		this.channel = channel;
 		this.waitValue = value;
+		this.type = (Class<E>) value.getClass();
 		this.comparator = comparator;
-		this.latch = latch;
 	}
-		
+	
+	public void startWaitForValue(){
+		try{
+			if (type.equals(String.class)) {
+				monitorw = channel.addMonitor(DBR_String.TYPE, 1, Monitor.VALUE, this);
+			} else if (type.equals(Integer.class)) {
+				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, this);
+			} else if (type.equals(Double.class)) {
+				monitorw = channel.addMonitor(DBR_Double.TYPE, 1, Monitor.VALUE, this);
+			} else if (type.equals(Short.class)) {
+				monitorw = channel.addMonitor(DBR_Short.TYPE, 1, Monitor.VALUE, this);
+			} else if (type.equals(Byte.class)) {
+				monitorw = channel.addMonitor(DBR_Byte.TYPE, 1, Monitor.VALUE, this);
+			} else if (type.equals(Boolean.class)) {
+				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, this);
+			} else {
+				throw new UnsupportedOperationException("This method is not supported for type: "+type.getName());
+			}
+			channel.getContext().flushIO();
+
+		}
+		catch(CAException e){
+			new ChannelException(e);
+		}
+	}
+	
+	
 	/**
 	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
 	 */
@@ -79,7 +127,6 @@ public class WaitFuture<E> implements MonitorListener {
 	public void monitorChanged(MonitorEvent event) {
 		if (event.getStatus() == CAStatus.NORMAL){
 			try{
-				E value = null;
 				DBR dbr = event.getDBR();
 				if(waitValue.getClass().equals(String.class)){
 					value = (E)(((STRING)dbr.convert(DBRType.STRING)).getStringValue()[0]);
@@ -97,15 +144,10 @@ public class WaitFuture<E> implements MonitorListener {
 					value = (E)((Byte)((BYTE)dbr.convert(DBRType.BYTE)).getByteValue()[0]);
 				}
 				else if(waitValue.getClass().equals(Boolean.class)){
-					if(((INT)dbr.convert(DBRType.INT)).getIntValue()[0] > 0){
-						value = (E) new Boolean(true);
-					}
-					else{
-						value = (E) new Boolean(false);
-					}
+					value = (E) new Boolean(((INT)dbr.convert(DBRType.INT)).getIntValue()[0] > 0);
 				}
 				else{
-					throw new RuntimeException("Type "+waitValue.getClass().getName()+" not supported");
+					throw new UnsupportedOperationException("Type "+waitValue.getClass().getName()+" not supported");
 				}
 				
 				if(value!=null && this.comparator.compare(value, waitValue)==0){
@@ -116,5 +158,75 @@ public class WaitFuture<E> implements MonitorListener {
 				throw new RuntimeException("Something went wrong while waiting for a channel to get to the specific value: "+waitValue+"]", e);
 			}
 		}
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see java.util.concurrent.Future#cancel(boolean)
+	 */
+	@Override
+	public boolean cancel(boolean cancel) {
+		throw new UnsupportedOperationException("Cannot be canceled");
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.concurrent.Future#get()
+	 */
+	@Override
+	public E get() throws InterruptedException, ExecutionException {
+		try{
+			latch.await();
+		}
+		finally{
+			// If interrupted we also have to clear the monitor, therefore this is in a finally clause
+			try{
+				monitorw.clear();
+				channel.getContext().flushIO();
+			}
+			catch(CAException e){
+				throw new ExecutionException("Unable to clear wait monitor", e);
+			}
+		}
+		return value;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.concurrent.Future#get(long, java.util.concurrent.TimeUnit)
+	 */
+	@Override
+	public E get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+		try{
+			boolean b = latch.await(timeout, unit);
+			if(!b){
+				throw new TimeoutException("Timeout occured before value was reaching the specified value");
+			}
+		}
+		finally{
+			// If interrupted we also have to clear the monitor, therefore this is in a finally clause
+			try{
+				monitorw.clear();
+				channel.getContext().flushIO();
+			}
+			catch(CAException e){
+				throw new ExecutionException("Unable to clear wait monitor", e);
+			}
+		}
+		return value;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.concurrent.Future#isCancelled()
+	 */
+	@Override
+	public boolean isCancelled() {
+		throw new UnsupportedOperationException("Cannot be canceled");
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.concurrent.Future#isDone()
+	 */
+	@Override
+	public boolean isDone() {
+		return latch.getCount()==0;
 	}
 }

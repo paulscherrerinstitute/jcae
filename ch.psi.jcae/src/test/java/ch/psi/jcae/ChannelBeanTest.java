@@ -26,6 +26,8 @@ import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -254,9 +256,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testWaitForValue() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testWaitForValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
@@ -268,7 +271,7 @@ public class ChannelBeanTest {
 			@Override
 			public void run() {
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(500);
 					beanset.setValue(0);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -278,7 +281,7 @@ public class ChannelBeanTest {
 		});
 		t.start();
 		
-		beand.waitForValue(0, 2000L);
+		beand.waitForValue(0).get(2000L, TimeUnit.MILLISECONDS);
 		
 		
 		// TODO Test if channel is already on the given value (measure time)
@@ -291,9 +294,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	@Test( expected=CAException.class )
-	public void testWaitForValueTimeout() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	@Test( expected=TimeoutException.class )
+	public void testWaitForValueTimeout() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
@@ -317,7 +321,7 @@ public class ChannelBeanTest {
 		t.start();
 		
 		// Wait for the channel to get to 0 using the default wait timeout
-		beand.waitForValue(0); // Need to throw an Timeout CAException
+		beand.waitForValue(0).get(1, TimeUnit.MILLISECONDS); // Need to throw an Timeout CAException
 	}
 	
 	/**
@@ -346,9 +350,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	@Test(expected=CAException.class)
-	public void testWaitForValueComparator() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	@Test(expected=TimeoutException.class)
+	public void testWaitForValueComparator() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
@@ -382,7 +387,7 @@ public class ChannelBeanTest {
 				}
 			}
 		};
-		beand.waitForValue(0, c, 2000L);
+		beand.waitForValue(0, c).get(2000L, TimeUnit.MILLISECONDS);
 	}
 	
 	/**
@@ -392,9 +397,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testWaitForValueComparatorTwo() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testWaitForValueComparatorTwo() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
@@ -429,7 +435,7 @@ public class ChannelBeanTest {
 			}
 		};
 		long start = System.currentTimeMillis();
-		beand.waitForValue(1, c, 2000L); // Wait until channel is not 1
+		beand.waitForValue(1, c).get(2000L, TimeUnit.MILLISECONDS); // Wait until channel is not 1
 		long end = System.currentTimeMillis();
 		
 		logger.info("Elapsed time: "+(end-start));
@@ -576,12 +582,17 @@ public class ChannelBeanTest {
 			@Override
 			public void run() {
 				try {
-					b.waitForValue(0d);
-				} catch (CAException e) {
-					e.printStackTrace();
+					b.waitForValue(0d).get();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}//Wait forever
+				catch (ExecutionException e) {
+					e.printStackTrace();
+				} catch (ChannelException e) {
+					e.printStackTrace();
+				} catch (TimeoutException e) {
+					e.printStackTrace();
+				}
 				System.out.println("Reached");
 			}
 			
@@ -611,9 +622,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testWaitForValueAbort() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testWaitForValueAbort() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
 		final ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.ANALOG_OUT, true);
 		beand.setValue(0.0);
@@ -649,7 +661,7 @@ public class ChannelBeanTest {
 				}
 				return 1;
 			}
-		}, 20000L);
+		}).get(20000L, TimeUnit.MILLISECONDS);
 		
 		
 		// TODO Test if channel is already on the given value (measure time)

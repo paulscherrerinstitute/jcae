@@ -128,10 +128,12 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * @param timeout	Wait timeout in milliseconds. (if timeout=0 wait forever)
 	 * @throws CAException
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 * @throws ChannelException 
 	 */
-	public void waitForValue(T value, long timeout) throws CAException, InterruptedException{
+	public void waitForValue(T value) throws InterruptedException, ChannelException, TimeoutException{
 		E o = convertReverse(value);
-		channelBean.waitForValue(o, timeout);
+		channelBean.waitForValue(o);
 	}
 	
 	/**
