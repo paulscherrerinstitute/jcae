@@ -24,7 +24,9 @@ import gov.aps.jca.CAException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.concurrent.TimeoutException;
 
+import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.ChannelBean;
 
 /**
@@ -60,10 +62,12 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	/**
 	 * Get converted value of channel
 	 * @return Converted value
+	 * @throws ChannelException 
+	 * @throws TimeoutException 
 	 * @throws CAException
 	 * @throws InterruptedException 
 	 */
-	public T getValue() throws CAException, InterruptedException{
+	public T getValue() throws InterruptedException, TimeoutException, ChannelException {
 		E o = channelBean.getValue();
 		return(convertForward(o));
 	}
@@ -72,10 +76,12 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * Get converted channel value
 	 * @param size	Size of the array/value to get and return
 	 * @return Converted value
+	 * @throws ChannelException 
+	 * @throws TimeoutException 
 	 * @throws CAException
 	 * @throws InterruptedException 
 	 */
-	public T getValue(int size) throws CAException, InterruptedException{
+	public T getValue(int size) throws InterruptedException, TimeoutException, ChannelException {
 		E o = channelBean.getValue(size);
 		return(convertForward(o));
 	}
@@ -84,10 +90,12 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * Get converted channel value
 	 * @param force	Force the library to get the value over the network
 	 * @return	Converted value
+	 * @throws ChannelException 
+	 * @throws TimeoutException 
 	 * @throws CAException
 	 * @throws InterruptedException 
 	 */
-	public T getValue(boolean force) throws CAException, InterruptedException{
+	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException {
 		E o = channelBean.getValue(force);
 		return(convertForward(o));
 	}

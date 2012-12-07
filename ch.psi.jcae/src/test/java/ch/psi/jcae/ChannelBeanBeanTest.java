@@ -22,6 +22,7 @@ package ch.psi.jcae;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import gov.aps.jca.CAException;
@@ -72,9 +73,10 @@ public class ChannelBeanBeanTest {
 	 * Test method
 	 * @throws CAException 
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
 	@Test
-	public void testConnectChannelBeans() throws CAException, InterruptedException {
+	public void testConnectChannelBeans() throws CAException, ChannelException, InterruptedException, TimeoutException {
 		TestObject object = new TestObject();
 		factory.createChannelBeans(object, TestChannels.PREFIX);
 		

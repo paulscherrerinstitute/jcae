@@ -19,16 +19,18 @@
 
 package ch.psi.jcae.examples;
 
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import gov.aps.jca.CAException;
+import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.impl.ChannelBean;
 import ch.psi.jcae.impl.ChannelBeanFactory;
 
 public class AnnotationExample {
 
-	public static void main(String[] args) throws CAException, InterruptedException {
+	public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException {
 		// Get channel factory
         ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
 

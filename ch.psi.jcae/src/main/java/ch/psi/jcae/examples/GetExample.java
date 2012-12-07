@@ -16,15 +16,18 @@
  */
 package ch.psi.jcae.examples;
 
+import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.ChannelBean;
 import ch.psi.jcae.impl.ChannelBeanFactory;
 import gov.aps.jca.CAException;
+
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetExample {
 
-    public static void main(String[] args) throws CAException, InterruptedException {
+    public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException {
 
         // Get channel factory
         ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
