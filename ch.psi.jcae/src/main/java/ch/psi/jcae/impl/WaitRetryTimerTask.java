@@ -20,13 +20,24 @@
 package ch.psi.jcae.impl;
 
 import gov.aps.jca.CAException;
+import gov.aps.jca.CAStatus;
+import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.dbr.BYTE;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Byte;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.dbr.DBR_Short;
 import gov.aps.jca.dbr.DBR_String;
+import gov.aps.jca.dbr.DOUBLE;
+import gov.aps.jca.dbr.INT;
+import gov.aps.jca.dbr.SHORT;
+import gov.aps.jca.dbr.STRING;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 
 import java.util.Comparator;
 import java.util.TimerTask;
@@ -41,14 +52,13 @@ import java.util.logging.Logger;
  * @author ebner
  *
  */
-public class MonitorListenerTimerTask<E> extends TimerTask {
+public class WaitRetryTimerTask<E> extends TimerTask {
 	
 	// Get Logger
-	private static final Logger logger = Logger.getLogger(MonitorListenerTimerTask.class.getName());
+	private static final Logger logger = Logger.getLogger(WaitRetryTimerTask.class.getName());
 
 	private final Comparator<E> comparator;
-	private final E value;
-	private final int elementCount;
+	private final E waitValue;
 	private final CountDownLatch latch;
 	private final Channel channel;
 	private final Class<?> type;
@@ -56,15 +66,16 @@ public class MonitorListenerTimerTask<E> extends TimerTask {
 	private Exception exception = null;
 	private Monitor monitor = null;
 	
+	private E value;
+	
 	/**
 	 * Constructor
 	 * @param latch		Latch used for indicating that a value has been reached.
 	 */
-	public MonitorListenerTimerTask(Channel channel, E rvalue, int elementCount, Comparator<E> comparator, CountDownLatch latch){
+	public WaitRetryTimerTask(Channel channel, E rvalue, Comparator<E> comparator, CountDownLatch latch){
 		this.channel = channel;
 		this.comparator = comparator;
-		this.value = rvalue;
-		this.elementCount = elementCount;
+		this.waitValue = rvalue;
 		this.latch = latch;
 		this.type = rvalue.getClass();
 	}
@@ -74,27 +85,70 @@ public class MonitorListenerTimerTask<E> extends TimerTask {
 	 */
 	@Override
 	public synchronized void run() {
-		logger.finest("Create/Replace monitor");
+		logger.info("Create/Replace wait monitor");
 		// Reset exception
 		exception = null; 
 		
 		try{
 			
-			WaitFuture<E> l = new WaitFuture<E>(channel, value, comparator); // FIXME Totally hacked code
+			MonitorListener l = new MonitorListener() {
+				
+				/**
+				 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
+				 */
+				@SuppressWarnings("unchecked")
+				@Override
+				public void monitorChanged(MonitorEvent event) {
+					if (event.getStatus() == CAStatus.NORMAL){
+						try{
+							DBR dbr = event.getDBR();
+							if(waitValue.getClass().equals(String.class)){
+								value = (E)(((STRING)dbr.convert(DBRType.STRING)).getStringValue()[0]);
+							}
+							else if(waitValue.getClass().equals(Integer.class)){
+								value = (E)((Integer)((INT)dbr.convert(DBRType.INT)).getIntValue()[0]);
+							}
+							else if(waitValue.getClass().equals(Double.class)){
+								value = (E)((Double)((DOUBLE)dbr.convert(DBRType.DOUBLE)).getDoubleValue()[0]);
+							}
+							else if(waitValue.getClass().equals(Short.class)){
+								value = (E)((Short)((SHORT)dbr.convert(DBRType.SHORT)).getShortValue()[0]);
+							}
+							else if(waitValue.getClass().equals(Byte.class)){
+								value = (E)((Byte)((BYTE)dbr.convert(DBRType.BYTE)).getByteValue()[0]);
+							}
+							else if(waitValue.getClass().equals(Boolean.class)){
+								value = (E) new Boolean(((INT)dbr.convert(DBRType.INT)).getIntValue()[0] > 0);
+							}
+							else{
+								throw new UnsupportedOperationException("Type "+waitValue.getClass().getName()+" not supported");
+							}
+							
+							if(value!=null && comparator.compare(value, waitValue)==0){
+								latch.countDown();
+							}
+						}
+						catch(CAStatusException e){
+							throw new RuntimeException("Something went wrong while waiting for a channel to get to the specific value: "+waitValue+"]", e);
+						}
+					}
+				}
+			};
+			
 			Monitor monitorw;
 	
 			if (type.equals(String.class)) {
-				monitorw = channel.addMonitor(DBR_String.TYPE, elementCount, Monitor.VALUE, l);
+				monitorw = channel.addMonitor(DBR_String.TYPE, 1, Monitor.VALUE, l);
 			} else if (type.equals(Integer.class) || type.equals(int.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, l);
+				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, l);
 			} else if (type.equals(Double.class) || type.equals(double.class)) {
-				monitorw = channel.addMonitor(DBR_Double.TYPE, elementCount, Monitor.VALUE, l);
+				monitorw = channel.addMonitor(DBR_Double.TYPE, 1, Monitor.VALUE, l);
 			} else if (type.equals(Short.class) || type.equals(short.class)) {
-				monitorw = channel.addMonitor(DBR_Short.TYPE, elementCount, Monitor.VALUE, l);
+				monitorw = channel.addMonitor(DBR_Short.TYPE, 1, Monitor.VALUE, l);
 			} else if (type.equals(Byte.class) || type.equals(byte.class)) {
-				monitorw = channel.addMonitor(DBR_Byte.TYPE, elementCount, Monitor.VALUE, l);
+				monitorw = channel.addMonitor(DBR_Byte.TYPE, 1, Monitor.VALUE, l);
 			} else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, l);
+				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, l);
 			} else {
 				throw new CAException("Datatype " + type.getName() + " not supported");
 			}
@@ -143,4 +197,8 @@ public class MonitorListenerTimerTask<E> extends TimerTask {
 		return exception;
 	}
 	
+	
+	public E getValue(){
+		return value;
+	}
 }

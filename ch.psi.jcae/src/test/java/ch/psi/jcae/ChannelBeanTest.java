@@ -288,6 +288,41 @@ public class ChannelBeanTest {
 	}
 	
 	
+	@Test
+	public void testWaitForValueRetry() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		final Integer testvalue = 0;
+		
+		// Test if scalar and getValue(int size) is called
+		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
+		beand.setValue(testvalue+1);
+		
+		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
+		
+		Thread t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5000);
+					beanset.setValue(testvalue);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		t.start();
+		beand.setWaitRetryPeriod(1000L);
+		Integer v = beand.waitForValueRetry(0).get(6000L, TimeUnit.MILLISECONDS);
+
+		assertTrue("Channel not reached value "+testvalue, v==testvalue);
+		
+		
+		// TODO Test if channel is already on the given value (measure time)
+	}
+	
+	
+	
 	/**
 	 * Test waitForValue function
 	 * @throws CAException
@@ -573,36 +608,11 @@ public class ChannelBeanTest {
 	}
 	
 	
-	@Test
+	@Test(expected=IllegalStateException.class)
 	public void testDestruction() throws CAException, InterruptedException, TimeoutException, ChannelException {
 		final ChannelBean<Double> b = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
-		
-		Thread t = new Thread(new Runnable(){
-
-			@Override
-			public void run() {
-				try {
-					b.waitForValue(0d).get();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}//Wait forever
-				catch (ExecutionException e) {
-					e.printStackTrace();
-				} catch (ChannelException e) {
-					e.printStackTrace();
-				} catch (TimeoutException e) {
-					e.printStackTrace();
-				}
-				System.out.println("Reached");
-			}
-			
-		});
-		t.start();
 		factory.getChannelFactory().destroyContext();
-//		b.destroy();
-		
-		System.out.println("Exit");
-		
+		b.destroy(); // Expect an illegal state exception here as the channel is already closed!
 	}
 	
 	@Test

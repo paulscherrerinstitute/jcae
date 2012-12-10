@@ -84,16 +84,15 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 	 * 						The first argument of the comparator is the value of the channel, the second the expected value.
 	 * 						The Comparator need to return 0 if condition is met.
 	 * @param latch			Latch to signal other thread that condition was met
+	 * @throws ChannelException 
 	 */
 	@SuppressWarnings("unchecked")
-	public WaitFuture(Channel channel, E value, Comparator<E> comparator){
+	public WaitFuture(Channel channel, E value, Comparator<E> comparator) throws ChannelException{
 		this.channel = channel;
 		this.waitValue = value;
 		this.type = (Class<E>) value.getClass();
 		this.comparator = comparator;
-	}
-	
-	public void startWaitForValue(){
+		
 		try{
 			if (type.equals(String.class)) {
 				monitorw = channel.addMonitor(DBR_String.TYPE, 1, Monitor.VALUE, this);
@@ -114,10 +113,9 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 
 		}
 		catch(CAException e){
-			new ChannelException(e);
+			throw new ChannelException(e);
 		}
 	}
-	
 	
 	/**
 	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)

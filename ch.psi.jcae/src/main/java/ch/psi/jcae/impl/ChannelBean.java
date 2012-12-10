@@ -24,7 +24,6 @@ import java.beans.PropertyChangeSupport;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -205,7 +204,7 @@ public class ChannelBean<E> {
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
 	 */
-	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException{
+	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException {
 		if( !monitored || (monitored && force)  ){
 			updateValue();
 		}
@@ -364,47 +363,34 @@ public class ChannelBean<E> {
 	 * 						need to return 0 if the condition is met.
 	 * 						The first argument of the comparator is the value of the channel, the second the expected value.
 	 * @param timeout
+	 * @throws ChannelException 
 	 * @throws CAException		Timeout occured, ...
 	 * @throws InterruptedException
 	 */
-	public Future<E> waitForValue(E rvalue, Comparator<E> comparator) throws ChannelException, InterruptedException, TimeoutException {
-		WaitFuture<E> l = new WaitFuture<E>(channel, rvalue, comparator);
-		l.startWaitForValue();
-		return l;
+	public Future<E> waitForValue(E rvalue, Comparator<E> comparator) throws ChannelException {
+		return new WaitFuture<E>(channel, rvalue, comparator);
 	}
 	
-	public void waitForValueRetry(E rvalue, Comparator<E> comparator, Long timeout) throws InterruptedException, IllegalStateException, TimeoutException, CAException{
-		logger.fine("Wait for value with periodic monitor refresh");
-		CountDownLatch latch = new CountDownLatch(1);
-
-		Timer timer = new Timer(true);
-		MonitorListenerTimerTask<E> task = new MonitorListenerTimerTask<E>(channel, rvalue, elementCount, comparator, latch);
-
-		// Start timer to start a new monitor every *waitRetryPeriod* milliseconds
-		timer.scheduleAtFixedRate(task, 0l, waitRetryPeriod);
-
-		try{
-			if (timeout != null) {
-				boolean t = latch.await(timeout, TimeUnit.MILLISECONDS);
-				if (!t) {
-					// Throw an exception if a timeout occured
-					throw new TimeoutException("Timeout [" + timeout + "] occured while waiting for channel [" + channel.getName() + "] reaching specified value [" + rvalue + "]");
-				}
-			} else {
-				// Wait for ever
-				latch.await();
-			}
-		}
-		finally{
-			// If interrupted we also have to clear the monitor, therefore this is in a finally clause
-			
-			// Terminate timer
-			timer.cancel();
-
-			// Clear the last monitor
-			task.terminateCurrentMonitor();
-		}
+	// TODO merge with function above - automatically decide whether to retry or not!
+	public Future<E> waitForValueRetry(E rvalue, Comparator<E> comparator) {
+		return new WaitRetryFuture<E>(channel, rvalue, comparator, waitRetryPeriod);
 	}
+	public Future<E> waitForValueRetry(E rvalue) throws ChannelException, InterruptedException, TimeoutException {
+		
+		// Default comparator checking for equality
+		Comparator<E> comparator = new Comparator<E>() {
+			@Override
+			public int compare(E o, E o2) {
+				if(o.equals(o2)){
+					return 0;
+				}
+				return -1;
+			}
+		};
+		return waitForValueRetry(rvalue, comparator);
+	}
+	
+	
 	
 	/**
 	 * Wait until channel has reached the specified value.
@@ -927,5 +913,23 @@ public class ChannelBean<E> {
 	public void setWaitTimeout(long waitTimeout) {
 		this.waitTimeout = waitTimeout;
 	}
+
+
+	/**
+	 * @return the waitRetryPeriod
+	 */
+	public Long getWaitRetryPeriod() {
+		return waitRetryPeriod;
+	}
+
+
+	/**
+	 * @param waitRetryPeriod the waitRetryPeriod to set
+	 */
+	public void setWaitRetryPeriod(Long waitRetryPeriod) {
+		this.waitRetryPeriod = waitRetryPeriod;
+	}
+	
+	
 	
 }
