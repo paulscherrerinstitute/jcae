@@ -20,6 +20,7 @@
 package ch.psi.jcae;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -67,9 +68,10 @@ public class ChannelBeanFactoryTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testCreateChannelBean() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testCreateChannelBean() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		for(int i=0;i<100;i++){
 			
 			long s = System.currentTimeMillis();
@@ -98,9 +100,10 @@ public class ChannelBeanFactoryTest {
 	 * @throws InterruptedException
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void manageTest() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void manageTest() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 		// Create test bean to manage
 		TestObject one = new TestObject();
@@ -130,7 +133,7 @@ public class ChannelBeanFactoryTest {
 	
 	
 	@Test
-	public void testDestructionRecreate() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testDestructionRecreate() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
 		for(int i=0;i<10;i++){
 			factory = ChannelBeanFactory.getFactory();

@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -109,8 +110,9 @@ public class ChannelBeanFactory {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public <T> ChannelBean<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException{
+	public <T> ChannelBean<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 		return(bean);
 	}
@@ -130,8 +132,9 @@ public class ChannelBeanFactory {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public <T> ChannelBean<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException{
+	public <T> ChannelBean<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException{
 		Channel channel = channelFactory.createChannel(channelName);
 		
 		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
@@ -154,8 +157,9 @@ public class ChannelBeanFactory {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public <T> List<ChannelBean<T>> createChannelBeans(Class<T> type, List<String> channelNames, boolean monitor) throws CAException, InterruptedException, TimeoutException, ChannelException{
+	public <T> List<ChannelBean<T>> createChannelBeans(Class<T> type, List<String> channelNames, boolean monitor) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		List<Channel> channels = channelFactory.createChannels(channelNames);
 		
 		List<ChannelBean<T>> beans = new ArrayList<ChannelBean<T>>();
@@ -176,8 +180,9 @@ public class ChannelBeanFactory {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public void createChannelBeans(Object object) throws CAException, InterruptedException, TimeoutException, ChannelException{
+	public void createChannelBeans(Object object) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		createChannelBeans(object, "");
 	}
 	
@@ -192,8 +197,9 @@ public class ChannelBeanFactory {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public void createChannelBeans(Object object, String baseName) throws CAException, InterruptedException, TimeoutException, ChannelException{
+	public void createChannelBeans(Object object, String baseName) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		try{
 			Class<?> c = object.getClass();
 			

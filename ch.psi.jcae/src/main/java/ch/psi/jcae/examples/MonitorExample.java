@@ -22,13 +22,14 @@ import ch.psi.jcae.impl.ChannelBeanFactory;
 import gov.aps.jca.CAException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MonitorExample {
 
-    public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException {
+    public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
         // Get channel factory
         ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
 

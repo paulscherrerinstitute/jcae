@@ -115,9 +115,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testGetValueWaveform() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testGetValueWaveform() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		ChannelBean<byte[]> bean = factory.createChannelBean(byte[].class, TestChannels.CHARACTER_WAVEFORM, false);
 
 		// Set test string to waveform
@@ -163,9 +164,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testGetHostname() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testGetHostname() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_IN, false);
 		logger.fine("Size of the Channel: "+bean.getHostname());
 		if(! bean.getHostname().equals(iocname)){
@@ -182,9 +184,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testGetValue() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testGetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
 		ChannelBean<double[]> bean = factory.createChannelBean(double[].class, TestChannels.CHARACTER_WAVEFORM, false);
 		bean.getValue(); // Get first value of the array
@@ -208,9 +211,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testGetValueRetries() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testGetValueRetries() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 
 		// Test if scalar and getValue(int size) is called
@@ -230,13 +234,14 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		Double value = 1d;
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
-		beand.setValue(value, 0); // Wait forever
+		beand.setValue(value); // Wait forever
 
 		// Test how ChannelBean does behave is Scaler attached to waveform
 		ChannelBean<Double> beandd = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
@@ -356,7 +361,7 @@ public class ChannelBeanTest {
 		t.start();
 		
 		// Wait for the channel to get to 0 using the default wait timeout
-		beand.waitForValue(0).get(1, TimeUnit.MILLISECONDS); // Need to throw an Timeout CAException
+		beand.waitForValue(0).get(1, TimeUnit.MILLISECONDS); // Need to throw an TimeoutException
 	}
 	
 	/**
@@ -365,10 +370,11 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
 	@Ignore
-	public void testUseCorrectProperties() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testUseCorrectProperties() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 
@@ -483,9 +489,10 @@ public class ChannelBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testWaitForValueNoTimeout() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testWaitForValueNoTimeout() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
@@ -521,9 +528,10 @@ public class ChannelBeanTest {
 	 * @throws CAException
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testConnectionListener() throws InterruptedException, CAException, TimeoutException, ChannelException {
+	public void testConnectionListener() throws InterruptedException, CAException, TimeoutException, ChannelException, ExecutionException {
 
 		ChannelBean<Double> bean = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 
@@ -548,7 +556,7 @@ public class ChannelBeanTest {
 	 */
 	private double[] valueFromListener = null;
 	@Test
-	public void testPropertyChangeSupportArray() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testPropertyChangeSupportArray() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
 		ChannelBean<double[]> bean = factory.createChannelBean(double[].class, TestChannels.DOUBLE_WAVEFORM, true);
 		
@@ -575,7 +583,7 @@ public class ChannelBeanTest {
 
 	private int mcount = 0;
 	@Test
-	public void testTimestampMonitor() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testTimestampMonitor() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
 		ChannelBean<Double> c = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 		ChannelBean<Double> bean = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, true);
@@ -609,14 +617,14 @@ public class ChannelBeanTest {
 	
 	
 	@Test(expected=IllegalStateException.class)
-	public void testDestruction() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testDestruction() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		final ChannelBean<Double> b = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
 		factory.getChannelFactory().destroyContext();
 		b.destroy(); // Expect an illegal state exception here as the channel is already closed!
 	}
 	
 	@Test
-	public void testSetChannel() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testSetChannel() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		ChannelBean<Double> bean = factory.createChannelBean(Double.class, TestChannels.BINARY_OUT, true);
 		for(int i=0;i<100;i++){
 			logger.info("Set value [iteration: "+i+"]");

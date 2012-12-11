@@ -33,14 +33,14 @@ public class WaitRetryFuture<T> implements Future<T>{
 	private T value;
 	
 	
-	public WaitRetryFuture(Channel channel, T value, Comparator<T> comparator, long waitRetryPeriod){
+	public WaitRetryFuture(Channel channel, int size, T value, Comparator<T> comparator, long waitRetryPeriod){
 		this.channel = channel;
 		this.value = value;
 		
 		logger.fine("Wait for value with periodic monitor refresh");
 
 		timer = new Timer(true);
-		task = new WaitRetryTimerTask<T>(channel, value, comparator, latch);
+		task = new WaitRetryTimerTask<T>(channel, size, value, comparator, latch);
 
 		// Start timer to start a new monitor every *waitRetryPeriod* milliseconds
 		timer.scheduleAtFixedRate(task, 0l, waitRetryPeriod);

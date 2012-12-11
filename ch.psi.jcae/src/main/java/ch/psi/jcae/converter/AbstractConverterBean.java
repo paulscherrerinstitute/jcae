@@ -24,6 +24,8 @@ import gov.aps.jca.CAException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import ch.psi.jcae.ChannelException;
@@ -35,6 +37,7 @@ import ch.psi.jcae.impl.ChannelBean;
  * @author ebner
  *
  */
+// TODO NEED TO IMPLEMENT CHANNEL INTERFACE !!!!
 public abstract class AbstractConverterBean<E,T> implements PropertyChangeListener {
 
 	/**
@@ -66,8 +69,9 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * @throws TimeoutException 
 	 * @throws CAException
 	 * @throws InterruptedException 
+	 * @throws ExecutionException 
 	 */
-	public T getValue() throws InterruptedException, TimeoutException, ChannelException {
+	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		E o = channelBean.getValue();
 		return(convertForward(o));
 	}
@@ -80,46 +84,26 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * @throws TimeoutException 
 	 * @throws CAException
 	 * @throws InterruptedException 
+	 * @throws ExecutionException 
 	 */
-	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException {
+	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		E o = channelBean.getValue(force);
 		return(convertForward(o));
 	}
 	
-	/**
-	 * Set converted value to channel
-	 * @param value	Value to convert and to set on the channel
-	 * @throws ChannelException
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 */
-	public void setValue(T value) throws ChannelException, InterruptedException, TimeoutException{
-		E o = convertReverse(value);
-		channelBean.setValue(o);
-	}
-	
-	/**
-	 * Set converted value to channel
-	 * @param value		Value to convert and to set on the channel
-	 * @param timeout 	Time to wait until set is done. If timeout <=0 wait forever. Timeout in milliseconds
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 * @throws ChannelException 
-	 */
-	public void setValue(T value, long timeout) throws CAException, InterruptedException, ChannelException, TimeoutException{
-		E o = convertReverse(value);
-		channelBean.setValue(o, timeout);
-	}
+
 	
 	/**
 	 * Set converted value to channel without waiting the set to return
 	 * @param value		Value to convert and to set to the channel
 	 * @throws CAException
 	 * @throws ChannelException 
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 */
-	public void setValueNoAsynchronous(T value) throws ChannelException{
+	public void setValue(T value) throws ChannelException, InterruptedException, ExecutionException{
 		E o = convertReverse(value);
-		channelBean.setValueAsynchronous(o);
+		channelBean.setValue(o);
 	}
 	
 	/**

@@ -25,41 +25,68 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import ch.psi.jcae.impl.handler.Handlers;
+
 import gov.aps.jca.CAStatus;
-import gov.aps.jca.event.PutEvent;
-import gov.aps.jca.event.PutListener;
+import gov.aps.jca.CAStatusException;
+import gov.aps.jca.dbr.BYTE;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DOUBLE;
+import gov.aps.jca.dbr.INT;
+import gov.aps.jca.dbr.SHORT;
+import gov.aps.jca.dbr.STRING;
+import gov.aps.jca.event.GetEvent;
+import gov.aps.jca.event.GetListener;
 
 /**
- * Utility class implementing @see gov.aps.jca.PutListener used to accomplish an 
- * asynchronous put. The class decrements the passed latch once
- * the put operation has finished successfully.
+ * Utility class for asynchronous get operation on a Channel Access channel
  * @author ebner
  *
  */
-public class SetFuture<T> implements PutListener, Future<T>
+public class GetFuture<T> implements GetListener, Future<T>
 {
-	
-	private final CountDownLatch latch = new CountDownLatch(1);
-	private T value;
-
-	public SetFuture(T value){
-		this.value=value;
-	}
-	
+	/**
+	 * Channel DBR value
+	 */
+    private T value;
+    private Class<T> type;
+    
+    private final CountDownLatch latch = new CountDownLatch(1);
+    
+    public GetFuture(Class<T> type){
+    	this.type = type;
+    }
+    
+    @SuppressWarnings("unchecked")
 	@Override
-	public void putCompleted(PutEvent ev) {
-	    if(ev.getStatus() == CAStatus.NORMAL){
-	    	latch.countDown();
+    public void getCompleted(GetEvent ev) {
+    	
+    	try{
+    		value = (T) Handlers.HANDLERS.get(type).getValue(ev.getDBR());
+    	}
+    	catch(CAStatusException e){
+    		e.printStackTrace();
+    	}
+	    
+	    if (ev.getStatus() == CAStatus.NORMAL){
+		    latch.countDown();
 	    }
 	}
+    
+    /**
+     * Get value returned by the answer to the get request.
+     * @return	Value returned by get request
+     */
+//    private DBR getValue() {
+//        return value;
+//    }
 
-	
 	/* (non-Javadoc)
 	 * @see java.util.concurrent.Future#cancel(boolean)
 	 */
 	@Override
-	public boolean cancel(boolean cancel) {
-		throw new UnsupportedOperationException("Cannot be canceled");
+	public boolean cancel(boolean mayInterruptIfRunning) {
+		throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
@@ -67,9 +94,17 @@ public class SetFuture<T> implements PutListener, Future<T>
 	 */
 	@Override
 	public boolean isCancelled() {
-		throw new UnsupportedOperationException("Cannot be canceled");
+		throw new UnsupportedOperationException();
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see java.util.concurrent.Future#isDone()
+	 */
+	@Override
+	public boolean isDone() {
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.util.concurrent.Future#get()
 	 */
@@ -84,19 +119,10 @@ public class SetFuture<T> implements PutListener, Future<T>
 	 */
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+		
 		if(!latch.await(timeout, unit)){
-			throw new TimeoutException("Timeout occured while setting value to channel");
-		}
+	   		throw new TimeoutException("Timeout ["+timeout+"] occured while getting value"); // from which channel ?
+	   	}
 		return value;
-	}
-
-	
-
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#isDone()
-	 */
-	@Override
-	public boolean isDone() {
-		return latch.getCount()==0;
 	}
 }

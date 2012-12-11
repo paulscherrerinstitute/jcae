@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.impl.handler.Handlers;
 
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -87,28 +88,14 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 	 * @throws ChannelException 
 	 */
 	@SuppressWarnings("unchecked")
-	public WaitFuture(Channel channel, E value, Comparator<E> comparator) throws ChannelException{
+	public WaitFuture(Channel channel, int size, E value, Comparator<E> comparator) throws ChannelException{
 		this.channel = channel;
 		this.waitValue = value;
-		this.type = (Class<E>) value.getClass();
+		this.type = (Class<E>) waitValue.getClass();
 		this.comparator = comparator;
 		
 		try{
-			if (type.equals(String.class)) {
-				monitorw = channel.addMonitor(DBR_String.TYPE, 1, Monitor.VALUE, this);
-			} else if (type.equals(Integer.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, this);
-			} else if (type.equals(Double.class)) {
-				monitorw = channel.addMonitor(DBR_Double.TYPE, 1, Monitor.VALUE, this);
-			} else if (type.equals(Short.class)) {
-				monitorw = channel.addMonitor(DBR_Short.TYPE, 1, Monitor.VALUE, this);
-			} else if (type.equals(Byte.class)) {
-				monitorw = channel.addMonitor(DBR_Byte.TYPE, 1, Monitor.VALUE, this);
-			} else if (type.equals(Boolean.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, this);
-			} else {
-				throw new UnsupportedOperationException("This method is not supported for type: "+type.getName());
-			}
+			monitorw = channel.addMonitor(Handlers.HANDLERS.get(type).getDBRType(), 1, Monitor.VALUE, this);
 			channel.getContext().flushIO();
 
 		}
@@ -125,28 +112,7 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 	public void monitorChanged(MonitorEvent event) {
 		if (event.getStatus() == CAStatus.NORMAL){
 			try{
-				DBR dbr = event.getDBR();
-				if(waitValue.getClass().equals(String.class)){
-					value = (E)(((STRING)dbr.convert(DBRType.STRING)).getStringValue()[0]);
-				}
-				else if(waitValue.getClass().equals(Integer.class)){
-					value = (E)((Integer)((INT)dbr.convert(DBRType.INT)).getIntValue()[0]);
-				}
-				else if(waitValue.getClass().equals(Double.class)){
-					value = (E)((Double)((DOUBLE)dbr.convert(DBRType.DOUBLE)).getDoubleValue()[0]);
-				}
-				else if(waitValue.getClass().equals(Short.class)){
-					value = (E)((Short)((SHORT)dbr.convert(DBRType.SHORT)).getShortValue()[0]);
-				}
-				else if(waitValue.getClass().equals(Byte.class)){
-					value = (E)((Byte)((BYTE)dbr.convert(DBRType.BYTE)).getByteValue()[0]);
-				}
-				else if(waitValue.getClass().equals(Boolean.class)){
-					value = (E) new Boolean(((INT)dbr.convert(DBRType.INT)).getIntValue()[0] > 0);
-				}
-				else{
-					throw new UnsupportedOperationException("Type "+waitValue.getClass().getName()+" not supported");
-				}
+				value = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
 				
 				if(value!=null && this.comparator.compare(value, waitValue)==0){
 					latch.countDown();

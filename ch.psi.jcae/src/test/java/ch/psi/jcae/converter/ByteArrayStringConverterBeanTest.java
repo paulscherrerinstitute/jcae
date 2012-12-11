@@ -21,6 +21,7 @@ package ch.psi.jcae.converter;
 
 import static org.junit.Assert.*;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -68,9 +69,10 @@ public class ByteArrayStringConverterBeanTest {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void testGetSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testGetSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		String value = b.getValue();
 		logger.info("Channel value as String: "+value);
 		

@@ -22,6 +22,7 @@ import ch.psi.jcae.impl.ChannelBeanFactory;
 import ch.psi.jcae.server.CaServer;
 import gov.aps.jca.CAException;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +41,7 @@ public class WaveformTest {
 	private static final Logger logger = Logger.getLogger(WaveformTest.class.getName());
 	
 	@Test
-	public void testWaveform() throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public void testWaveform() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
 		// TODO Verify usefullness of the test
 		

@@ -24,15 +24,16 @@ import java.beans.PropertyChangeSupport;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.impl.handler.Handlers;
 
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
@@ -84,14 +85,18 @@ public class ChannelBean<E> {
 	public static final String PROPERTY_CONNECTED = "connected";
 	
 	
-	private Class<?> type;
+	private Class<E> type;
 	private Monitor monitor;
 	private Set<Monitor> additionalMonitors;
 	private ConnectionListener listener;
 	private Channel channel;
 	private int elementCount = 1;
 	
-	private E value = null;
+	
+//	private E value = null;
+	private final AtomicReference<E> value = new AtomicReference<>();
+	
+	
 	private boolean connected = false;
 	private boolean monitored = false;
 	
@@ -134,17 +139,12 @@ public class ChannelBean<E> {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public ChannelBean(Class<E> type, Channel channel, Integer size, long timeout, Long waitTimeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException {
+	public ChannelBean(Class<E> type, Channel channel, Integer size, long timeout, Long waitTimeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
-		// We currently only support these types
-		if( !(	type.equals(String.class) || type.equals(String[].class) ||
-				type.equals(Integer.class) || type.equals(int[].class) ||
-				type.equals(Double.class) || type.equals(double[].class) ||
-				type.equals(Short.class) || type.equals(short[].class) ||
-				type.equals(Byte.class) || type.equals(byte[].class) ||
-				type.equals(Boolean.class) || type.equals(boolean[].class)
-			 ) ){
+		// Check whether type is supported
+		if(!Handlers.HANDLERS.containsKey(type)){
 			throw new IllegalArgumentException("Type "+type.getName()+" not supported");
 		}
 		
@@ -174,7 +174,7 @@ public class ChannelBean<E> {
 				elementCount=size;
 			}
 			else{
-				throw new IllegalArgumentException("Specified size ["+size+"]  is not applicable. Maximum size is "+csize);
+				throw new IllegalArgumentException("Specified channel size ["+size+"]  is not applicable. Maximum size is "+csize);
 			}
 		}
 		else{
@@ -186,9 +186,7 @@ public class ChannelBean<E> {
 		
 		if(monitored){
 			attachMonitor();
-			
-			// Get initial value
-			updateValue();
+			updateValue(); // Get initial value
 		}
 		
 		
@@ -203,12 +201,13 @@ public class ChannelBean<E> {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException {
-		if( !monitored || (monitored && force)  ){
+	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
+		if( !monitored || force ){
 			updateValue();
 		}
-		return(value);
+		return(value.get());
 	}
 	
 	/**
@@ -217,124 +216,44 @@ public class ChannelBean<E> {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	public E getValue() throws InterruptedException, TimeoutException, ChannelException {
+	public E getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		if(!monitored){
 			updateValue();
 		}
-		return(value);
+		return(value.get());
 	}
 	
 	/**
-	 * Set value of channel
+	 * Set value synchronously
 	 * @param value
+	 * @throws InterruptedException
+	 * @throws ExecutionException
 	 * @throws ChannelException
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
 	 */
-	public void setValue(E value) throws ChannelException, InterruptedException, TimeoutException {
-		setValue(value, this.timeout);
+	public void setValue(E value) throws InterruptedException, ExecutionException, ChannelException{
+		setValueAsync(value).get();
 	}
 	
-	/**
-	 * Set value of channel.
-	 * @param value
-	 * @param timeout	Timeout to wait until set is done. If timeout <= 0 this function will wait forever ...
-	 * @throws ChannelException
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 */
-	public void setValue(E value, long timeout) throws ChannelException, InterruptedException, TimeoutException {
-		int cnt = 0;
-		while (cnt <= this.retries) {
-			cnt++;
-
-			try {
-				Future<Boolean> listener = setValueAsynchronous(value);
-
-				boolean t;
-				if (timeout > 0) {
-					t = listener.get(timeout, TimeUnit.MILLISECONDS);
-				} else {
-					t = listener.get(); // Wait for ever
-				}
-
-				if (t == false) {
-					throw new TimeoutException("Timeout occured while setting channel [" + channel.getName() + "] failed");
-				}
-
-				this.value = value;
-				return;
-
-			} catch (ExecutionException e) {
-				if (cnt <= this.retries) {
-					logger.log(Level.WARNING, "Set to channel ["+channel.getName()+"]  failed - "+e.getMessage()+" - will retry");
-				} else {
-					throw new ChannelException("Unable to set channel", e);
-				}
-			}
-			catch (IllegalStateException e) {
-				// If the channel is not connected while the channel.get(...) function is called this exception will be thrown
-				if (cnt <= this.retries) {
-					logger.log(Level.WARNING, "Set value failed with IllegalStateException (channel not connected) - will retry after 500ms");
-					// Will wait for 500 milliseconds a second
-					Thread.sleep(500);
-				} else {
-					throw e;
-				}
-			}
-		}
-	}
 	
 	/**
-	 * Set value but not wait until value is processed
-	 * (Fire and Forget)
+	 * Set value asynchronously
 	 * 
 	 * @param value
-	 * @throws CAException
+	 * @return Future to determine when set is done ...
+	 * @throws ChannelException
 	 */
-	public Future<Boolean> setValueAsynchronous(E value) throws ChannelException {
-		SetFuture listener = new SetFuture();
-
+	public Future<E> setValueAsync(E value) throws ChannelException {
 		try{
-			if (type.equals(String.class)) {
-				channel.put(((String) value), listener);
-			} else if (type.equals(String[].class)) {
-				channel.put(((String[]) value), listener);
-			} else if (type.equals(Integer.class)) {
-				channel.put(((Integer) value), listener);
-			} else if (type.equals(int[].class)) {
-				channel.put(((int[]) value), listener);
-			} else if (type.equals(Double.class)) {
-				channel.put(((Double) value), listener);
-			} else if (type.equals(double[].class)) {
-				channel.put(((double[]) value), listener);
-			} else if (type.equals(Short.class)) {
-				channel.put(((Short) value), listener);
-			} else if (type.equals(short[].class)) {
-				channel.put(((short[]) value), listener);
-			} else if (type.equals(Byte.class)) {
-				channel.put(((Byte) value), listener);
-			} else if (type.equals(byte[].class)) {
-				channel.put(((byte[]) value), listener);
-			} else if (type.equals(Boolean.class)) {
-				channel.put(((Boolean) value)? 1 : 0, listener);
-			} else if (type.equals(boolean[].class)) {
-				boolean[] values = (boolean[]) value;
-				int[] v = new int[values.length];
-				for (int i = 0; i < values.length; i++) {
-					v[i] = values[i] ? 1 : 0;
-				}
-				channel.put(((int[]) v), listener);
-			}
-	
+			SetFuture<E> listener = new SetFuture<E>(value);
+			Handlers.HANDLERS.get(type).setValue(channel, value, listener);
 			channel.getContext().flushIO();
+			return listener;
 		}
 		catch(CAException e){
 			throw new ChannelException("Unable to set value to channel", e);
 		}
-		
-		return listener;
 	}
 	
 	/**
@@ -368,29 +287,8 @@ public class ChannelBean<E> {
 	 * @throws InterruptedException
 	 */
 	public Future<E> waitForValue(E rvalue, Comparator<E> comparator) throws ChannelException {
-		return new WaitFuture<E>(channel, rvalue, comparator);
+		return new WaitFuture<E>(channel, elementCount, rvalue, comparator);
 	}
-	
-	// TODO merge with function above - automatically decide whether to retry or not!
-	public Future<E> waitForValueRetry(E rvalue, Comparator<E> comparator) {
-		return new WaitRetryFuture<E>(channel, rvalue, comparator, waitRetryPeriod);
-	}
-	public Future<E> waitForValueRetry(E rvalue) throws ChannelException, InterruptedException, TimeoutException {
-		
-		// Default comparator checking for equality
-		Comparator<E> comparator = new Comparator<E>() {
-			@Override
-			public int compare(E o, E o2) {
-				if(o.equals(o2)){
-					return 0;
-				}
-				return -1;
-			}
-		};
-		return waitForValueRetry(rvalue, comparator);
-	}
-	
-	
 	
 	/**
 	 * Wait until channel has reached the specified value.
@@ -415,6 +313,31 @@ public class ChannelBean<E> {
 		};
 		return waitForValue(rvalue, comparator);
 	}
+	
+	
+	// TODO merge with function above - automatically decide whether to retry or not!
+	public Future<E> waitForValueRetry(E rvalue, Comparator<E> comparator) {
+		return new WaitRetryFuture<E>(channel, elementCount, rvalue, comparator, waitRetryPeriod);
+	}
+	
+	public Future<E> waitForValueRetry(E rvalue) throws ChannelException, InterruptedException, TimeoutException {
+		
+		// Default comparator checking for equality
+		Comparator<E> comparator = new Comparator<E>() {
+			@Override
+			public int compare(E o, E o2) {
+				if(o.equals(o2)){
+					return 0;
+				}
+				return -1;
+			}
+		};
+		return waitForValueRetry(rvalue, comparator);
+	}
+	
+	
+	
+	
 	
 	/**
 	 * Get the number of elements of the channel. This function returns the number of
@@ -445,64 +368,12 @@ public class ChannelBean<E> {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
+	 * @throws ExecutionException 
 	 */
-	@SuppressWarnings("unchecked")
-	private void updateValue() throws InterruptedException, TimeoutException, ChannelException{
+	private void updateValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		
-		// Convert DBR value into Java native format
-		if(type.equals(String.class)){
-			DBR dbr = getValue(DBRType.STRING);
-			value = (E)(((STRING)dbr).getStringValue()[0]);
-		}
-		else if(type.equals(String[].class)){
-			DBR dbr = getValue(DBRType.STRING);
-			value = (E)(((STRING)dbr).getStringValue());
-		}
-		else if(type.equals(Integer.class) || type.equals(int.class)){
-			DBR dbr = getValue(DBRType.INT);
-			value = (E)((Integer)((INT)dbr).getIntValue()[0]);
-		}
-		else if(type.equals(int[].class)){
-			DBR dbr = getValue(DBRType.INT);
-			value = (E)(((INT)dbr).getIntValue());
-		}
-		else if(type.equals(Double.class) || type.equals(double.class)){
-			DBR dbr = getValue(DBRType.DOUBLE);
-			value = (E)((Double)((DOUBLE)dbr).getDoubleValue()[0]);
-		}
-		else if(type.equals(double[].class)){
-			DBR dbr = getValue(DBRType.DOUBLE);
-			value = (E)(((DOUBLE)dbr).getDoubleValue());
-		}
-		else if(type.equals(Short.class) || type.equals(short.class)){
-			DBR dbr = getValue(DBRType.SHORT);
-			value = (E)((Short)((SHORT)dbr).getShortValue()[0]);
-		}
-		else if(type.equals(short[].class)){
-			DBR dbr = getValue(DBRType.SHORT);
-			value = (E)(((SHORT)dbr).getShortValue());
-		}
-		else if(type.equals(Byte.class) || type.equals(byte.class)){
-			DBR dbr = getValue(DBRType.BYTE);
-			value = (E)((Byte)((BYTE)dbr).getByteValue()[0]);
-		}
-		else if(type.equals(byte[].class)){
-			DBR dbr = getValue(DBRType.BYTE);
-			value = (E)(((BYTE)dbr).getByteValue());
-		}
-		else if(type.equals(Boolean.class) || type.equals(boolean.class)){
-			DBR dbr = getValue(DBRType.INT);
-			value = (E) new Boolean(((INT)dbr).getIntValue()[0] > 0);
-		}
-		else if(type.equals(boolean[].class)){
-			DBR dbr = getValue(DBRType.INT);
-			int[] iarray = ((INT)dbr).getIntValue();
-			boolean[] barray = new boolean[iarray.length];
-			for(int i=0;i<iarray.length;i++){
-				barray[i] = (iarray[i] > 0);
-			}
-			value = (E) barray;
-		}
+		value.set(getValueX());
+		
 	}
 	
 	/**
@@ -515,8 +386,9 @@ public class ChannelBean<E> {
 	 * @throws InterruptedException 
 	 * @throws TimeoutException 
 	 * @throws ChannelException 
+	 * @throws ExecutionException 
 	 */
-	private DBR getValue(DBRType type) throws InterruptedException, TimeoutException, ChannelException{
+	private E getValueX() throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		
 		int cnt=0;
 		while(cnt <= this.retries){
@@ -525,19 +397,12 @@ public class ChannelBean<E> {
 			try{
 				logger.finest("Get value from "+channel.getName()+" element count "+elementCount);
 				
-				CountDownLatch latch = new CountDownLatch(1);
-				GetListenerImpl listener = new GetListenerImpl(latch);
-				channel.get(type, elementCount, listener);
+				GetFuture<E> listener = new GetFuture<E>(this.type);
+				channel.get(Handlers.HANDLERS.get(type).getDBRType(), elementCount, listener);
 				channel.getContext().flushIO();
 				
-				boolean t;
-				t = latch.await(timeout, TimeUnit.MILLISECONDS);
+				return listener.get(timeout, TimeUnit.MILLISECONDS);
 			   		
-			   	if (t==false){
-			   		throw new TimeoutException("Timeout ["+timeout+"] occured while getting value from channel "+channel.getName());
-			   	}
-			   	
-			   	return(listener.getValue());
 			}
 			catch(CAException e){
 				
@@ -604,164 +469,24 @@ public class ChannelBean<E> {
 	 * @throws CAException
 	 * @throws InterruptedException 
 	 */
-	private void attachMonitor() throws ChannelException, InterruptedException{
+	private void attachMonitor() throws ChannelException {
 		
 		if(monitor!=null){
-			logger.warning("There is already an monitor attached");
-			return;
+			logger.warning("There is already an monitor attached - removing old one and attaching new");
+			removeMonitor();
 		}
 		
 		try{
-			if(type.equals(String.class)){
-				monitor = channel.addMonitor(DBR_String.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						String v = ((DBR_String) dbr.convert(DBR_String.TYPE)).getStringValue()[0];
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(String[].class)){
-				monitor = channel.addMonitor(DBR_String.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						String[] v = ((DBR_String) dbr.convert(DBR_String.TYPE)).getStringValue();
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(Integer.class)){
-				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						Integer v = ((DBR_Int) dbr.convert(DBR_Int.TYPE)).getIntValue()[0];
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(int[].class)){
-				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						int[] v = ((DBR_Int) dbr.convert(DBR_Int.TYPE)).getIntValue();
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(Double.class)){
-				monitor = channel.addMonitor(DBR_Double.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						Double v = ((DBR_Double) dbr.convert(DBR_Double.TYPE)).getDoubleValue()[0];
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(double[].class)){
-				monitor = channel.addMonitor(DBR_Double.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						double[] v = ((DBR_Double) dbr.convert(DBR_Double.TYPE)).getDoubleValue();
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(Short.class)){
-				monitor = channel.addMonitor(DBR_Short.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						Short v = ((DBR_Short) dbr.convert(DBR_Short.TYPE)).getShortValue()[0];
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(short[].class)){
-				monitor = channel.addMonitor(DBR_Short.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						short[] v = ((DBR_Short) dbr.convert(DBR_Short.TYPE)).getShortValue();
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(Byte.class)){
-				monitor = channel.addMonitor(DBR_Byte.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						Byte v = ((DBR_Byte) dbr.convert(DBR_Byte.TYPE)).getByteValue()[0];
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(byte[].class)){
-				monitor = channel.addMonitor(DBR_Byte.TYPE, elementCount, Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						byte[] v = ((DBR_Byte) dbr.convert(DBR_Byte.TYPE)).getByteValue();
-						Object ov = value;
-						value = ((E)v);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(Boolean.class)){
-				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount,Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						int v = ((DBR_Int) dbr.convert(DBR_Int.TYPE)).getIntValue()[0];
-						Object ov = value;
-						value = (E) new Boolean(v>0);
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
-			else if(type.equals(boolean[].class)){
-				monitor = channel.addMonitor(DBR_Int.TYPE, elementCount,Monitor.VALUE, new MonitorListenerBase() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public void updateValue(DBR dbr) throws CAStatusException {
-						int[] v = ((DBR_Int) dbr.convert(DBR_Int.TYPE)).getIntValue();
-						boolean[] b = new boolean[v.length];
-						for(int i=0;i<v.length;i++){
-							b[i] = (v[i]>0);
-						}
-						Object ov = value;
-						value = (E)b;
-						changeSupport.firePropertyChange( PROPERTY_VALUE, ov, value );
-					}
-				});
-			}
 			
-			// Register monitor
+			monitor = channel.addMonitor(Handlers.HANDLERS.get(type).getDBRType(), elementCount, Monitor.VALUE, new MonitorListenerBase() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public void updateValue(DBR dbr) throws CAStatusException {
+					E v = (E) Handlers.HANDLERS.get(type).getValue(dbr);
+					changeSupport.firePropertyChange( PROPERTY_VALUE, value.getAndSet(v), v );
+				}
+			});
+			
 			channel.getContext().flushIO();
 		}
 		catch(CAException e){
@@ -773,7 +498,7 @@ public class ChannelBean<E> {
 	 * Remove monitor of channel
 	 * @throws ChannelException
 	 */
-	private void removeMonitor() throws ChannelException{
+	private void removeMonitor() throws ChannelException {
 		try{
 			if(monitor != null){
 				logger.finest("Clear monitor - "+monitor.hashCode());
@@ -878,10 +603,6 @@ public class ChannelBean<E> {
 		changeSupport.removePropertyChangeListener( l );
 	}
 
-
-	// Getter and setter function for bean properties that are affecting getValue, setValue and waitForValue
-	// operations/functions
-	
 	
 	/**
 	 * @return the timeout

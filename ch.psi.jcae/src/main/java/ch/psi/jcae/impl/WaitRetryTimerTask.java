@@ -24,18 +24,6 @@ import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
-import gov.aps.jca.dbr.BYTE;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Byte;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.dbr.DBR_Short;
-import gov.aps.jca.dbr.DBR_String;
-import gov.aps.jca.dbr.DOUBLE;
-import gov.aps.jca.dbr.INT;
-import gov.aps.jca.dbr.SHORT;
-import gov.aps.jca.dbr.STRING;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -43,6 +31,8 @@ import java.util.Comparator;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
+
+import ch.psi.jcae.impl.handler.Handlers;
 
 /**
  * Task that is creating (and replacing - if a monitor was created before by this task) a monitor.
@@ -61,6 +51,7 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 	private final E waitValue;
 	private final CountDownLatch latch;
 	private final Channel channel;
+	private final int size;
 	private final Class<?> type;
 	
 	private Exception exception = null;
@@ -72,8 +63,9 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 	 * Constructor
 	 * @param latch		Latch used for indicating that a value has been reached.
 	 */
-	public WaitRetryTimerTask(Channel channel, E rvalue, Comparator<E> comparator, CountDownLatch latch){
+	public WaitRetryTimerTask(Channel channel, int size, E rvalue, Comparator<E> comparator, CountDownLatch latch){
 		this.channel = channel;
+		this.size = size;
 		this.comparator = comparator;
 		this.waitValue = rvalue;
 		this.latch = latch;
@@ -101,28 +93,7 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 				public void monitorChanged(MonitorEvent event) {
 					if (event.getStatus() == CAStatus.NORMAL){
 						try{
-							DBR dbr = event.getDBR();
-							if(waitValue.getClass().equals(String.class)){
-								value = (E)(((STRING)dbr.convert(DBRType.STRING)).getStringValue()[0]);
-							}
-							else if(waitValue.getClass().equals(Integer.class)){
-								value = (E)((Integer)((INT)dbr.convert(DBRType.INT)).getIntValue()[0]);
-							}
-							else if(waitValue.getClass().equals(Double.class)){
-								value = (E)((Double)((DOUBLE)dbr.convert(DBRType.DOUBLE)).getDoubleValue()[0]);
-							}
-							else if(waitValue.getClass().equals(Short.class)){
-								value = (E)((Short)((SHORT)dbr.convert(DBRType.SHORT)).getShortValue()[0]);
-							}
-							else if(waitValue.getClass().equals(Byte.class)){
-								value = (E)((Byte)((BYTE)dbr.convert(DBRType.BYTE)).getByteValue()[0]);
-							}
-							else if(waitValue.getClass().equals(Boolean.class)){
-								value = (E) new Boolean(((INT)dbr.convert(DBRType.INT)).getIntValue()[0] > 0);
-							}
-							else{
-								throw new UnsupportedOperationException("Type "+waitValue.getClass().getName()+" not supported");
-							}
+							value = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
 							
 							if(value!=null && comparator.compare(value, waitValue)==0){
 								latch.countDown();
@@ -135,24 +106,7 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 				}
 			};
 			
-			Monitor monitorw;
-	
-			if (type.equals(String.class)) {
-				monitorw = channel.addMonitor(DBR_String.TYPE, 1, Monitor.VALUE, l);
-			} else if (type.equals(Integer.class) || type.equals(int.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, l);
-			} else if (type.equals(Double.class) || type.equals(double.class)) {
-				monitorw = channel.addMonitor(DBR_Double.TYPE, 1, Monitor.VALUE, l);
-			} else if (type.equals(Short.class) || type.equals(short.class)) {
-				monitorw = channel.addMonitor(DBR_Short.TYPE, 1, Monitor.VALUE, l);
-			} else if (type.equals(Byte.class) || type.equals(byte.class)) {
-				monitorw = channel.addMonitor(DBR_Byte.TYPE, 1, Monitor.VALUE, l);
-			} else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
-				monitorw = channel.addMonitor(DBR_Int.TYPE, 1, Monitor.VALUE, l);
-			} else {
-				throw new CAException("Datatype " + type.getName() + " not supported");
-			}
-	
+			Monitor monitorw = channel.addMonitor(Handlers.HANDLERS.get(type).getDBRType(), size, Monitor.VALUE, l);
 			channel.getContext().flushIO();
 			
 			// Wait until monitor is connected - ensures that the the old monitor

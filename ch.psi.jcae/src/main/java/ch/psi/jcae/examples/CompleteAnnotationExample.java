@@ -19,6 +19,7 @@
 
 package ch.psi.jcae.examples;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +35,7 @@ import ch.psi.jcae.impl.ChannelBeanFactory;
 
 public class CompleteAnnotationExample {
 
-	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException {
+	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Get channel factory
         ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
 
