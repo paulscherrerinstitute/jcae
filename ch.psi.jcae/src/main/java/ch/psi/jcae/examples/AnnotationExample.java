@@ -27,13 +27,13 @@ import gov.aps.jca.CAException;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelFactory;
+import ch.psi.jcae.impl.ChannelServiceImpl;
 
 public class AnnotationExample {
 
 	public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException {
 		// Get channel factory
-        ChannelFactory factory = ChannelFactory.getFactory();
+        ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
 
         ChannelBeanContainer container = new ChannelBeanContainer();
         
@@ -48,7 +48,7 @@ public class AnnotationExample {
         factory.destroyChannelBeans(container);
         
         // Destroy context of the factory
-        ChannelFactory.getFactory().getChannelFactory().destroyContext();
+        ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
 	}
 }
 

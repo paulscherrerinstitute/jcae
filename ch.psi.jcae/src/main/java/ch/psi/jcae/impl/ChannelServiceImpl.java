@@ -45,10 +45,10 @@ import ch.psi.jcae.annotation.CaPreInit;
  * @author ebner
  *
  */
-public class ChannelFactory {
+public class ChannelServiceImpl {
 	
-	private static final Logger logger = Logger.getLogger(ChannelFactory.class.getName());
-	private static HashMap<String,ChannelFactory> factories = new HashMap<String,ChannelFactory>();
+	private static final Logger logger = Logger.getLogger(ChannelServiceImpl.class.getName());
+	private static HashMap<String,ChannelServiceImpl> factories = new HashMap<String,ChannelServiceImpl>();
 	private static final String defaultFactoryKey = "default";
 
 	private JCAChannelFactory channelFactory;
@@ -61,7 +61,7 @@ public class ChannelFactory {
 	 * 
 	 * @throws CAException
 	 */
-	private ChannelFactory() throws CAException{
+	private ChannelServiceImpl() throws CAException{
 		
 		// Create ChannelFactory object
 		channelFactory = new JCAChannelFactory();
@@ -72,9 +72,9 @@ public class ChannelFactory {
 	 * @return		Instance of the ChannelBeanFactory
 	 * @throws CAException
 	 */
-	public static ChannelFactory getFactory() throws CAException{
+	public static ChannelServiceImpl getFactory() throws CAException{
 		if(!factories.containsKey(defaultFactoryKey)){
-			factories.put(defaultFactoryKey, new ChannelFactory());
+			factories.put(defaultFactoryKey, new ChannelServiceImpl());
 		}
 		return(factories.get(defaultFactoryKey));
 	}
@@ -89,9 +89,9 @@ public class ChannelFactory {
 	 * @return		Instance of the ChannelBeanFactory
 	 * @throws CAException
 	 */
-	public static ChannelFactory getFactory(String factoryKey) throws CAException{
+	public static ChannelServiceImpl getFactory(String factoryKey) throws CAException{
 		if(!factories.containsKey(factoryKey)){
-			factories.put(factoryKey, new ChannelFactory());
+			factories.put(factoryKey, new ChannelServiceImpl());
 		}
 		return(factories.get(factoryKey));
 	}

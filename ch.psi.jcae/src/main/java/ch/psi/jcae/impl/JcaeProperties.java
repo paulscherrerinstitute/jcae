@@ -235,7 +235,7 @@ public class JcaeProperties {
 		/**
 		 * Get properties for the ChannelBeanFactory
 		 */
-		prefix = ChannelFactory.class.getCanonicalName()+".";
+		prefix = ChannelServiceImpl.class.getCanonicalName()+".";
 		key = prefix+"timeout";
 		if(bundle.keySet().contains(key)){
 			String s = bundle.getProperty(key);

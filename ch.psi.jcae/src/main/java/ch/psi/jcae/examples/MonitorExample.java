@@ -18,7 +18,7 @@ package ch.psi.jcae.examples;
 
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelFactory;
+import ch.psi.jcae.impl.ChannelServiceImpl;
 import gov.aps.jca.CAException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -31,7 +31,7 @@ public class MonitorExample {
 
     public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
         // Get channel factory
-        ChannelFactory factory = ChannelFactory.getFactory();
+        ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
 
         // Create ChannelBean
         ChannelImpl<String> bean = factory.createChannelBean(String.class, "ARIDI-PCT:CURRENT", true);
@@ -53,6 +53,6 @@ public class MonitorExample {
         bean.destroy();
 
         // Destroy context of the factory
-        ChannelFactory.getFactory().getChannelFactory().destroyContext();
+        ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
     }
 }

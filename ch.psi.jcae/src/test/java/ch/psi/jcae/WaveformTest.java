@@ -18,7 +18,7 @@
 package ch.psi.jcae;
 
 import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelFactory;
+import ch.psi.jcae.impl.ChannelServiceImpl;
 import ch.psi.jcae.server.CaServer;
 import gov.aps.jca.CAException;
 
@@ -51,7 +51,7 @@ public class WaveformTest {
 		String dataChannel = "JCAE-TEST-VARWAVE";
 		String sizeChannel = "JCAE-TEST-VARWAVE:SIZE";
 
-		ChannelFactory factory = ChannelFactory.getFactory();
+		ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
 
 		ChannelImpl<int[]> bean = factory.createChannelBean(int[].class, dataChannel, false);
 
@@ -80,7 +80,7 @@ public class WaveformTest {
 		logger.log(Level.INFO, "Size: {0}", bean.getSize());
 
 		// Destroy context of the factory
-		ChannelFactory.getFactory().getChannelFactory().destroyContext();
+		ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
 	}
 
 }

@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelFactory;
+import ch.psi.jcae.impl.ChannelServiceImpl;
 
 /**
  * @author ebner
@@ -44,7 +44,7 @@ public class ChannelBeanFactoryTest {
 	// Get Logger
 	private static Logger logger = Logger.getLogger(ChannelBeanFactoryTest.class.getName());
 	
-	private ChannelFactory factory;
+	private ChannelServiceImpl factory;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -52,7 +52,7 @@ public class ChannelBeanFactoryTest {
 	@Before
 	public void setUp() throws Exception {
 		// Get default factory
-		factory = ChannelFactory.getFactory();
+		factory = ChannelServiceImpl.getFactory();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class ChannelBeanFactoryTest {
 	}
 
 	/**
-	 * Test method for {@link ch.psi.jcae.impl.ChannelFactory#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
+	 * Test method for {@link ch.psi.jcae.impl.ChannelServiceImpl#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
 	 * @throws CAException 
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
@@ -136,7 +136,7 @@ public class ChannelBeanFactoryTest {
 	public void testDestructionRecreate() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
 		for(int i=0;i<10;i++){
-			factory = ChannelFactory.getFactory();
+			factory = ChannelServiceImpl.getFactory();
 			
 			long s = System.currentTimeMillis();
 			ChannelImpl<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);

@@ -31,13 +31,13 @@ import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
 import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelFactory;
+import ch.psi.jcae.impl.ChannelServiceImpl;
 
 public class CompleteAnnotationExample {
 
 	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Get channel factory
-        ChannelFactory factory = ChannelFactory.getFactory();
+        ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
@@ -52,7 +52,7 @@ public class CompleteAnnotationExample {
         factory.destroyChannelBeans(container);
         
         // Destroy context of the factory
-        ChannelFactory.getFactory().getChannelFactory().destroyContext();
+        ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
 	}
 }
 

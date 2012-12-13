@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import ch.psi.jcae.TestChannels;
 import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelFactory;
+import ch.psi.jcae.impl.ChannelServiceImpl;
 
 /**
  * @author ebner
@@ -50,7 +50,7 @@ public class IntegerStringConverterBeanTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		cbean = ChannelFactory.getFactory().createChannelBean(Integer.class, TestChannels.BINARY_IN, true);
+		cbean = ChannelServiceImpl.getFactory().createChannelBean(Integer.class, TestChannels.BINARY_IN, true);
 		b = new IntegerStringConverterBean(cbean);
 	}
 
