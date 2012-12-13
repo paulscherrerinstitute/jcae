@@ -25,7 +25,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -41,7 +40,7 @@ import org.junit.Test;
 
 import ch.psi.jcae.impl.ChannelBean;
 import ch.psi.jcae.impl.ChannelBeanFactory;
-import ch.psi.jcae.impl.MonitorListenerDoubleTimestamp;
+import ch.psi.jcae.impl.type.DoubleTimestamp;
 
 /**
  * JUnit test case for testing the functionality of a <code>ChannelBean</code>
@@ -176,6 +175,29 @@ public class ChannelBeanTest {
 	}
 	
 	
+	@Test
+	public void testGetValueComplexType() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		// Test if array and getValue(int size) is called
+		ChannelBean<DoubleTimestamp> bean = factory.createChannelBean(DoubleTimestamp.class, TestChannels.BINARY_IN, true);
+		DoubleTimestamp v = bean.getValue();
+		System.out.printf("%f %s offset: %d\n",v.getValue(), v.getTimestamp(), v.getNanosecondOffset());
+		bean.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				DoubleTimestamp t = ((DoubleTimestamp) evt.getNewValue());
+				System.out.printf("event: %f %s %d\n", t.getValue(), t.getTimestamp(), t.getNanosecondOffset());
+			}
+		});
+
+		ChannelBean<Double> beand = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
+		beand.setValue(12d);
+		Thread.sleep(1000);
+		beand.setValue(1d);
+		Thread.sleep(100);
+		beand.setValue(200d);
+		Thread.sleep(1000);
+	}
 
 	
 	/**
@@ -586,19 +608,19 @@ public class ChannelBeanTest {
 	public void testTimestampMonitor() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
 		ChannelBean<Double> c = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, false);
-		ChannelBean<Double> bean = factory.createChannelBean(Double.class, TestChannels.BINARY_IN, true);
-		MonitorListenerDoubleTimestamp l = new MonitorListenerDoubleTimestamp(){
-
-			@Override
-			public void valueChanged(Double value, Date timestamp, long nanosecondsOffset) {
-				System.out.println(value+ " - "+timestamp+" ."+nanosecondsOffset);
-				mcount++;
-			}};
+		ChannelBean<DoubleTimestamp> bean = factory.createChannelBean(DoubleTimestamp.class, TestChannels.BINARY_IN, true);
+		bean.addPropertyChangeListener(new PropertyChangeListener() {
 			
-		bean.attachMonitor(l );
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				DoubleTimestamp v = (DoubleTimestamp) evt.getNewValue();
+				System.out.printf("%f %s %d\n", v.getValue(), v.getTimestamp(), v.getNanosecondOffset());
+				mcount++;
+			}
+		});
 		
 		c.setValue(10d);
-//		Thread.sleep(100);
+//		Thread.sleep(100); // monitor should still fire!
 		c.setValue(3.69);
 		Thread.sleep(500);
 		c.setValue(6.1);
@@ -610,7 +632,7 @@ public class ChannelBeanTest {
 		c.destroy();
 		bean.destroy();
 		
-		if(mcount != 5){ // 5 because while connecting the listener gets fired for the actual value
+		if(mcount != 4){ // 5 because while connecting the listener gets fired for the actual value
 			Assert.fail("Not all monitors fired correctly");
 		}
 	}

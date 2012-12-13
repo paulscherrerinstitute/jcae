@@ -29,12 +29,6 @@ import ch.psi.jcae.impl.handler.Handlers;
 
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
-import gov.aps.jca.dbr.BYTE;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DOUBLE;
-import gov.aps.jca.dbr.INT;
-import gov.aps.jca.dbr.SHORT;
-import gov.aps.jca.dbr.STRING;
 import gov.aps.jca.event.GetEvent;
 import gov.aps.jca.event.GetListener;
 

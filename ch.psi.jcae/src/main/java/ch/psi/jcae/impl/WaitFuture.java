@@ -34,18 +34,6 @@ import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
-import gov.aps.jca.dbr.BYTE;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Byte;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.dbr.DBR_Short;
-import gov.aps.jca.dbr.DBR_String;
-import gov.aps.jca.dbr.DOUBLE;
-import gov.aps.jca.dbr.INT;
-import gov.aps.jca.dbr.SHORT;
-import gov.aps.jca.dbr.STRING;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 

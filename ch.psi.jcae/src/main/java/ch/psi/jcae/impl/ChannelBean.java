@@ -22,8 +22,6 @@ package ch.psi.jcae.impl;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -41,19 +39,7 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.Context;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.Channel.ConnectionState;
-import gov.aps.jca.dbr.BYTE;
 import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Byte;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.dbr.DBR_Short;
-import gov.aps.jca.dbr.DBR_String;
-import gov.aps.jca.dbr.DBR_TIME_Double;
-import gov.aps.jca.dbr.DOUBLE;
-import gov.aps.jca.dbr.INT;
-import gov.aps.jca.dbr.SHORT;
-import gov.aps.jca.dbr.STRING;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
 
@@ -87,7 +73,6 @@ public class ChannelBean<E> {
 	
 	private Class<E> type;
 	private Monitor monitor;
-	private Set<Monitor> additionalMonitors;
 	private ConnectionListener listener;
 	private Channel channel;
 	private int elementCount = 1;
@@ -188,9 +173,6 @@ public class ChannelBean<E> {
 			attachMonitor();
 			updateValue(); // Get initial value
 		}
-		
-		
-		additionalMonitors = new HashSet<Monitor>();
 	}
 	
 	
@@ -515,41 +497,6 @@ public class ChannelBean<E> {
 	}
 	
 	
-	// TODO REMOVE THIS
-	/**
-	 * Attach a custom monitor listener to monitor double channels (including change timestamp)
-	 * @param t
-	 * @param noElements
-	 * @param l
-	 * @return
-	 * @throws IllegalStateException
-	 * @throws CAException
-	 */
-	public Monitor attachMonitor(MonitorListenerDoubleTimestamp l) throws IllegalStateException, CAException{
-		Monitor monitor = channel.addMonitor(DBR_TIME_Double.TYPE, 1, Monitor.VALUE, l);
-		channel.getContext().flushIO();
-		additionalMonitors.add(monitor);
-		return monitor;
-	}
-	
-	// TODO REMOVE THIS
-	/**
-	 * Remove monitor from the channel
-	 * @param monitor
-	 * @throws CAException
-	 */
-	public void removeMonitor(Monitor monitor) throws CAException{
-		if(additionalMonitors.contains(monitor)){
-			monitor.clear();
-			channel.getContext().flushIO();
-			additionalMonitors.remove(monitor);
-		}
-		else{
-			throw new IllegalArgumentException("Monitor is not registered for this channel");
-		}
-	}
-	
-	
 	/**
 	 * Destroy channel bean. Method will detach a possible monitor of this bean for the channel and 
 	 * destroy the channel of the bean.
@@ -559,14 +506,6 @@ public class ChannelBean<E> {
 	public void destroy() throws CAException, ChannelException{
 		
 		removeMonitor();
-		
-		// Clear additional monitors
-		for(Monitor m: additionalMonitors){
-			logger.finest("Clear monitor - "+m.hashCode());
-			m.clear();
-		}
-		channel.getContext().flushIO();
-		
 		removeConnectionListener();
 		
 		try{
