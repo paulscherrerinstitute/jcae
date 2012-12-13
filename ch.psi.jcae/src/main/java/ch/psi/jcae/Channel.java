@@ -4,7 +4,9 @@
 
 package ch.psi.jcae;
 
+import java.beans.PropertyChangeListener;
 import java.util.Comparator;
+import java.util.concurrent.Future;
 
 /**
  * @author ebner
@@ -32,12 +34,11 @@ public interface Channel<T> {
 	public void setValueNoWait(T value);
 	
 
-	public void waitForValue(T rvalue, Comparator<T> comparator, Long timeout);
+	public Future<T> waitForValue(T rvalue) throws ChannelException;
+	public Future<T> waitForValue(T rvalue, long waitRetryPeriod) throws ChannelException;
+	public Future<T> waitForValue(T rvalue, Comparator<T> comparator) throws ChannelException;
+	public Future<T> waitForValue(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws ChannelException;
 	
-	public void waitForValue(T rvalue, Long timeout);
-	
-	public void waitForValue(T rvalue);
-
 	
 	/**
 	 * Hostname of the machine serving the channel.
@@ -51,11 +52,12 @@ public interface Channel<T> {
 	 */
 	public ChannelDescriptor<T> getDescriptor();
 	
+	public boolean isConnected();
+	public String getName();
+
+	public void destroy() throws ChannelException;
 	
-	// To be discussed
-	public void setDefaultTimeout(Long timeout);
-	public Long getDefaultTimeout();
 	
-	public void setDefaultWaitTimeout(Long timeout);
-	public Long getDefaultWaitTimeout();
+	public void addPropertyChangeListener( PropertyChangeListener l ) throws ChannelException;
+	public void removePropertyChangeListener( PropertyChangeListener l );
 }

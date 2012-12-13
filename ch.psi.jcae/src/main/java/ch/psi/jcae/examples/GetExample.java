@@ -16,8 +16,9 @@
  */
 package ch.psi.jcae.examples;
 
+import ch.psi.jcae.Channel;
+import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
-import ch.psi.jcae.impl.ChannelImpl;
 import ch.psi.jcae.impl.ChannelServiceImpl;
 import gov.aps.jca.CAException;
 
@@ -31,10 +32,10 @@ public class GetExample {
     public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
         // Get channel factory
-        ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
+        ChannelServiceImpl factory = new ChannelServiceImpl();
 
         // Connect to channel
-        ChannelImpl<String> bean = factory.createChannelBean(String.class, "ARIDI-PCT:CURRENT", true);
+        Channel<String> bean = factory.createChannel(new ChannelDescriptor<>(String.class, "ARIDI-PCT:CURRENT", true));
 
         // Get value
         String value = bean.getValue();
@@ -44,6 +45,6 @@ public class GetExample {
         bean.destroy();
 
         // Close all connections
-        ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
+        factory.destroy();
     }
 }

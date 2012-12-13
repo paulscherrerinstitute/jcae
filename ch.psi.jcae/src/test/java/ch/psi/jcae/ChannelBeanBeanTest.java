@@ -49,7 +49,7 @@ public class ChannelBeanBeanTest {
 	// Get Logger
 	private static final Logger logger = Logger.getLogger(ChannelBeanBeanTest.class.getName());
 	
-	private ChannelServiceImpl factory;
+	private ChannelServiceImpl cservice;
 	
 	private HashMap<String, Long> timestamps = new HashMap<String,Long>();
 	private boolean errorInSequence = false;
@@ -60,7 +60,7 @@ public class ChannelBeanBeanTest {
 	@Before
 	public void setUp() throws Exception {
 		// Get default factory
-		factory = ChannelServiceImpl.getFactory();
+		cservice = new ChannelServiceImpl();
 	}
 
 	/**
@@ -68,6 +68,7 @@ public class ChannelBeanBeanTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
+		cservice.destroy();
 	}
 
 	/**
@@ -80,7 +81,7 @@ public class ChannelBeanBeanTest {
 	@Test
 	public void testConnectChannelBeans() throws CAException, ChannelException, InterruptedException, TimeoutException, ExecutionException {
 		TestObject object = new TestObject();
-		factory.createChannelBeans(object, TestChannels.PREFIX);
+		cservice.createAnnotatedChannels(object, TestChannels.PREFIX);
 		
 		// Check whether pre and post methods are executed
 		if(timestamps.get("pre")!=null && timestamps.get("post")!=null){
@@ -92,7 +93,7 @@ public class ChannelBeanBeanTest {
 			fail("Pre or post did not get executed");
 		}
 		
-		factory.destroyChannelBeans(object);
+		cservice.destroyAnnotatedChannels(object);
 		
 		// Check whether pre and post destroy got executed
 		if(timestamps.get("preDestroy")!=null && timestamps.get("postDestroy")!=null){

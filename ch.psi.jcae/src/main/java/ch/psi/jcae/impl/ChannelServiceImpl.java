@@ -20,19 +20,20 @@
 package ch.psi.jcae.impl;
 
 import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
+import ch.psi.jcae.Channel;
+import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
@@ -45,13 +46,11 @@ import ch.psi.jcae.annotation.CaPreInit;
  * @author ebner
  *
  */
-public class ChannelServiceImpl {
+public class ChannelServiceImpl implements ChannelService {
 	
 	private static final Logger logger = Logger.getLogger(ChannelServiceImpl.class.getName());
-	private static HashMap<String,ChannelServiceImpl> factories = new HashMap<String,ChannelServiceImpl>();
-	private static final String defaultFactoryKey = "default";
 
-	private JCAChannelFactory channelFactory;
+	private final JCAChannelFactory channelFactory;
 
 	/**
 	 * Constructor - Create ChannelBeanFactory object. The constructor will initialize a 
@@ -61,58 +60,13 @@ public class ChannelServiceImpl {
 	 * 
 	 * @throws CAException
 	 */
-	private ChannelServiceImpl() throws CAException{
-		
-		// Create ChannelFactory object
-		channelFactory = new JCAChannelFactory();
-	}
-	
-	/**
-	 * Get default instance of ChannelBeanFactory
-	 * @return		Instance of the ChannelBeanFactory
-	 * @throws CAException
-	 */
-	public static ChannelServiceImpl getFactory() throws CAException{
-		if(!factories.containsKey(defaultFactoryKey)){
-			factories.put(defaultFactoryKey, new ChannelServiceImpl());
+	public ChannelServiceImpl(){
+		try{
+			channelFactory = new JCAChannelFactory();
 		}
-		return(factories.get(defaultFactoryKey));
-	}
-	
-	/**
-	 * Get a specific ChannelBeanFactory identified by the given key. If no factory is registered for the 
-	 * given key, a new one is created.
-	 * ChannelBeans created with factories of different keys will have different
-	 * Contexts, ...
-	 * 
-	 * @param factoryKey
-	 * @return		Instance of the ChannelBeanFactory
-	 * @throws CAException
-	 */
-	public static ChannelServiceImpl getFactory(String factoryKey) throws CAException{
-		if(!factories.containsKey(factoryKey)){
-			factories.put(factoryKey, new ChannelServiceImpl());
+		catch(CAException e){
+			throw new RuntimeException("Unable to initialize internal channel factory",e);
 		}
-		return(factories.get(factoryKey));
-	}
-	
-	/**
-	 * Create ChannelBean object of the specified type and the given channel.
-	 * 
-	 * @param <T>
-	 * @param type
-	 * @param channel
-	 * @param monitor
-	 * @return		Typed ChannelBean object
-	 * @throws CAException
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
-	 */
-	public <T> ChannelImpl<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, monitor);
-		return(bean);
 	}
 	
 	
@@ -132,11 +86,16 @@ public class ChannelServiceImpl {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public <T> ChannelImpl<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException{
-		Channel channel = channelFactory.createChannel(channelName);
-		
-		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, monitor);
-		return(bean);
+	@Override
+	public <T> Channel<T> createChannel(ChannelDescriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException {
+		try{
+			gov.aps.jca.Channel channel = channelFactory.createChannel(descriptor.getName());
+			ChannelImpl<T> bean = new ChannelImpl<T>(descriptor.getType(), channel, null, descriptor.getMonitored());
+			return(bean);
+		}
+		catch(CAException | ExecutionException e){
+			throw new ChannelException("Unable to create channel "+descriptor.getName(),e);
+		}
 	}
 	
 	
@@ -157,15 +116,25 @@ public class ChannelServiceImpl {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public <T> List<ChannelImpl<T>> createChannelBeans(Class<T> type, List<String> channelNames, boolean monitor) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		List<Channel> channels = channelFactory.createChannels(channelNames);
+	@Override
+	public List<Channel<?>> createChannels(List<ChannelDescriptor<?>> list) throws ChannelException, InterruptedException, TimeoutException {
+		try{
+		List<String> names = new ArrayList<String>();
+		for(ChannelDescriptor<?> d: list){
+			names.add(d.getName());
+		}
+		List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
 		
-		List<ChannelImpl<T>> beans = new ArrayList<ChannelImpl<T>>();
-		for(Channel channel: channels){
-			ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, monitor);
-			beans.add(bean);
+		List<Channel<?>> beans = new ArrayList<Channel<?>>();
+		for(int i=0;i<list.size();i++){
+			ChannelDescriptor<?> d = list.get(i);
+			beans.add(new ChannelImpl<>(d.getType(), channels.get(i), null, d.getMonitored()));
 		}
 		return(beans);
+		}
+		catch(CAException | ExecutionException e){
+			throw new ChannelException("", e);
+		}
 	}
 	
 	
@@ -180,8 +149,9 @@ public class ChannelServiceImpl {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public void createChannelBeans(Object object) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		createChannelBeans(object, "");
+	@Override
+	public void createAnnotatedChannels(Object object) throws ChannelException, InterruptedException, TimeoutException {
+		createAnnotatedChannels(object, "");
 	}
 	
 	/**
@@ -197,7 +167,8 @@ public class ChannelServiceImpl {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public void createChannelBeans(Object object, String baseName) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
+	@Override
+	public void createAnnotatedChannels(Object object, String baseName) throws ChannelException, InterruptedException, TimeoutException {
 		try{
 			Class<?> c = object.getClass();
 			
@@ -213,7 +184,6 @@ public class ChannelServiceImpl {
 			// Connect ChannelBeans
 			List<Object[]> fields = new ArrayList<Object[]>();
 			List<String> channelNames = new ArrayList<String>();
-			
 			
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
@@ -235,7 +205,7 @@ public class ChannelServiceImpl {
 			}
 			
 			// Create and set ChannelBean object of the given bean object
-			List<Channel> channels = channelFactory.createChannels(channelNames);
+			List<gov.aps.jca.Channel> channels = channelFactory.createChannels(channelNames);
 			int ct = 0;
 			for(Object[] f: fields){
 				Field field = (Field) f[0] ;
@@ -243,17 +213,17 @@ public class ChannelServiceImpl {
 				field.setAccessible(true);
 				CaChannel annotation = (CaChannel)f[1];
 				if(annotation.name().length>1){
-					List<ChannelImpl<?>> list = new ArrayList<ChannelImpl<?>>();
+					List<Channel<?>> list = new ArrayList<Channel<?>>();
 					for(int x=0;x<annotation.name().length;x++){
 						// Create ChannelBean object
-						list.add(createChannelBean(annotation.type(), channels.get(ct), annotation.monitor()));
+						list.add(new ChannelImpl<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
 						ct++;
 					}
 					field.set(object, list);	
 				}
 				else{
 					// Create ChannelBean object
-					field.set(object, createChannelBean(annotation.type(), channels.get(ct), annotation.monitor()));
+					field.set(object, new ChannelImpl<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
 					ct++;
 				}
 				
@@ -269,15 +239,16 @@ public class ChannelServiceImpl {
 				}
 			}
 			
-			
 		} catch (IllegalArgumentException e) {
-			throw new CAException("An error occured while using reflection to set object values",e);
+			throw new ChannelException("An error occured while using reflection to set object values",e);
 		} catch (IllegalAccessException e) {
-			throw new CAException("An error occured while using reflection to set object values",e);
+			throw new ChannelException("An error occured while using reflection to set object values",e);
 		} catch (SecurityException e) {
-			throw new CAException("An error occured while using reflection to set object values",e);
+			throw new ChannelException("An error occured while using reflection to set object values",e);
 		} catch (InvocationTargetException e) {
-			throw new CAException("Cannot execute pre/post init function(s)",e);
+			throw new ChannelException("Cannot execute pre/post init function(s)",e);
+		} catch (CAException | ExecutionException e) {
+			throw new ChannelException("Unable to create channels", e);
 		}
 	}
 	
@@ -288,7 +259,8 @@ public class ChannelServiceImpl {
 	 * @throws InterruptedException
 	 * @throws ChannelException 
 	 */
-	public void destroyChannelBeans(Object object) throws CAException, InterruptedException, ChannelException{
+	@Override
+	public void destroyAnnotatedChannels(Object object) throws ChannelException {
 		try{
 			
 			Class<?> c = object.getClass();
@@ -346,31 +318,35 @@ public class ChannelServiceImpl {
 			
 			
 		} catch (IllegalArgumentException e) {
-			throw new CAException("An error occured while using reflection to set object values",e);
+			throw new ChannelException("An error occured while using reflection to set object values",e);
 		} catch (IllegalAccessException e) {
-			throw new CAException("An error occured while using reflection to set object values",e);
+			throw new ChannelException("An error occured while using reflection to set object values",e);
 		} catch (SecurityException e) {
-			throw new CAException("An error occured while using reflection to set object values",e);
+			throw new ChannelException("An error occured while using reflection to set object values",e);
 		} catch (InvocationTargetException e) {
-			throw new CAException("Cannot execute pre/post destroy function(s)",e);
+			throw new ChannelException("Cannot execute pre/post destroy function(s)",e);
 		}
 	}
 	
-	
-	
 	/**
-	 * Set ChannelFactory to use for creating new ChannelBean objects.
-	 * @param channelFactory
+	 * Destroy this service and free all hold resources ...
 	 */
-	public void setChannelFactory(JCAChannelFactory channelFactory){
-		this.channelFactory = channelFactory;
+	@Override
+	public void destroy(){
+		try{
+			channelFactory.destroyContext();
+		}
+		catch(CAException e){
+			throw new RuntimeException("Unable to destroy the internal channel factory instance", e);
+		}
 	}
-
-	/**
-	 * Get current ChannelFactory used to create new ChannelBean objects.
-	 * @return		Get used instance of the ChannelFactory
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#finalize()
 	 */
-	public JCAChannelFactory getChannelFactory() {
-		return channelFactory;
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		destroy();
 	}
 }

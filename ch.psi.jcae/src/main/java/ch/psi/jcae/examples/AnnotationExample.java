@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import gov.aps.jca.CAException;
 import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.impl.ChannelImpl;
 import ch.psi.jcae.impl.ChannelServiceImpl;
@@ -33,22 +34,22 @@ public class AnnotationExample {
 
 	public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException {
 		// Get channel factory
-        ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
+        ChannelService service = new ChannelServiceImpl();
 
         ChannelBeanContainer container = new ChannelBeanContainer();
         
         // Connect to channel(s) in the container
-        factory.createChannelBeans(container);
+        service.createAnnotatedChannels(container);
         
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
         Logger.getLogger(AnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
         
         // Disconnect channel(s) in the container
-        factory.destroyChannelBeans(container);
+        service.destroyAnnotatedChannels(container);
         
         // Destroy context of the factory
-        ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
+        service.destroy();
 	}
 }
 

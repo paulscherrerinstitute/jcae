@@ -54,7 +54,7 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @param <E>	Type of ChannelBean value
  */
-public class ChannelImpl<E> {
+public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	
 	private static Logger logger = Logger.getLogger(ChannelImpl.class.getName());
 	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
@@ -159,7 +159,7 @@ public class ChannelImpl<E> {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
+	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{ // FIXME remove ExecutionException
 		return(getValueAsync(force).get());
 	}
 	
@@ -206,7 +206,7 @@ public class ChannelImpl<E> {
 	 * @throws ExecutionException
 	 * @throws ChannelException
 	 */
-	public void setValue(E value) throws InterruptedException, ExecutionException, ChannelException{
+	public void setValue(E value) throws InterruptedException, ExecutionException, ChannelException{ // FIXME remove ExecutionException
 		setValueAsync(value).get();
 	}
 	
@@ -334,7 +334,8 @@ public class ChannelImpl<E> {
 	 * 
 	 * @return	In the case of an array channel the number of elements, for a scalar channel 1. 
 	 */
-	public int getSize(){
+	public Integer getSize(){
+		// FIXME need to return actually used size !!!! 
 		if(type.isArray()){
 			return(channel.getElementCount());
 		}
@@ -346,7 +347,7 @@ public class ChannelImpl<E> {
 	 * 
 	 * @return	Name of the IOC hosting the managed channel
 	 */
-	public String getHostname(){
+	public String getSource(){
 		return(channel.getHostName());
 	}
 
@@ -370,10 +371,15 @@ public class ChannelImpl<E> {
 	 * @throws TimeoutException 
 	 * @throws InterruptedException 
 	 */
-	public void setMonitored(boolean monitored) throws ChannelException, InterruptedException, TimeoutException, ExecutionException {
+	public void setMonitored(boolean monitored) throws ChannelException {
 		if (monitored && !this.monitored){
 			attachMonitor();
-			value.set(getValue(true)); // Get initial value
+			try{
+				value.set(getValue(true)); // Get initial value
+			}
+			catch(Exception e){
+				throw new ChannelException("Unable to get initial value after setting channel to monitored ",e);
+			}
 		}
 		else if (!monitored && this.monitored){
 			removeMonitor();
@@ -489,7 +495,7 @@ public class ChannelImpl<E> {
 	 * @throws CAException 
 	 * @throws ChannelException 
 	 */
-	public void destroy() throws CAException, ChannelException{
+	public void destroy() throws ChannelException{
 		
 		removeMonitor();
 		removeConnectionListener();
@@ -514,9 +520,18 @@ public class ChannelImpl<E> {
 	
 	/**
 	 * Add/register a property change listener for this object
+	 * If the channel is not set to monitored it will be automatically set to be monitored!
+	 * 
 	 * @param l		Listener object
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 * @throws InterruptedException 
+	 * @throws ChannelException 
 	 */
-	public void addPropertyChangeListener( PropertyChangeListener l ) {
+	public void addPropertyChangeListener( PropertyChangeListener l ) throws ChannelException {
+		if(!isMonitored()){
+			setMonitored(true);
+		}
 		changeSupport.addPropertyChangeListener( l );
 	} 
 

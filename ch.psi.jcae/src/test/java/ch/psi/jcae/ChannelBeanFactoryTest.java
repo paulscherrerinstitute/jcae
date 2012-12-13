@@ -51,8 +51,7 @@ public class ChannelBeanFactoryTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		// Get default factory
-		factory = ChannelServiceImpl.getFactory();
+		factory = new ChannelServiceImpl();
 	}
 
 	/**
@@ -60,6 +59,7 @@ public class ChannelBeanFactoryTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
+		factory.destroy();
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class ChannelBeanFactoryTest {
 		for(int i=0;i<100;i++){
 			
 			long s = System.currentTimeMillis();
-			ChannelImpl<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
+			Channel<String> bean = factory.createChannel(new ChannelDescriptor<>(String.class, TestChannels.BINARY_OUT));
 			long e = System.currentTimeMillis();
 			
 			// Print the elapsed time for creating the channel
@@ -109,7 +109,7 @@ public class ChannelBeanFactoryTest {
 		TestObject one = new TestObject();
 
 		// Manage Bean
-		factory.createChannelBeans(one, TestChannels.PREFIX);
+		factory.createAnnotatedChannels(one, TestChannels.PREFIX);
 
 		// Check to get values
 		one.getType().getValue();
@@ -136,10 +136,10 @@ public class ChannelBeanFactoryTest {
 	public void testDestructionRecreate() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
 		for(int i=0;i<10;i++){
-			factory = ChannelServiceImpl.getFactory();
+			ChannelServiceImpl factory1 = new ChannelServiceImpl();
 			
 			long s = System.currentTimeMillis();
-			ChannelImpl<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
+			Channel<String> bean = factory1.createChannel(new ChannelDescriptor<>(String.class, TestChannels.BINARY_OUT));
 			long e = System.currentTimeMillis();
 			
 			// Print the elapsed time for creating the channel
@@ -155,7 +155,7 @@ public class ChannelBeanFactoryTest {
 			
 			// Destroy the context every now and then
 			if(i%3==0){
-				factory.getChannelFactory().destroyContext();
+				factory1.destroy();
 			}
 		}
 	}

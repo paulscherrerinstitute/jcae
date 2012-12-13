@@ -31,10 +31,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.psi.jcae.Channel;
+import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.TestChannels;
-import ch.psi.jcae.impl.ChannelImpl;
 import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.type.ByteArrayString;
 
 /**
  * @author ebner
@@ -45,15 +47,16 @@ public class ByteArrayStringConverterBeanTest {
 	// Get Logger
 	private static Logger logger = Logger.getLogger(ByteArrayStringConverterBeanTest.class.getName());
 	
-	private ByteArrayStringConverterBean b;
+	private ChannelServiceImpl cservice;
+	private Channel<ByteArrayString> b;
 	
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		ChannelImpl<byte[]> cbean = ChannelServiceImpl.getFactory().createChannelBean(byte[].class, TestChannels.CHARACTER_WAVEFORM, false);
-		b = new ByteArrayStringConverterBean(cbean);
+		cservice = new ChannelServiceImpl();
+		b = cservice.createChannel(new ChannelDescriptor<>(ByteArrayString.class, TestChannels.CHARACTER_WAVEFORM));
 	}
 
 	/**
@@ -61,6 +64,7 @@ public class ByteArrayStringConverterBeanTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
+		cservice.destroy();
 	}
 
 	/**
@@ -73,20 +77,20 @@ public class ByteArrayStringConverterBeanTest {
 	 */
 	@Test
 	public void testGetSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		String value = b.getValue();
-		logger.info("Channel value as String: "+value);
+		ByteArrayString ovalue = b.getValue();
+		logger.info("Channel value as String: "+ ovalue.getValue());
 		
 		// Set new String
-		String v = "Some more string";
-		b.setValue(v);
+		ByteArrayString value = new ByteArrayString("Some more string");
+		b.setValue(value);
 		
-		String value2 = b.getValue();
-		logger.info("Channel value as String: "+value2);
+		ByteArrayString value2 = b.getValue();
+		logger.info("Channel value as String: "+value2.getValue());
 
-		assertEquals(v, value2);
+		assertEquals(value.getValue(), value2.getValue());
 		
 		// Reset previous channel value
-		b.setValue(value);
+		b.setValue(ovalue);
 		
 	}
 

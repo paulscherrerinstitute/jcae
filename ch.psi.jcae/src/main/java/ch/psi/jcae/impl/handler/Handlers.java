@@ -7,6 +7,7 @@ package ch.psi.jcae.impl.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.psi.jcae.impl.type.ByteArrayString;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 
 /**
@@ -33,8 +34,9 @@ public class Handlers {
 		HANDLERS.put(String[].class, new StringArrayHandler());
 		HANDLERS.put(String.class, new StringHandler());
 		
-		// Experimental
+		// Complex types
 		HANDLERS.put(DoubleTimestamp.class, new DoubleTimestampHandler());
+		HANDLERS.put(ByteArrayString.class, new ByteArrayStringHandler());
 	}
 	
 }

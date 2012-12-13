@@ -17,7 +17,6 @@
 
 package ch.psi.jcae;
 
-import ch.psi.jcae.impl.ChannelImpl;
 import ch.psi.jcae.impl.ChannelServiceImpl;
 import ch.psi.jcae.server.CaServer;
 import gov.aps.jca.CAException;
@@ -51,11 +50,11 @@ public class WaveformTest {
 		String dataChannel = "JCAE-TEST-VARWAVE";
 		String sizeChannel = "JCAE-TEST-VARWAVE:SIZE";
 
-		ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
+		ChannelServiceImpl cservice = new ChannelServiceImpl();
 
-		ChannelImpl<int[]> bean = factory.createChannelBean(int[].class, dataChannel, false);
+		Channel<int[]> bean = cservice.createChannel(new ChannelDescriptor<>(int[].class, dataChannel));
 
-		ChannelImpl<Integer> mode = factory.createChannelBean(Integer.class, sizeChannel, false);
+		Channel<Integer> mode = cservice.createChannel(new ChannelDescriptor<>(Integer.class, sizeChannel));
 
 		int oldmode = mode.getValue();
 		logger.log(Level.INFO, "Mode: {0}", mode.getValue());
@@ -65,7 +64,7 @@ public class WaveformTest {
 
 		mode.setValue(1);
 
-		bean = factory.createChannelBean(int[].class, dataChannel, false);
+		bean = cservice.createChannel(new ChannelDescriptor<>(int[].class, dataChannel));
 
 		logger.log(Level.INFO, "Mode: {0}", mode.getValue());
 		logger.log(Level.INFO, "Size: {0}", bean.getSize());
@@ -74,13 +73,13 @@ public class WaveformTest {
 
 		mode.setValue(oldmode);
 
-		bean = factory.createChannelBean(int[].class, dataChannel, false);
+		bean = cservice.createChannel(new ChannelDescriptor<>(int[].class, dataChannel));
 
 		logger.log(Level.INFO, "Mode: {0}", mode.getValue());
 		logger.log(Level.INFO, "Size: {0}", bean.getSize());
 
 		// Destroy context of the factory
-		ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
+		cservice.destroy();
 	}
 
 }

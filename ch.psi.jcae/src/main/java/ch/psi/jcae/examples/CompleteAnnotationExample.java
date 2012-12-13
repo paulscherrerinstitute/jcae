@@ -37,22 +37,22 @@ public class CompleteAnnotationExample {
 
 	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Get channel factory
-        ChannelServiceImpl factory = ChannelServiceImpl.getFactory();
+        ChannelServiceImpl service = new ChannelServiceImpl();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
         // Connect to channel(s) in the container
-        factory.createChannelBeans(container);
+        service.createAnnotatedChannels(container);
         
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
         Logger.getLogger(CompleteAnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
         
         // Disconnect channel(s) in the container
-        factory.destroyChannelBeans(container);
+        service.destroyAnnotatedChannels(container);
         
         // Destroy context of the factory
-        ChannelServiceImpl.getFactory().getChannelFactory().destroyContext();
+        service.destroy();
 	}
 }
 
