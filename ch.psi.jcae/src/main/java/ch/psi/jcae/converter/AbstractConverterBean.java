@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import ch.psi.jcae.ChannelException;
-import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelImpl;
 
 /**
  * Abstract converter class to automatically convert channel values
@@ -53,9 +53,9 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	/**
 	 * ChannelBean that gets wrapped by this converter
 	 */
-	private final ChannelBean<E> channelBean;
+	private final ChannelImpl<E> channelBean;
 	
-	public AbstractConverterBean(ChannelBean<E> channelBean){
+	public AbstractConverterBean(ChannelImpl<E> channelBean){
 		this.channelBean = channelBean;
 		this.channelBean.addPropertyChangeListener(this);
 	}
@@ -123,7 +123,7 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 	 * Get wrapped ChannelBean object
 	 * @return	Wrapped ChannelBean
 	 */
-	public ChannelBean<E> getChannelBean(){
+	public ChannelImpl<E> getChannelBean(){
 		return channelBean;
 	}
 	
@@ -138,7 +138,7 @@ public abstract class AbstractConverterBean<E,T> implements PropertyChangeListen
 		E nv = (E) evt.getNewValue();
 		E ov = (E) evt.getOldValue();
 		String key = evt.getPropertyName();
-		if(key.equals(ChannelBean.PROPERTY_VALUE)){
+		if(key.equals(ChannelImpl.PROPERTY_VALUE)){
 			changeSupport.firePropertyChange(PROPERTY_VALUE, convertForward(ov), convertForward(nv));
 		}
 	}

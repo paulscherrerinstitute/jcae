@@ -30,8 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.TestChannels;
-import ch.psi.jcae.impl.ChannelBean;
-import ch.psi.jcae.impl.ChannelBeanFactory;
+import ch.psi.jcae.impl.ChannelImpl;
+import ch.psi.jcae.impl.ChannelFactory;
 
 /**
  * @author ebner
@@ -43,14 +43,14 @@ public class IntegerStringConverterBeanTest {
 	private static Logger logger = Logger.getLogger(IntegerStringConverterBeanTest.class.getName());
 	
 	private IntegerStringConverterBean b;
-	private ChannelBean<Integer> cbean;
+	private ChannelImpl<Integer> cbean;
 	
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		cbean = ChannelBeanFactory.getFactory().createChannelBean(Integer.class, TestChannels.BINARY_IN, true);
+		cbean = ChannelFactory.getFactory().createChannelBean(Integer.class, TestChannels.BINARY_IN, true);
 		b = new IntegerStringConverterBean(cbean);
 	}
 

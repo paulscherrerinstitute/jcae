@@ -19,7 +19,7 @@
 
 package ch.psi.jcae.converter;
 
-import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelImpl;
 
 /**
  * @author ebner
@@ -31,7 +31,7 @@ public class BooleanStringConverterBean extends AbstractConverterBean<Boolean,St
 	/**
 	 * @param channelBean
 	 */
-	public BooleanStringConverterBean(ChannelBean<Boolean> channelBean) {
+	public BooleanStringConverterBean(ChannelImpl<Boolean> channelBean) {
 		super(channelBean);
 	}
 

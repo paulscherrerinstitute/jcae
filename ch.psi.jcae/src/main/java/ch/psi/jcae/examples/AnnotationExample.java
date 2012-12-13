@@ -26,14 +26,14 @@ import java.util.logging.Logger;
 import gov.aps.jca.CAException;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.impl.ChannelBean;
-import ch.psi.jcae.impl.ChannelBeanFactory;
+import ch.psi.jcae.impl.ChannelImpl;
+import ch.psi.jcae.impl.ChannelFactory;
 
 public class AnnotationExample {
 
 	public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException {
 		// Get channel factory
-        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+        ChannelFactory factory = ChannelFactory.getFactory();
 
         ChannelBeanContainer container = new ChannelBeanContainer();
         
@@ -48,7 +48,7 @@ public class AnnotationExample {
         factory.destroyChannelBeans(container);
         
         // Destroy context of the factory
-        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+        ChannelFactory.getFactory().getChannelFactory().destroyContext();
 	}
 }
 
@@ -58,22 +58,22 @@ public class AnnotationExample {
 class ChannelBeanContainer {
 
 	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private ChannelBean<Double> current;
+	private ChannelImpl<Double> current;
 	
 	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private ChannelBean<String> unit;
+	private ChannelImpl<String> unit;
 
 	/**
 	 * @return the current
 	 */
-	public ChannelBean<Double> getCurrent() {
+	public ChannelImpl<Double> getCurrent() {
 		return current;
 	}
 	
 	/**
 	 * @return unit of the current
 	 */
-	public ChannelBean<String> getUnit() {
+	public ChannelImpl<String> getUnit() {
 		return unit;
 	}
 }

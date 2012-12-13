@@ -33,8 +33,8 @@ import org.junit.Test;
 
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.TestChannels;
-import ch.psi.jcae.impl.ChannelBean;
-import ch.psi.jcae.impl.ChannelBeanFactory;
+import ch.psi.jcae.impl.ChannelImpl;
+import ch.psi.jcae.impl.ChannelFactory;
 
 /**
  * @author ebner
@@ -52,7 +52,7 @@ public class ByteArrayStringConverterBeanTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		ChannelBean<byte[]> cbean = ChannelBeanFactory.getFactory().createChannelBean(byte[].class, TestChannels.CHARACTER_WAVEFORM, false);
+		ChannelImpl<byte[]> cbean = ChannelFactory.getFactory().createChannelBean(byte[].class, TestChannels.CHARACTER_WAVEFORM, false);
 		b = new ByteArrayStringConverterBean(cbean);
 	}
 

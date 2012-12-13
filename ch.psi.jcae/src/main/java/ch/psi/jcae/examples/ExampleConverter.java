@@ -18,7 +18,7 @@
 package ch.psi.jcae.examples;
 
 import ch.psi.jcae.converter.AbstractConverterBean;
-import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelImpl;
 
 /**
  *
@@ -26,7 +26,7 @@ import ch.psi.jcae.impl.ChannelBean;
  */
 public class ExampleConverter extends AbstractConverterBean<Double, String>{
 
-    public ExampleConverter(ChannelBean<Double> bean){
+    public ExampleConverter(ChannelImpl<Double> bean){
         super(bean);
     }
 

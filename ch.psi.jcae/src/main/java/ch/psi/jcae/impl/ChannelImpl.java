@@ -54,9 +54,9 @@ import gov.aps.jca.event.ConnectionListener;
  *
  * @param <E>	Type of ChannelBean value
  */
-public class ChannelBean<E> {
+public class ChannelImpl<E> {
 	
-	private static Logger logger = Logger.getLogger(ChannelBean.class.getName());
+	private static Logger logger = Logger.getLogger(ChannelImpl.class.getName());
 	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	
 	
@@ -126,7 +126,7 @@ public class ChannelBean<E> {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public ChannelBean(Class<E> type, Channel channel, Integer size, long timeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
+	public ChannelImpl(Class<E> type, Channel channel, Integer size, long timeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 		// Check whether type is supported
 		if(!Handlers.HANDLERS.containsKey(type)){

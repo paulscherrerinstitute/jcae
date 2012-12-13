@@ -19,7 +19,7 @@
 
 package ch.psi.jcae.converter;
 
-import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelImpl;
 
 /**
  * @author ebner
@@ -31,7 +31,7 @@ public class IntegerStringConverterBean extends AbstractConverterBean<Integer,St
 	/**
 	 * @param channelBean
 	 */
-	public IntegerStringConverterBean(ChannelBean<Integer> channelBean) {
+	public IntegerStringConverterBean(ChannelImpl<Integer> channelBean) {
 		super(channelBean);
 	}
 

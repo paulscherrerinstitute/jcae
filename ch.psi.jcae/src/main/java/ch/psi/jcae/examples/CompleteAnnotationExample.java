@@ -30,14 +30,14 @@ import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
-import ch.psi.jcae.impl.ChannelBean;
-import ch.psi.jcae.impl.ChannelBeanFactory;
+import ch.psi.jcae.impl.ChannelImpl;
+import ch.psi.jcae.impl.ChannelFactory;
 
 public class CompleteAnnotationExample {
 
 	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Get channel factory
-        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+        ChannelFactory factory = ChannelFactory.getFactory();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
@@ -52,7 +52,7 @@ public class CompleteAnnotationExample {
         factory.destroyChannelBeans(container);
         
         // Destroy context of the factory
-        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+        ChannelFactory.getFactory().getChannelFactory().destroyContext();
 	}
 }
 
@@ -62,10 +62,10 @@ public class CompleteAnnotationExample {
 class ChannelBeanContainerComplete {
 
 	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private ChannelBean<Double> current;
+	private ChannelImpl<Double> current;
 	
 	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private ChannelBean<String> unit;
+	private ChannelImpl<String> unit;
 
 	@CaPreInit
 	public void preInit(){
@@ -90,14 +90,14 @@ class ChannelBeanContainerComplete {
 	/**
 	 * @return the current
 	 */
-	public ChannelBean<Double> getCurrent() {
+	public ChannelImpl<Double> getCurrent() {
 		return current;
 	}
 	
 	/**
 	 * @return unit of the current
 	 */
-	public ChannelBean<String> getUnit() {
+	public ChannelImpl<String> getUnit() {
 		return unit;
 	}
 }

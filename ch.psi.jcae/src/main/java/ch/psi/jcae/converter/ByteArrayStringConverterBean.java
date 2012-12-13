@@ -19,7 +19,7 @@
 
 package ch.psi.jcae.converter;
 
-import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelImpl;
 
 /**
  * @author ebner
@@ -31,7 +31,7 @@ public class ByteArrayStringConverterBean extends AbstractConverterBean<byte[],S
 	/**
 	 * @param channelBean
 	 */
-	public ByteArrayStringConverterBean(ChannelBean<byte[]> channelBean) {
+	public ByteArrayStringConverterBean(ChannelImpl<byte[]> channelBean) {
 		super(channelBean);
 	}
 

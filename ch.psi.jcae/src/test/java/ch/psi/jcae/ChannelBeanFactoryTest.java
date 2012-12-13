@@ -32,8 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.impl.ChannelBean;
-import ch.psi.jcae.impl.ChannelBeanFactory;
+import ch.psi.jcae.impl.ChannelImpl;
+import ch.psi.jcae.impl.ChannelFactory;
 
 /**
  * @author ebner
@@ -44,7 +44,7 @@ public class ChannelBeanFactoryTest {
 	// Get Logger
 	private static Logger logger = Logger.getLogger(ChannelBeanFactoryTest.class.getName());
 	
-	private ChannelBeanFactory factory;
+	private ChannelFactory factory;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -52,7 +52,7 @@ public class ChannelBeanFactoryTest {
 	@Before
 	public void setUp() throws Exception {
 		// Get default factory
-		factory = ChannelBeanFactory.getFactory();
+		factory = ChannelFactory.getFactory();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class ChannelBeanFactoryTest {
 	}
 
 	/**
-	 * Test method for {@link ch.psi.jcae.impl.ChannelBeanFactory#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
+	 * Test method for {@link ch.psi.jcae.impl.ChannelFactory#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
 	 * @throws CAException 
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
@@ -75,7 +75,7 @@ public class ChannelBeanFactoryTest {
 		for(int i=0;i<100;i++){
 			
 			long s = System.currentTimeMillis();
-			ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
+			ChannelImpl<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
 			long e = System.currentTimeMillis();
 			
 			// Print the elapsed time for creating the channel
@@ -114,8 +114,8 @@ public class ChannelBeanFactoryTest {
 		// Check to get values
 		one.getType().getValue();
 		logger.fine(one.getType().getName()+ " - " + one.getType().getValue());
-		List<ChannelBean<String>> x = one.getMylist();
-		for (ChannelBean<String> l : x) {
+		List<ChannelImpl<String>> x = one.getMylist();
+		for (ChannelImpl<String> l : x) {
 			l.getValue();
 			logger.info( l.getName() + " - " + l.getValue());
 		}
@@ -136,10 +136,10 @@ public class ChannelBeanFactoryTest {
 	public void testDestructionRecreate() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
 		for(int i=0;i<10;i++){
-			factory = ChannelBeanFactory.getFactory();
+			factory = ChannelFactory.getFactory();
 			
 			long s = System.currentTimeMillis();
-			ChannelBean<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
+			ChannelImpl<String> bean = factory.createChannelBean(String.class, TestChannels.BINARY_OUT, false);
 			long e = System.currentTimeMillis();
 			
 			// Print the elapsed time for creating the channel
@@ -169,16 +169,16 @@ public class ChannelBeanFactoryTest {
 	private class TestObject {
 		
 		@CaChannel( name="SOUT1", type=String.class, monitor=true)
-		private ChannelBean<String> type;
+		private ChannelImpl<String> type;
 
 		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
-		private List<ChannelBean<String>> mylist;
+		private List<ChannelImpl<String>> mylist;
 		
-		public ChannelBean<String> getType() {
+		public ChannelImpl<String> getType() {
 			return type;
 		}
 
-		public List<ChannelBean<String>> getMylist() {
+		public List<ChannelImpl<String>> getMylist() {
 			return(mylist);
 		}
 		

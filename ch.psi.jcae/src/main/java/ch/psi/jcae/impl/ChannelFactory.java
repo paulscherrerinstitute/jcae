@@ -45,10 +45,10 @@ import ch.psi.jcae.annotation.CaPreInit;
  * @author ebner
  *
  */
-public class ChannelBeanFactory {
+public class ChannelFactory {
 	
-	private static final Logger logger = Logger.getLogger(ChannelBeanFactory.class.getName());
-	private static HashMap<String,ChannelBeanFactory> factories = new HashMap<String,ChannelBeanFactory>();
+	private static final Logger logger = Logger.getLogger(ChannelFactory.class.getName());
+	private static HashMap<String,ChannelFactory> factories = new HashMap<String,ChannelFactory>();
 	private static final String defaultFactoryKey = "default";
 
 	private JCAChannelFactory channelFactory;
@@ -63,7 +63,7 @@ public class ChannelBeanFactory {
 	 * 
 	 * @throws CAException
 	 */
-	private ChannelBeanFactory() throws CAException{
+	private ChannelFactory() throws CAException{
 		
 		// Create ChannelFactory object
 		channelFactory = new JCAChannelFactory();
@@ -74,9 +74,9 @@ public class ChannelBeanFactory {
 	 * @return		Instance of the ChannelBeanFactory
 	 * @throws CAException
 	 */
-	public static ChannelBeanFactory getFactory() throws CAException{
+	public static ChannelFactory getFactory() throws CAException{
 		if(!factories.containsKey(defaultFactoryKey)){
-			factories.put(defaultFactoryKey, new ChannelBeanFactory());
+			factories.put(defaultFactoryKey, new ChannelFactory());
 		}
 		return(factories.get(defaultFactoryKey));
 	}
@@ -91,9 +91,9 @@ public class ChannelBeanFactory {
 	 * @return		Instance of the ChannelBeanFactory
 	 * @throws CAException
 	 */
-	public static ChannelBeanFactory getFactory(String factoryKey) throws CAException{
+	public static ChannelFactory getFactory(String factoryKey) throws CAException{
 		if(!factories.containsKey(factoryKey)){
-			factories.put(factoryKey, new ChannelBeanFactory());
+			factories.put(factoryKey, new ChannelFactory());
 		}
 		return(factories.get(factoryKey));
 	}
@@ -112,8 +112,8 @@ public class ChannelBeanFactory {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public <T> ChannelBean<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+	public <T> ChannelImpl<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
+		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 		return(bean);
 	}
 	
@@ -134,10 +134,10 @@ public class ChannelBeanFactory {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public <T> ChannelBean<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException{
+	public <T> ChannelImpl<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException{
 		Channel channel = channelFactory.createChannel(channelName);
 		
-		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 		return(bean);
 	}
 	
@@ -159,12 +159,12 @@ public class ChannelBeanFactory {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public <T> List<ChannelBean<T>> createChannelBeans(Class<T> type, List<String> channelNames, boolean monitor) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
+	public <T> List<ChannelImpl<T>> createChannelBeans(Class<T> type, List<String> channelNames, boolean monitor) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		List<Channel> channels = channelFactory.createChannels(channelNames);
 		
-		List<ChannelBean<T>> beans = new ArrayList<ChannelBean<T>>();
+		List<ChannelImpl<T>> beans = new ArrayList<ChannelImpl<T>>();
 		for(Channel channel: channels){
-			ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+			ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 			beans.add(bean);
 		}
 		return(beans);
@@ -220,7 +220,7 @@ public class ChannelBeanFactory {
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
 				if(annotation != null){
-					if(field.getType().equals(ChannelBean.class)){
+					if(field.getType().equals(ChannelImpl.class)){
 						fields.add(new Object[] {field, annotation});
 						channelNames.add(baseName+annotation.name()[0]);
 					}
@@ -245,7 +245,7 @@ public class ChannelBeanFactory {
 				field.setAccessible(true);
 				CaChannel annotation = (CaChannel)f[1];
 				if(annotation.name().length>1){
-					List<ChannelBean<?>> list = new ArrayList<ChannelBean<?>>();
+					List<ChannelImpl<?>> list = new ArrayList<ChannelImpl<?>>();
 					for(int x=0;x<annotation.name().length;x++){
 						// Create ChannelBean object
 						list.add(createChannelBean(annotation.type(), channels.get(ct), annotation.monitor()));
@@ -309,10 +309,10 @@ public class ChannelBeanFactory {
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
 				if(annotation != null){
-					if(field.getType().equals(ChannelBean.class)){
+					if(field.getType().equals(ChannelImpl.class)){
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
-						((ChannelBean<?>) field.get(object)).destroy();
+						((ChannelImpl<?>) field.get(object)).destroy();
 						// Set field/attribute value to null
 						field.set(object, null);
 						field.setAccessible(accessible);
@@ -322,8 +322,8 @@ public class ChannelBeanFactory {
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
 						@SuppressWarnings("unchecked")
-						List<ChannelBean<?>> l = ((List<ChannelBean<?>>) field.get(object));
-						for(ChannelBean<?> b: l){
+						List<ChannelImpl<?>> l = ((List<ChannelImpl<?>>) field.get(object));
+						for(ChannelImpl<?> b: l){
 							b.destroy();
 						}
 						// Set field/attribute value to null

@@ -19,7 +19,7 @@
 
 package ch.psi.jcae.converter;
 
-import ch.psi.jcae.impl.ChannelBean;
+import ch.psi.jcae.impl.ChannelImpl;
 
 /**
  * @author ebner
@@ -31,7 +31,7 @@ public class DoubleStringConverterBean extends AbstractConverterBean<Double,Stri
 	/**
 	 * @param channelBean
 	 */
-	public DoubleStringConverterBean(ChannelBean<Double> channelBean) {
+	public DoubleStringConverterBean(ChannelImpl<Double> channelBean) {
 		super(channelBean);
 	}
 
