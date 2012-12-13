@@ -51,7 +51,7 @@ public class ChannelBeanFactory {
 	private static HashMap<String,ChannelBeanFactory> factories = new HashMap<String,ChannelBeanFactory>();
 	private static final String defaultFactoryKey = "default";
 
-	private ChannelFactory channelFactory;
+	private JCAChannelFactory channelFactory;
 
 	private JcaeProperties properties = JcaeProperties.getInstance();
 	
@@ -66,7 +66,7 @@ public class ChannelBeanFactory {
 	private ChannelBeanFactory() throws CAException{
 		
 		// Create ChannelFactory object
-		channelFactory = new ChannelFactory();
+		channelFactory = new JCAChannelFactory();
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class ChannelBeanFactory {
 	 * @throws ExecutionException 
 	 */
 	public <T> ChannelBean<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 		return(bean);
 	}
 	
@@ -137,7 +137,7 @@ public class ChannelBeanFactory {
 	public <T> ChannelBean<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException{
 		Channel channel = channelFactory.createChannel(channelName);
 		
-		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+		ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 		return(bean);
 	}
 	
@@ -164,7 +164,7 @@ public class ChannelBeanFactory {
 		
 		List<ChannelBean<T>> beans = new ArrayList<ChannelBean<T>>();
 		for(Channel channel: channels){
-			ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+			ChannelBean<T> bean = new ChannelBean<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
 			beans.add(bean);
 		}
 		return(beans);
@@ -364,7 +364,7 @@ public class ChannelBeanFactory {
 	 * Set ChannelFactory to use for creating new ChannelBean objects.
 	 * @param channelFactory
 	 */
-	public void setChannelFactory(ChannelFactory channelFactory){
+	public void setChannelFactory(JCAChannelFactory channelFactory){
 		this.channelFactory = channelFactory;
 	}
 
@@ -372,7 +372,7 @@ public class ChannelBeanFactory {
 	 * Get current ChannelFactory used to create new ChannelBean objects.
 	 * @return		Get used instance of the ChannelFactory
 	 */
-	public ChannelFactory getChannelFactory() {
+	public JCAChannelFactory getChannelFactory() {
 		return channelFactory;
 	}
 }

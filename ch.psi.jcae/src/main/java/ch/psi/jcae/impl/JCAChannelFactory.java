@@ -37,9 +37,9 @@ import gov.aps.jca.Channel.ConnectionState;
  * @author ebner
  *
  */
-public class ChannelFactory {
+public class JCAChannelFactory {
 	// Get Logger
-	private static final Logger logger = Logger.getLogger(ChannelFactory.class.getName());
+	private static final Logger logger = Logger.getLogger(JCAChannelFactory.class.getName());
 	
 	private Context context;
 	private JcaeProperties properties  = JcaeProperties.getInstance();
@@ -51,15 +51,15 @@ public class ChannelFactory {
 	 * are overwritten if specified in the file.
 	 * @throws CAException
 	 */
-	public ChannelFactory() throws CAException{
-		context = ContextFactory.getInstance().createContext();	
+	public JCAChannelFactory() throws CAException{
+		context = JCAContextFactory.getInstance().createContext();	
 	}
 	
 	/**
 	 * Constructor - Create ChannelFactory object using the passed context.
 	 * @param context
 	 */
-	public ChannelFactory(Context context){
+	public JCAChannelFactory(Context context){
 		this.context = context;
 	}
 	
@@ -70,7 +70,7 @@ public class ChannelFactory {
 	 * @param context	JCA Context
 	 * @param timeout	Timeout in milliseconds (for creating channel(s))
 	 */
-	public ChannelFactory(Context context, long timeout){
+	public JCAChannelFactory(Context context, long timeout){
 		this.context = context;
 		
 		// Overwrite timeout
@@ -89,7 +89,7 @@ public class ChannelFactory {
 		
 		// If there is no active context, recreate a context
 		if(context==null){
-			context = ContextFactory.getInstance().createContext();
+			context = JCAContextFactory.getInstance().createContext();
 		}
 		
 		int cnt = 0;
@@ -136,7 +136,7 @@ public class ChannelFactory {
 		
 		// If there is no active context, recreate a context
 		if(context==null){
-			context = ContextFactory.getInstance().createContext();
+			context = JCAContextFactory.getInstance().createContext();
 		}
 		
 		List<Channel> channels = new ArrayList<Channel>();

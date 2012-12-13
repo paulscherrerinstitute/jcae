@@ -20,6 +20,7 @@ public interface ChannelService {
 	public <T> void destroyChannels(Collection<Channel<?>> channels);
 
 	
+	
 	// Annotation related functions
 	public void createAnnotatedChannels(Object object);
 	public void createAnnotatedChannels(Object object, String prefix);

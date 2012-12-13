@@ -32,7 +32,7 @@ import gov.aps.jca.Channel.ConnectionState;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.psi.jcae.impl.ChannelFactory;
+import ch.psi.jcae.impl.JCAChannelFactory;
 
 /**
  * JUnit test class for testing the <code>ChannelFactory</code> class
@@ -43,12 +43,12 @@ public class ChannelFactoryTest {
 	
 	private static Logger logger = Logger.getLogger(ChannelFactoryTest.class.getName());
 
-	private ChannelFactory factory;
+	private JCAChannelFactory factory;
 	
 	@Before
 	public void setUp() throws Exception {
 		// Use jca.properties to override default settings
-		factory = new ChannelFactory();
+		factory = new JCAChannelFactory();
 	}
 
 	/**

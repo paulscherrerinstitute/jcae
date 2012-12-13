@@ -35,7 +35,6 @@ import junit.framework.Assert;
 import gov.aps.jca.CAException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.psi.jcae.impl.ChannelBean;
@@ -363,7 +362,6 @@ public class ChannelBeanTest {
 		// Test if scalar and getValue(int size) is called
 		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		beand.setValue(1);
-		beand.setWaitTimeout(1000); // For testing purpose set wait timeout to 1000 milliseconds
 		
 		final ChannelBean<Integer> beanset = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
 		
@@ -384,25 +382,6 @@ public class ChannelBeanTest {
 		
 		// Wait for the channel to get to 0 using the default wait timeout
 		beand.waitForValue(0).get(1, TimeUnit.MILLISECONDS); // Need to throw an TimeoutException
-	}
-	
-	/**
-	 * Test waitForValue function
-	 * @throws CAException
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
-	 */
-	@Test
-	@Ignore
-	public void testUseCorrectProperties() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		// Test if scalar and getValue(int size) is called
-		ChannelBean<Integer> beand = factory.createChannelBean(Integer.class, TestChannels.BINARY_IN, false);
-
-		if(beand.getWaitTimeout() != 2000){
-			fail("The wait timeout for a ChannelBean found is not the value specified in jcae.properties");
-		}
 	}
 	
 	/**

@@ -67,13 +67,6 @@ public class GetFuture<T> implements GetListener, Future<T>
 	    }
 	}
     
-    /**
-     * Get value returned by the answer to the get request.
-     * @return	Value returned by get request
-     */
-//    private DBR getValue() {
-//        return value;
-//    }
 
 	/* (non-Javadoc)
 	 * @see java.util.concurrent.Future#cancel(boolean)
@@ -96,7 +89,7 @@ public class GetFuture<T> implements GetListener, Future<T>
 	 */
 	@Override
 	public boolean isDone() {
-		return false;
+		return latch.getCount()==0;
 	}
 
 	/* (non-Javadoc)

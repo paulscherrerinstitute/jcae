@@ -104,7 +104,7 @@ public class ChannelBean<E> {
 	 */
 	private Long waitRetryPeriod = null;
 	
-	private Long waitTimeout = null; // Default wait forever
+//	private Long waitTimeout = null; // Default wait forever
 	
 	/**
 	 * Retries for set/get operations if something fails during the operation
@@ -126,15 +126,11 @@ public class ChannelBean<E> {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public ChannelBean(Class<E> type, Channel channel, Integer size, long timeout, Long waitTimeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
+	public ChannelBean(Class<E> type, Channel channel, Integer size, long timeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 		// Check whether type is supported
 		if(!Handlers.HANDLERS.containsKey(type)){
 			throw new IllegalArgumentException("Type "+type.getName()+" not supported");
-		}
-		
-		if(waitTimeout!=null && waitTimeout < 1){
-			throw new IllegalArgumentException("Wait timeout either need to be null or > 0");
 		}
 		
 		if(waitRetryPeriod!=null && waitRetryPeriod < 1){
@@ -144,7 +140,6 @@ public class ChannelBean<E> {
 		this.type = type;
 		this.channel = channel;
 		this.timeout = timeout;
-		this.waitTimeout = waitTimeout;
 		this.waitRetryPeriod = waitRetryPeriod;
 		this.retries = retries;
 		this.monitored = monitored;
@@ -557,23 +552,6 @@ public class ChannelBean<E> {
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
-
-
-	/**
-	 * @return the waitTimeout
-	 */
-	public long getWaitTimeout() {
-		return waitTimeout;
-	}
-
-
-	/**
-	 * @param waitTimeout the waitTimeout to set
-	 */
-	public void setWaitTimeout(long waitTimeout) {
-		this.waitTimeout = waitTimeout;
-	}
-
 
 	/**
 	 * @return the waitRetryPeriod

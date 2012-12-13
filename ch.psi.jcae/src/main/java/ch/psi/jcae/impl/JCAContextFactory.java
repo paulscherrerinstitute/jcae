@@ -30,17 +30,17 @@ import gov.aps.jca.event.QueuedEventDispatcher;
  * @author ebner
  *
  */
-public class ContextFactory {
+public class JCAContextFactory {
 	
 	private JcaeProperties properties;
 	
-	private final static ContextFactory instance = new ContextFactory();
+	private final static JCAContextFactory instance = new JCAContextFactory();
 	
 	/**
 	 * Constructor - Create ContextFactory object. Checks and reads <code>jca.properties</code>
 	 * properties file for overriding default configuration.
 	 */
-	private ContextFactory(){
+	private JCAContextFactory(){
 		properties = JcaeProperties.getInstance();
 	}
 	
@@ -92,7 +92,7 @@ public class ContextFactory {
 	 * Get the factory instance
 	 * @return
 	 */
-	public static ContextFactory getInstance(){
+	public static JCAContextFactory getInstance(){
 		return instance;
 	}
 }
