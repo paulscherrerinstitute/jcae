@@ -338,8 +338,7 @@ public class ChannelBeanTest {
 			}
 		});
 		t.start();
-		beand.setWaitRetryPeriod(1000L);
-		Integer v = beand.waitForValueRetry(0).get(6000L, TimeUnit.MILLISECONDS);
+		Integer v = beand.waitForValue(0, 1000L).get(6000L, TimeUnit.MILLISECONDS);
 
 		assertTrue("Channel not reached value "+testvalue, v==testvalue);
 		

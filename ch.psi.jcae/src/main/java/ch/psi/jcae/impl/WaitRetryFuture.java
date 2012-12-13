@@ -32,7 +32,25 @@ public class WaitRetryFuture<T> implements Future<T>{
 	private Channel channel;
 	private T value;
 	
-	
+	/**
+	 * While waiting for a channel to get a certain value usually a monitor for the channel 
+	 * is created. If the value is not reached within the waitTimeout time the function returns
+	 * with an Exception. Sometimes this behavior is not sufficient to get the channel value
+	 * changes. In corrupted environments sometimes the monitor notification for a value change
+	 * gets lost. Then the wait function will not return and eventually fail.
+	 * To be more robust in these situations a wait retry period can be specified.
+	 * the waitTimeout is then split up in several pieces of the waitRetryPeriod length.
+	 * For each piece a new monitor gets created. To ensure that no event is lost, the destruction of
+	 * the monitor of the period before is at a time where the new monitor of the new period is already created.
+	 * By this behavior the scenario mentioned before is not possible any more.
+	 * 
+	 * 
+	 * @param channel
+	 * @param size
+	 * @param value
+	 * @param comparator
+	 * @param waitRetryPeriod
+	 */
 	public WaitRetryFuture(Channel channel, int size, T value, Comparator<T> comparator, long waitRetryPeriod){
 		this.channel = channel;
 		this.value = value;

@@ -53,8 +53,6 @@ public class ChannelFactory {
 
 	private JCAChannelFactory channelFactory;
 
-	private JcaeProperties properties = JcaeProperties.getInstance();
-	
 	/**
 	 * Constructor - Create ChannelBeanFactory object. The constructor will initialize a 
 	 * default ChannelFactory factory and read the <code>jca.properties</code> file to 
@@ -113,7 +111,7 @@ public class ChannelFactory {
 	 * @throws ExecutionException 
 	 */
 	public <T> ChannelImpl<T> createChannelBean(Class<T> type, Channel channel, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, monitor);
 		return(bean);
 	}
 	
@@ -137,7 +135,7 @@ public class ChannelFactory {
 	public <T> ChannelImpl<T> createChannelBean(Class<T> type, String channelName, boolean monitor) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException{
 		Channel channel = channelFactory.createChannel(channelName);
 		
-		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+		ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, monitor);
 		return(bean);
 	}
 	
@@ -164,7 +162,7 @@ public class ChannelFactory {
 		
 		List<ChannelImpl<T>> beans = new ArrayList<ChannelImpl<T>>();
 		for(Channel channel: channels){
-			ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, properties.getRequestTimeout(), properties.getWaitRetryPeriod(), properties.getRetries(), monitor);
+			ChannelImpl<T> bean = new ChannelImpl<T>(type, channel, null, monitor);
 			beans.add(bean);
 		}
 		return(beans);

@@ -24,7 +24,6 @@ import java.beans.PropertyChangeSupport;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -86,31 +85,6 @@ public class ChannelImpl<E> {
 	private boolean connected = false;
 	private boolean monitored = false;
 	
-	/**
-	 * Timeout for get and set operations on the managed channel
-	 */
-	private long timeout;
-	
-	/**
-	 * While waiting for a channel to get a certain value usually a monitor for the channel 
-	 * is created. If the value is not reached within the waitTimeout time the function returns
-	 * with an Exception. Sometimes this behavior is not sufficient to get the channel value
-	 * changes. In corrupted environments sometimes the monitor notification for a value change
-	 * gets lost. Then the wait function will not return and eventually fail.
-	 * To be more robust in these situations a wait retry period can be specified.
-	 * the waitTimeout is then split up in several pieces of the waitRetryPeriod length.
-	 * For each piece a new monitor gets created. To ensure that no event is lost, the destruction of
-	 * the monitor of the period before is at a time where the new monitor of the new period is already created.
-	 * By this behavior the scenario mentioned before is not possible any more.
-	 */
-	private Long waitRetryPeriod = null;
-	
-//	private Long waitTimeout = null; // Default wait forever
-	
-	/**
-	 * Retries for set/get operations if something fails during the operation
-	 */
-	private int retries;
 	
 	/**
 	 * Constructor - Create a ChannelBean for the specified Channel. A Monitor is attached
@@ -127,23 +101,15 @@ public class ChannelImpl<E> {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public ChannelImpl(Class<E> type, Channel channel, Integer size, long timeout, Long waitRetryPeriod, int retries, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
+	public ChannelImpl(Class<E> type, Channel channel, Integer size, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 		// Check whether type is supported
 		if(!Handlers.HANDLERS.containsKey(type)){
 			throw new IllegalArgumentException("Type "+type.getName()+" not supported");
 		}
 		
-		if(waitRetryPeriod!=null && waitRetryPeriod < 1){
-			throw new IllegalArgumentException("Wait retry period either need to be null or > 0");
-		}
-		
 		this.type = type;
 		this.channel = channel;
-		this.timeout = timeout;
-		this.waitRetryPeriod = waitRetryPeriod;
-		this.retries = retries;
-		this.monitored = monitored;
 		this.connected = channel.getConnectionState().isEqualTo(ConnectionState.CONNECTED);
 		
 		// Set channel size
@@ -165,10 +131,22 @@ public class ChannelImpl<E> {
 		
 		attachConnectionListener();
 		
-		if(monitored){
-			attachMonitor();
-			updateValue(); // Get initial value
-		}
+		setMonitored(monitored);
+	}
+	
+	
+	
+	
+	/**
+	 * Get current value of the channel. 
+	 * @return			Value of the channel in the type of the ChannelBean
+	 * @throws InterruptedException 
+	 * @throws ChannelException 
+	 * @throws TimeoutException 
+	 * @throws ExecutionException 
+	 */
+	public E getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		return(getValue(false));
 	}
 	
 	
@@ -182,26 +160,44 @@ public class ChannelImpl<E> {
 	 * @throws ExecutionException 
 	 */
 	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		if( !monitored || force ){
-			updateValue();
-		}
-		return(value.get());
+		return(getValueAsync(force).get());
 	}
 	
 	/**
-	 * Get current value of the channel. 
-	 * @return			Value of the channel in the type of the ChannelBean
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * Get value asynchronously
+	 * @return
+	 * @throws IllegalStateException
+	 * @throws ChannelException
 	 */
-	public E getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		if(!monitored){
-			updateValue();
-		}
-		return(value.get());
+	public Future<E> getValueAsync() throws IllegalStateException, ChannelException{
+		return getValueAsync(false);
 	}
+	
+	/**
+	 * Get value in an asynchronous way
+	 * @param force
+	 * @return
+	 * @throws IllegalStateException
+	 * @throws ChannelException
+	 */
+	public Future<E> getValueAsync(boolean force) throws IllegalStateException, ChannelException{
+		// TODO need to implement retries ...
+		if(monitored){ // If monitored return future holding actual value
+			return new GetMonitoredFuture<E>(value.get());
+		}
+		else {
+			try{
+				GetFuture<E> listener = new GetFuture<E>(this.type);
+				channel.get(Handlers.HANDLERS.get(type).getDBRType(), elementCount, listener);
+				channel.getContext().flushIO();
+				return listener;
+			}
+			catch(CAException e){
+				throw new ChannelException("Unable to set value to channel: "+channel.getName(),e);
+			}
+		}
+	}
+	
 	
 	/**
 	 * Set value synchronously
@@ -234,23 +230,50 @@ public class ChannelImpl<E> {
 		}
 	}
 	
+	
 	/**
-	 * Check whether the channel is connected.
-	 * Flag that indicates that data is valid (connected) or not (not connected)
-	 * 
-	 * @return	Connection status of the channel managed by this ChannelBean
+	 * Wait until channel has reached the specified value.
+	 * @param rvalue	Value the channel should reach
+	 * @param timeout	Wait timeout in milliseconds. (if timeout=0 wait forever)
+	 * @throws TimeoutException 
+	 * @throws ChannelException 
+	 * @throws CAException
+	 * @throws InterruptedException 
 	 */
-	public boolean isConnected(){
-		return(connected);
+	public Future<E> waitForValue(E rvalue) throws ChannelException {
+		
+		// Default comparator checking for equality
+		Comparator<E> comparator = new Comparator<E>() {
+			@Override
+			public int compare(E o, E o2) {
+				if(o.equals(o2)){
+					return 0;
+				}
+				return -1;
+			}
+		};
+		return waitForValue(rvalue, comparator);
 	}
 	
 	/**
-	 * Get the name of the Channel that is managed by this ChannelBean object
-	 * 
-	 * @return	Name of the managed channel
+	 * Wait until channel has reached the specified value. Re-establish the monitor after the specified waitRetryPeriod
+	 * @param rvalue
+	 * @param waitRetryPeriod
+	 * @return
+	 * @throws ChannelException
 	 */
-	public String getName(){
-		return(channel.getName());
+	public Future<E> waitForValue(E rvalue, long waitRetryPeriod) throws ChannelException {
+		// Default comparator checking for equality
+		Comparator<E> comparator = new Comparator<E>() {
+			@Override
+			public int compare(E o, E o2) {
+				if (o.equals(o2)) {
+					return 0;
+				}
+				return -1;
+			}
+		};
+		return waitForValue(rvalue, comparator, waitRetryPeriod);
 	}
 	
 	/**
@@ -269,51 +292,38 @@ public class ChannelImpl<E> {
 	}
 	
 	/**
-	 * Wait until channel has reached the specified value.
-	 * @param rvalue	Value the channel should reach
-	 * @param timeout	Wait timeout in milliseconds. (if timeout=0 wait forever)
-	 * @throws TimeoutException 
-	 * @throws ChannelException 
-	 * @throws CAException
-	 * @throws InterruptedException 
+	 * Wait until channel has reached the specified value. Re-establish the monitor after the specified waitRetryPeriod
+	 * @param rvalue
+	 * @param comparator
+	 * @param waitRetryPeriod
+	 * @return
+	 * @throws ChannelException
 	 */
-	public Future<E> waitForValue(E rvalue) throws ChannelException, InterruptedException, TimeoutException {
-		
-		// Default comparator checking for equality
-		Comparator<E> comparator = new Comparator<E>() {
-			@Override
-			public int compare(E o, E o2) {
-				if(o.equals(o2)){
-					return 0;
-				}
-				return -1;
-			}
-		};
-		return waitForValue(rvalue, comparator);
-	}
-	
-	
-	// TODO merge with function above - automatically decide whether to retry or not!
-	public Future<E> waitForValueRetry(E rvalue, Comparator<E> comparator) {
+	public Future<E> waitForValue(E rvalue, Comparator<E> comparator, long waitRetryPeriod) throws ChannelException {
 		return new WaitRetryFuture<E>(channel, elementCount, rvalue, comparator, waitRetryPeriod);
 	}
 	
-	public Future<E> waitForValueRetry(E rvalue) throws ChannelException, InterruptedException, TimeoutException {
-		
-		// Default comparator checking for equality
-		Comparator<E> comparator = new Comparator<E>() {
-			@Override
-			public int compare(E o, E o2) {
-				if(o.equals(o2)){
-					return 0;
-				}
-				return -1;
-			}
-		};
-		return waitForValueRetry(rvalue, comparator);
+	
+	
+	
+	/**
+	 * Check whether the channel is connected.
+	 * Flag that indicates that data is valid (connected) or not (not connected)
+	 * 
+	 * @return	Connection status of the channel managed by this ChannelBean
+	 */
+	public boolean isConnected(){
+		return(connected);
 	}
 	
-	
+	/**
+	 * Get the name of the Channel that is managed by this ChannelBean object
+	 * 
+	 * @return	Name of the managed channel
+	 */
+	public String getName(){
+		return(channel.getName());
+	}
 	
 	
 	
@@ -339,74 +349,41 @@ public class ChannelImpl<E> {
 	public String getHostname(){
 		return(channel.getHostName());
 	}
-		
-	/**
-	 * Get value from channel and update the local variable "value".
-	 * @throws CAException
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
-	 */
-	private void updateValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		
-		value.set(getValueX());
-		
-	}
+
 	
 	/**
-	 * Get value from channel
-	 * @param channel
-	 * @param type
-	 * @param size
-	 * @return		Value in JCA datatype
-	 * @throws CAException
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
+	 * Get whether the channel is monitored
+	 * @return the monitored
+	 */
+	public boolean isMonitored() {
+		return monitored;
+	}
+
+	/**
+	 * Set whether the channel is monitored. If the channel is not monitored and it should be monitored then a new monitor is added to the 
+	 * underlying channel. If the channel is set to be not monitored but was monitored before this function will remove the monitors added
+	 * to the underlying channel.
+	 * 
+	 * @param monitored the monitored to set
 	 * @throws ChannelException 
 	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 * @throws InterruptedException 
 	 */
-	private E getValueX() throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
-		
-		int cnt=0;
-		while(cnt <= this.retries){
-			cnt++;
-			
-			try{
-				logger.finest("Get value from "+channel.getName()+" element count "+elementCount);
-				
-				GetFuture<E> listener = new GetFuture<E>(this.type);
-				channel.get(Handlers.HANDLERS.get(type).getDBRType(), elementCount, listener);
-				channel.getContext().flushIO();
-				
-				return listener.get(timeout, TimeUnit.MILLISECONDS);
-			   		
-			}
-			catch(CAException e){
-				
-				if(cnt<=this.retries){
-					logger.log(Level.WARNING, "Get value failed CAException - will retry");
-				}
-				else{
-					throw new ChannelException("Unable to get value from channel", e);
-				}
-			}
-			catch(IllegalStateException e){
-				// If the channel is not connected while the channel.get(...) function is called this exception will be thrown
-				if(cnt<=this.retries){
-					logger.log(Level.WARNING, "Get value failed with IllegalStateException (channel not connected) - will retry after 500ms");
-					// Will wait for 500 milliseconds a second
-					Thread.sleep(500);
-				}
-				else{
-					throw e;
-				}
-			}
+	public void setMonitored(boolean monitored) throws ChannelException, InterruptedException, TimeoutException, ExecutionException {
+		if (monitored && !this.monitored){
+			attachMonitor();
+			value.set(getValue(true)); // Get initial value
 		}
-		
-		return null;
+		else if (!monitored && this.monitored){
+			removeMonitor();
+		}
+		this.monitored = monitored;
 	}
-	
+
+
+
+
 	/**
 	 * Attach connection listener to channel for this bean
 	 * @throws CAException
@@ -416,9 +393,7 @@ public class ChannelImpl<E> {
 			listener = new ConnectionListener() {
 				@Override
 				public void connectionChanged(ConnectionEvent event){
-					boolean ov = connected;
-					connected = event.isConnected();
-					changeSupport.firePropertyChange( PROPERTY_CONNECTED, ov, connected );
+					changeSupport.firePropertyChange( PROPERTY_CONNECTED, connected, connected = event.isConnected() );
 				}
 			};
 			channel.addConnectionListener(listener);
@@ -553,37 +528,4 @@ public class ChannelImpl<E> {
 		changeSupport.removePropertyChangeListener( l );
 	}
 
-	
-	/**
-	 * @return the timeout
-	 */
-	public long getTimeout() {
-		return timeout;
-	}
-
-
-	/**
-	 * @param timeout the timeout to set
-	 */
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
-
-	/**
-	 * @return the waitRetryPeriod
-	 */
-	public Long getWaitRetryPeriod() {
-		return waitRetryPeriod;
-	}
-
-
-	/**
-	 * @param waitRetryPeriod the waitRetryPeriod to set
-	 */
-	public void setWaitRetryPeriod(Long waitRetryPeriod) {
-		this.waitRetryPeriod = waitRetryPeriod;
-	}
-	
-	
-	
 }
