@@ -34,14 +34,15 @@ import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.handler.Handlers;
 
 import gov.aps.jca.CAException;
-import gov.aps.jca.CAStatusException;
+import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Context;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.Channel.ConnectionState;
-import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 
 /**
  * Wrapper for the JCA Channel class. Introduces an additional layer of abstraction
@@ -455,13 +456,28 @@ public class ChannelImpl<E> {
 		
 		try{
 			
-			monitor = channel.addMonitor(Handlers.HANDLERS.get(type).getDBRType(), elementCount, Monitor.VALUE, new MonitorListenerBase() {
+			monitor = channel.addMonitor(Handlers.HANDLERS.get(type).getDBRType(), elementCount, Monitor.VALUE, new MonitorListener() {
+
 				@SuppressWarnings("unchecked")
 				@Override
-				public void updateValue(DBR dbr) throws CAStatusException {
-					E v = (E) Handlers.HANDLERS.get(type).getValue(dbr);
-					changeSupport.firePropertyChange( PROPERTY_VALUE, value.getAndSet(v), v );
+				public void monitorChanged(MonitorEvent event) {
+					if (event.getStatus() == CAStatus.NORMAL) {
+						try {
+
+							E v = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
+							changeSupport.firePropertyChange(PROPERTY_VALUE, value.getAndSet(v), v);
+
+						} catch (Exception e) {
+							logger.log(Level.WARNING, "Exception occured while calling callback", e);
+						}
+					} else {
+						if (!((Channel) event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)) {
+							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: " + event.getStatus() + " - Channel: " + event.getSource().toString());
+						}
+					}
+
 				}
+
 			});
 			
 			channel.getContext().flushIO();
