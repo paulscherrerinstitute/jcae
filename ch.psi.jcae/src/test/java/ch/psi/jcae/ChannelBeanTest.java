@@ -38,7 +38,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.psi.jcae.impl.ChannelImpl;
 import ch.psi.jcae.impl.ChannelServiceImpl;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 
@@ -522,6 +521,10 @@ public class ChannelBeanTest {
 					beanset.setValue(0);
 				} catch (InterruptedException e) {
 					// Ignore thread is terminated
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				} catch (ChannelException e) {
+					e.printStackTrace();
 				}
 				
 			}

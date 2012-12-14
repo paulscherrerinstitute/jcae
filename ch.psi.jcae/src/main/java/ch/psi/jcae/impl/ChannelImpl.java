@@ -134,9 +134,6 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 		setMonitored(monitored);
 	}
 	
-	
-	
-	
 	/**
 	 * Get current value of the channel. 
 	 * @return			Value of the channel in the type of the ChannelBean
@@ -145,6 +142,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
+	@Override
 	public E getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		return(getValue(false));
 	}
@@ -159,7 +157,8 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{ // FIXME remove ExecutionException
+	@Override
+	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
 		return(getValueAsync(force).get());
 	}
 	
@@ -169,7 +168,8 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws IllegalStateException
 	 * @throws ChannelException
 	 */
-	public Future<E> getValueAsync() throws IllegalStateException, ChannelException{
+	@Override
+	public Future<E> getValueAsync() throws IllegalStateException, ChannelException {
 		return getValueAsync(false);
 	}
 	
@@ -180,8 +180,8 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws IllegalStateException
 	 * @throws ChannelException
 	 */
-	public Future<E> getValueAsync(boolean force) throws IllegalStateException, ChannelException{
-		// TODO need to implement retries ...
+	@Override
+	public Future<E> getValueAsync(boolean force) throws IllegalStateException, ChannelException {
 		if(monitored){ // If monitored return future holding actual value
 			return new GetMonitoredFuture<E>(value.get());
 		}
@@ -206,7 +206,8 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws ExecutionException
 	 * @throws ChannelException
 	 */
-	public void setValue(E value) throws InterruptedException, ExecutionException, ChannelException{ // FIXME remove ExecutionException
+	@Override
+	public void setValue(E value) throws InterruptedException, ExecutionException, ChannelException {
 		setValueAsync(value).get();
 	}
 	
@@ -218,6 +219,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @return Future to determine when set is done ...
 	 * @throws ChannelException
 	 */
+	@Override
 	public Future<E> setValueAsync(E value) throws ChannelException {
 		try{
 			SetFuture<E> listener = new SetFuture<E>(value);
@@ -312,6 +314,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * 
 	 * @return	Connection status of the channel managed by this ChannelBean
 	 */
+	@Override
 	public boolean isConnected(){
 		return(connected);
 	}
@@ -321,6 +324,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * 
 	 * @return	Name of the managed channel
 	 */
+	@Override
 	public String getName(){
 		return(channel.getName());
 	}
@@ -334,6 +338,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * 
 	 * @return	In the case of an array channel the number of elements, for a scalar channel 1. 
 	 */
+	@Override
 	public Integer getSize(){
 		// FIXME need to return actually used size !!!! 
 		if(type.isArray()){
@@ -347,6 +352,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * 
 	 * @return	Name of the IOC hosting the managed channel
 	 */
+	@Override
 	public String getSource(){
 		return(channel.getHostName());
 	}
@@ -356,6 +362,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * Get whether the channel is monitored
 	 * @return the monitored
 	 */
+	@Override
 	public boolean isMonitored() {
 		return monitored;
 	}
@@ -371,6 +378,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws TimeoutException 
 	 * @throws InterruptedException 
 	 */
+	@Override
 	public void setMonitored(boolean monitored) throws ChannelException {
 		if (monitored && !this.monitored){
 			attachMonitor();
@@ -495,6 +503,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws CAException 
 	 * @throws ChannelException 
 	 */
+	@Override
 	public void destroy() throws ChannelException{
 		
 		removeMonitor();
@@ -528,17 +537,24 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 */
-	public void addPropertyChangeListener( PropertyChangeListener l ) throws ChannelException {
-		if(!isMonitored()){
-			setMonitored(true);
+	@Override
+	public void addPropertyChangeListener( PropertyChangeListener l ) {
+		try{
+			if(!isMonitored()){
+				setMonitored(true);
+			}
+			changeSupport.addPropertyChangeListener( l );
 		}
-		changeSupport.addPropertyChangeListener( l );
+		catch(ChannelException e){
+			throw new RuntimeException(e);
+		}
 	} 
 
 	/**
 	 * Remove property change listener from this object
 	 * @param l		Listener object
 	 */
+	@Override
 	public void removePropertyChangeListener( PropertyChangeListener l ) { 
 		changeSupport.removePropertyChangeListener( l );
 	}

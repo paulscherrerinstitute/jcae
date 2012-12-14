@@ -6,58 +6,37 @@ package ch.psi.jcae;
 
 import java.beans.PropertyChangeListener;
 import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 
-/**
- * @author ebner
- *
- */
 public interface Channel<T> {
 
-	public Integer getSize();
+	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException;
+	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException;
+	public Future<T> getValueAsync() throws IllegalStateException, ChannelException;
+	public Future<T> getValueAsync(boolean force) throws IllegalStateException, ChannelException;
 	
 	
-	public T getValue();
-	
-	public T getValue(Long timeout);
-	
-	public T getValue(Boolean force);
-	
-	public T getValue(Boolean force, Long timeout);
-	
-	
-	
-	public void setValue(T value);
-	
-	public void setValue(T value, Long timeout);
-	
-	public void setValueNoWait(T value);
-	
+	public void setValue(T value) throws InterruptedException, ExecutionException, ChannelException;
+	public Future<T> setValueAsync(T value) throws ChannelException;
 
 	public Future<T> waitForValue(T rvalue) throws ChannelException;
 	public Future<T> waitForValue(T rvalue, long waitRetryPeriod) throws ChannelException;
 	public Future<T> waitForValue(T rvalue, Comparator<T> comparator) throws ChannelException;
 	public Future<T> waitForValue(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws ChannelException;
 	
-	
-	/**
-	 * Hostname of the machine serving the channel.
-	 * @return
-	 */
-	public String getSource();
-	
-	/**
-	 * Unique channel name
-	 * @return Unique name of the channel
-	 */
-	public ChannelDescriptor<T> getDescriptor();
-	
-	public boolean isConnected();
 	public String getName();
+	public boolean isConnected();
+	public Integer getSize();
+	public String getSource();
 
+	public boolean isMonitored();
+	public void setMonitored(boolean monitored) throws ChannelException;
+	
 	public void destroy() throws ChannelException;
 	
 	
-	public void addPropertyChangeListener( PropertyChangeListener l ) throws ChannelException;
+	public void addPropertyChangeListener( PropertyChangeListener l );
 	public void removePropertyChangeListener( PropertyChangeListener l );
 }
