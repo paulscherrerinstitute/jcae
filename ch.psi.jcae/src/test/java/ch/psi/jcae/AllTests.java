@@ -33,8 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
 					ChannelBeanFactoryTest.class, 
 					ChannelBeanTest.class, 
 					ChannelFactoryTest.class,
-					JcaePropertiesTest.class,
-					ch.psi.jcae.converter.AllTests.class })
+					JcaePropertiesTest.class })
 public class AllTests {
 
 }

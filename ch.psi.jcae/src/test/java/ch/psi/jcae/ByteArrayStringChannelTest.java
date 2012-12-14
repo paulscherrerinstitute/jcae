@@ -17,7 +17,7 @@
  * 
  */
 
-package ch.psi.jcae.converter;
+package ch.psi.jcae;
 
 import static org.junit.Assert.*;
 
@@ -34,7 +34,6 @@ import org.junit.Test;
 import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
-import ch.psi.jcae.TestChannels;
 import ch.psi.jcae.impl.ChannelServiceImpl;
 import ch.psi.jcae.impl.type.ByteArrayString;
 
@@ -42,10 +41,10 @@ import ch.psi.jcae.impl.type.ByteArrayString;
  * @author ebner
  *
  */
-public class ByteArrayStringConverterBeanTest {
+public class ByteArrayStringChannelTest {
 	
 	// Get Logger
-	private static Logger logger = Logger.getLogger(ByteArrayStringConverterBeanTest.class.getName());
+	private static Logger logger = Logger.getLogger(ByteArrayStringChannelTest.class.getName());
 	
 	private ChannelServiceImpl cservice;
 	private Channel<ByteArrayString> b;
