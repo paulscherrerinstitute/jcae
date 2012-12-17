@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
  * @author ebner
@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
 		logger.info("Start ChannelService");
 		Hashtable<String, String> properties = new Hashtable<>();
 		properties.put("id", "blablub");
-		service = new ChannelServiceImpl();
+		service = new DefaultChannelService();
 		context.registerService(ChannelService.class.getName(), service, (Dictionary<String,String>) properties);
 	}
 

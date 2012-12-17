@@ -17,7 +17,7 @@
 
 package ch.psi.jcae;
 
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.server.CaServer;
 import gov.aps.jca.CAException;
 
@@ -50,7 +50,7 @@ public class WaveformTest {
 		String dataChannel = "JCAE-TEST-VARWAVE";
 		String sizeChannel = "JCAE-TEST-VARWAVE:SIZE";
 
-		ChannelServiceImpl cservice = new ChannelServiceImpl();
+		DefaultChannelService cservice = new DefaultChannelService();
 
 		Channel<int[]> bean = cservice.createChannel(new ChannelDescriptor<>(int[].class, dataChannel));
 

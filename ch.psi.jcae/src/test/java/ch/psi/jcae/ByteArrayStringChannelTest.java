@@ -34,7 +34,7 @@ import org.junit.Test;
 import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.impl.type.ByteArrayString;
 
 /**
@@ -46,7 +46,7 @@ public class ByteArrayStringChannelTest {
 	// Get Logger
 	private static Logger logger = Logger.getLogger(ByteArrayStringChannelTest.class.getName());
 	
-	private ChannelServiceImpl cservice;
+	private DefaultChannelService cservice;
 	private Channel<ByteArrayString> b;
 	
 	/**
@@ -54,7 +54,7 @@ public class ByteArrayStringChannelTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		cservice = new ChannelServiceImpl();
+		cservice = new DefaultChannelService();
 		b = cservice.createChannel(new ChannelDescriptor<>(ByteArrayString.class, TestChannels.CHARACTER_WAVEFORM));
 	}
 

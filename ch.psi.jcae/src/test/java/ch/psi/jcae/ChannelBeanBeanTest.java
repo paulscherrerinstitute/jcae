@@ -37,8 +37,8 @@ import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
-import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannel;
+import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
  * @author ebner
@@ -49,7 +49,7 @@ public class ChannelBeanBeanTest {
 	// Get Logger
 	private static final Logger logger = Logger.getLogger(ChannelBeanBeanTest.class.getName());
 	
-	private ChannelServiceImpl cservice;
+	private DefaultChannelService cservice;
 	
 	private HashMap<String, Long> timestamps = new HashMap<String,Long>();
 	private boolean errorInSequence = false;
@@ -60,7 +60,7 @@ public class ChannelBeanBeanTest {
 	@Before
 	public void setUp() throws Exception {
 		// Get default factory
-		cservice = new ChannelServiceImpl();
+		cservice = new DefaultChannelService();
 	}
 
 	/**
@@ -114,9 +114,9 @@ public class ChannelBeanBeanTest {
 	public class TestObject {
 		
 		@CaChannel( name="BI", type=Integer.class, monitor=true)
-		private ChannelImpl<Integer> type;
+		private DefaultChannel<Integer> type;
 		
-		public ChannelImpl<Integer> getType() {
+		public DefaultChannel<Integer> getType() {
 			return type;
 		}
 

@@ -38,7 +38,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 
 /**
@@ -51,11 +51,11 @@ public class ChannelBeanTest {
 	private static Logger logger = Logger.getLogger(ChannelBeanTest.class.getName());
 	
 	private static String iocname = "psi-softioc.psi.ch";
-	private ChannelServiceImpl factory;
+	private DefaultChannelService factory;
 	
 	@Before
 	public void setUp() throws Exception {
-		factory = new ChannelServiceImpl();
+		factory = new DefaultChannelService();
 	}
 	
 	@After

@@ -27,14 +27,14 @@ import gov.aps.jca.CAException;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannel;
+import ch.psi.jcae.impl.DefaultChannelService;
 
 public class AnnotationExample {
 
 	public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException {
 		// Get channel factory
-        ChannelService service = new ChannelServiceImpl();
+        ChannelService service = new DefaultChannelService();
 
         ChannelBeanContainer container = new ChannelBeanContainer();
         
@@ -59,22 +59,22 @@ public class AnnotationExample {
 class ChannelBeanContainer {
 
 	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private ChannelImpl<Double> current;
+	private DefaultChannel<Double> current;
 	
 	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private ChannelImpl<String> unit;
+	private DefaultChannel<String> unit;
 
 	/**
 	 * @return the current
 	 */
-	public ChannelImpl<Double> getCurrent() {
+	public DefaultChannel<Double> getCurrent() {
 		return current;
 	}
 	
 	/**
 	 * @return unit of the current
 	 */
-	public ChannelImpl<String> getUnit() {
+	public DefaultChannel<String> getUnit() {
 		return unit;
 	}
 }

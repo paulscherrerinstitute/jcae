@@ -54,10 +54,10 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @param <E>	Type of ChannelBean value
  */
-public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
+public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
-	private static Logger logger = Logger.getLogger(ChannelImpl.class.getName());
-	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+	private static Logger logger = Logger.getLogger(DefaultChannel.class.getName());
+	private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 	
 	
 	/**
@@ -101,7 +101,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
-	public ChannelImpl(Class<E> type, Channel channel, Integer size, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
+	public DefaultChannel(Class<E> type, Channel channel, Integer size, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 		// Check whether type is supported
 		if(!Handlers.HANDLERS.containsKey(type)){
@@ -407,7 +407,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 			listener = new ConnectionListener() {
 				@Override
 				public void connectionChanged(ConnectionEvent event){
-					changeSupport.firePropertyChange( PROPERTY_CONNECTED, connected, connected = event.isConnected() );
+					propertyChangeSupport.firePropertyChange( PROPERTY_CONNECTED, connected, connected = event.isConnected() );
 				}
 			};
 			channel.addConnectionListener(listener);
@@ -454,7 +454,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 						try {
 
 							E v = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
-							changeSupport.firePropertyChange(PROPERTY_VALUE, value.getAndSet(v), v);
+							propertyChangeSupport.firePropertyChange(PROPERTY_VALUE, value.getAndSet(v), v);
 
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "Exception occured while calling callback", e);
@@ -543,7 +543,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 			if(!isMonitored()){
 				setMonitored(true);
 			}
-			changeSupport.addPropertyChangeListener( l );
+			propertyChangeSupport.addPropertyChangeListener( l );
 		}
 		catch(ChannelException e){
 			throw new RuntimeException(e);
@@ -556,7 +556,7 @@ public class ChannelImpl<E> implements ch.psi.jcae.Channel<E> {
 	 */
 	@Override
 	public void removePropertyChangeListener( PropertyChangeListener l ) { 
-		changeSupport.removePropertyChangeListener( l );
+		propertyChangeSupport.removePropertyChangeListener( l );
 	}
 
 }

@@ -32,8 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannel;
+import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
  * @author ebner
@@ -44,14 +44,14 @@ public class ChannelBeanFactoryTest {
 	// Get Logger
 	private static Logger logger = Logger.getLogger(ChannelBeanFactoryTest.class.getName());
 	
-	private ChannelServiceImpl factory;
+	private DefaultChannelService factory;
 	
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		factory = new ChannelServiceImpl();
+		factory = new DefaultChannelService();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class ChannelBeanFactoryTest {
 	}
 
 	/**
-	 * Test method for {@link ch.psi.jcae.impl.ChannelServiceImpl#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
+	 * Test method for {@link ch.psi.jcae.impl.DefaultChannelService#createChannelBean(java.lang.Class, java.lang.String, boolean)}.
 	 * @throws CAException 
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
@@ -114,8 +114,8 @@ public class ChannelBeanFactoryTest {
 		// Check to get values
 		one.getType().getValue();
 		logger.fine(one.getType().getName()+ " - " + one.getType().getValue());
-		List<ChannelImpl<String>> x = one.getMylist();
-		for (ChannelImpl<String> l : x) {
+		List<DefaultChannel<String>> x = one.getMylist();
+		for (DefaultChannel<String> l : x) {
 			l.getValue();
 			logger.info( l.getName() + " - " + l.getValue());
 		}
@@ -136,7 +136,7 @@ public class ChannelBeanFactoryTest {
 	public void testDestructionRecreate() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
 		for(int i=0;i<10;i++){
-			ChannelServiceImpl factory1 = new ChannelServiceImpl();
+			DefaultChannelService factory1 = new DefaultChannelService();
 			
 			long s = System.currentTimeMillis();
 			Channel<String> bean = factory1.createChannel(new ChannelDescriptor<>(String.class, TestChannels.BINARY_OUT));
@@ -169,16 +169,16 @@ public class ChannelBeanFactoryTest {
 	private class TestObject {
 		
 		@CaChannel( name="SOUT1", type=String.class, monitor=true)
-		private ChannelImpl<String> type;
+		private DefaultChannel<String> type;
 
 		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
-		private List<ChannelImpl<String>> mylist;
+		private List<DefaultChannel<String>> mylist;
 		
-		public ChannelImpl<String> getType() {
+		public DefaultChannel<String> getType() {
 			return type;
 		}
 
-		public List<ChannelImpl<String>> getMylist() {
+		public List<DefaultChannel<String>> getMylist() {
 			return(mylist);
 		}
 		

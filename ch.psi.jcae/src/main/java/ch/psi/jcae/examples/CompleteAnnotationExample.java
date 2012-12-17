@@ -30,14 +30,14 @@ import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
-import ch.psi.jcae.impl.ChannelImpl;
-import ch.psi.jcae.impl.ChannelServiceImpl;
+import ch.psi.jcae.impl.DefaultChannel;
+import ch.psi.jcae.impl.DefaultChannelService;
 
 public class CompleteAnnotationExample {
 
 	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Get channel factory
-        ChannelServiceImpl service = new ChannelServiceImpl();
+        DefaultChannelService service = new DefaultChannelService();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
@@ -62,10 +62,10 @@ public class CompleteAnnotationExample {
 class ChannelBeanContainerComplete {
 
 	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private ChannelImpl<Double> current;
+	private DefaultChannel<Double> current;
 	
 	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private ChannelImpl<String> unit;
+	private DefaultChannel<String> unit;
 
 	@CaPreInit
 	public void preInit(){
@@ -90,14 +90,14 @@ class ChannelBeanContainerComplete {
 	/**
 	 * @return the current
 	 */
-	public ChannelImpl<Double> getCurrent() {
+	public DefaultChannel<Double> getCurrent() {
 		return current;
 	}
 	
 	/**
 	 * @return unit of the current
 	 */
-	public ChannelImpl<String> getUnit() {
+	public DefaultChannel<String> getUnit() {
 		return unit;
 	}
 }

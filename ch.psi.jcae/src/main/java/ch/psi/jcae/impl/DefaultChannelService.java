@@ -46,9 +46,9 @@ import ch.psi.jcae.annotation.CaPreInit;
  * @author ebner
  *
  */
-public class ChannelServiceImpl implements ChannelService {
+public class DefaultChannelService implements ChannelService {
 	
-	private static final Logger logger = Logger.getLogger(ChannelServiceImpl.class.getName());
+	private static final Logger logger = Logger.getLogger(DefaultChannelService.class.getName());
 
 	private final JCAChannelFactory channelFactory;
 
@@ -60,7 +60,7 @@ public class ChannelServiceImpl implements ChannelService {
 	 * 
 	 * @throws CAException
 	 */
-	public ChannelServiceImpl(){
+	public DefaultChannelService(){
 		try{
 			channelFactory = new JCAChannelFactory();
 		}
@@ -90,7 +90,7 @@ public class ChannelServiceImpl implements ChannelService {
 	public <T> Channel<T> createChannel(ChannelDescriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException {
 		try{
 			gov.aps.jca.Channel channel = channelFactory.createChannel(descriptor.getName());
-			ChannelImpl<T> bean = new ChannelImpl<T>(descriptor.getType(), channel, null, descriptor.getMonitored());
+			DefaultChannel<T> bean = new DefaultChannel<T>(descriptor.getType(), channel, null, descriptor.getMonitored());
 			return(bean);
 		}
 		catch(CAException | ExecutionException e){
@@ -128,7 +128,7 @@ public class ChannelServiceImpl implements ChannelService {
 		List<Channel<?>> beans = new ArrayList<Channel<?>>();
 		for(int i=0;i<list.size();i++){
 			ChannelDescriptor<?> d = list.get(i);
-			beans.add(new ChannelImpl<>(d.getType(), channels.get(i), null, d.getMonitored()));
+			beans.add(new DefaultChannel<>(d.getType(), channels.get(i), null, d.getMonitored()));
 		}
 		return(beans);
 		}
@@ -188,7 +188,7 @@ public class ChannelServiceImpl implements ChannelService {
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
 				if(annotation != null){
-					if(field.getType().equals(ChannelImpl.class)){
+					if(field.getType().equals(DefaultChannel.class)){
 						fields.add(new Object[] {field, annotation});
 						channelNames.add(baseName+annotation.name()[0]);
 					}
@@ -216,14 +216,14 @@ public class ChannelServiceImpl implements ChannelService {
 					List<Channel<?>> list = new ArrayList<Channel<?>>();
 					for(int x=0;x<annotation.name().length;x++){
 						// Create ChannelBean object
-						list.add(new ChannelImpl<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
+						list.add(new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
 						ct++;
 					}
 					field.set(object, list);	
 				}
 				else{
 					// Create ChannelBean object
-					field.set(object, new ChannelImpl<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
+					field.set(object, new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
 					ct++;
 				}
 				
@@ -279,10 +279,10 @@ public class ChannelServiceImpl implements ChannelService {
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
 				if(annotation != null){
-					if(field.getType().equals(ChannelImpl.class)){
+					if(field.getType().equals(DefaultChannel.class)){
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
-						((ChannelImpl<?>) field.get(object)).destroy();
+						((DefaultChannel<?>) field.get(object)).destroy();
 						// Set field/attribute value to null
 						field.set(object, null);
 						field.setAccessible(accessible);
@@ -292,8 +292,8 @@ public class ChannelServiceImpl implements ChannelService {
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
 						@SuppressWarnings("unchecked")
-						List<ChannelImpl<?>> l = ((List<ChannelImpl<?>>) field.get(object));
-						for(ChannelImpl<?> b: l){
+						List<DefaultChannel<?>> l = ((List<DefaultChannel<?>>) field.get(object));
+						for(DefaultChannel<?> b: l){
 							b.destroy();
 						}
 						// Set field/attribute value to null
