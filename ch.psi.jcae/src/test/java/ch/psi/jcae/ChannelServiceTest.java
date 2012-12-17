@@ -39,12 +39,12 @@ import ch.psi.jcae.impl.DefaultChannelService;
  * @author ebner
  *
  */
-public class ChannelBeanFactoryTest {
+public class ChannelServiceTest {
 	
 	// Get Logger
-	private static Logger logger = Logger.getLogger(ChannelBeanFactoryTest.class.getName());
+	private static Logger logger = Logger.getLogger(ChannelServiceTest.class.getName());
 	
-	private DefaultChannelService factory;
+	private ChannelService factory;
 	
 	/**
 	 * @throws java.lang.Exception

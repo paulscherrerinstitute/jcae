@@ -29,10 +29,10 @@ import org.junit.runners.Suite.SuiteClasses;
  *
  */
 @RunWith(Suite.class)
-@SuiteClasses( { 	ChannelBeanBeanTest.class, 
-					ChannelBeanFactoryTest.class, 
-					ChannelBeanTest.class, 
-					ChannelFactoryTest.class,
+@SuiteClasses( { 	ChannelServiceAnnotatedObjectTest.class, 
+					ChannelServiceTest.class, 
+					ChannelTest.class, 
+					JCAChannelFactoryTest.class,
 					JcaePropertiesTest.class })
 public class AllTests {
 

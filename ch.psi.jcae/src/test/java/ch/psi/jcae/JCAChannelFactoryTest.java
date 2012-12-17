@@ -39,9 +39,9 @@ import ch.psi.jcae.impl.JCAChannelFactory;
  * @author ebner
  *
  */
-public class ChannelFactoryTest {
+public class JCAChannelFactoryTest {
 	
-	private static Logger logger = Logger.getLogger(ChannelFactoryTest.class.getName());
+	private static Logger logger = Logger.getLogger(JCAChannelFactoryTest.class.getName());
 
 	private JCAChannelFactory factory;
 	

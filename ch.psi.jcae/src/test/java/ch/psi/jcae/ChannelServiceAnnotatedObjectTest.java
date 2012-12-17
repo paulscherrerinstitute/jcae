@@ -44,12 +44,12 @@ import ch.psi.jcae.impl.DefaultChannelService;
  * @author ebner
  *
  */
-public class ChannelBeanBeanTest {
+public class ChannelServiceAnnotatedObjectTest {
 	
 	// Get Logger
-	private static final Logger logger = Logger.getLogger(ChannelBeanBeanTest.class.getName());
+	private static final Logger logger = Logger.getLogger(ChannelServiceAnnotatedObjectTest.class.getName());
 	
-	private DefaultChannelService cservice;
+	private ChannelService cservice;
 	
 	private HashMap<String, Long> timestamps = new HashMap<String,Long>();
 	private boolean errorInSequence = false;
