@@ -240,6 +240,9 @@ public class DummyChannel<T> implements Channel<T> {
 	 */
 	@Override
 	public Integer getSize() {
+		if(size==null){
+			return 1; // Default size
+		}
 		return size;
 	}
 

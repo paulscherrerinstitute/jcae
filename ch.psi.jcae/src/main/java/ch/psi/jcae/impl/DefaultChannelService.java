@@ -52,6 +52,15 @@ public class DefaultChannelService implements ChannelService {
 
 	private final JCAChannelFactory channelFactory;
 
+	private final boolean dummyMode;
+	
+	
+	
+	public DefaultChannelService(){
+		this(false);
+	}
+	
+	
 	/**
 	 * Constructor - Create ChannelBeanFactory object. The constructor will initialize a 
 	 * default ChannelFactory factory and read the <code>jca.properties</code> file to 
@@ -60,12 +69,18 @@ public class DefaultChannelService implements ChannelService {
 	 * 
 	 * @throws CAException
 	 */
-	public DefaultChannelService(){
-		try{
-			channelFactory = new JCAChannelFactory();
+	public DefaultChannelService(boolean dummyMode){
+		this.dummyMode = dummyMode;
+		if(dummyMode){
+			channelFactory = null;
 		}
-		catch(CAException e){
-			throw new RuntimeException("Unable to initialize internal channel factory",e);
+		else{
+			try{
+				channelFactory = new JCAChannelFactory();
+			}
+			catch(CAException e){
+				throw new RuntimeException("Unable to initialize internal channel factory",e);
+			}
 		}
 	}
 	
@@ -89,9 +104,15 @@ public class DefaultChannelService implements ChannelService {
 	@Override
 	public <T> Channel<T> createChannel(ChannelDescriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException {
 		try{
-			gov.aps.jca.Channel channel = channelFactory.createChannel(descriptor.getName());
-			DefaultChannel<T> bean = new DefaultChannel<T>(descriptor.getType(), channel, null, descriptor.getMonitored());
-			return(bean);
+			Channel<T> ca;
+			if(dummyMode){
+				ca = new DummyChannel<>(descriptor.getType(), descriptor.getName(), null, descriptor.getMonitored());
+			}
+			else{
+				gov.aps.jca.Channel channel = channelFactory.createChannel(descriptor.getName());
+				ca = new DefaultChannel<T>(descriptor.getType(), channel, null, descriptor.getMonitored());
+			}
+			return(ca);
 		}
 		catch(CAException | ExecutionException e){
 			throw new ChannelException("Unable to create channel "+descriptor.getName(),e);
@@ -118,23 +139,31 @@ public class DefaultChannelService implements ChannelService {
 	 */
 	@Override
 	public List<Channel<?>> createChannels(List<ChannelDescriptor<?>> list) throws ChannelException, InterruptedException, TimeoutException {
-		try{
-		List<String> names = new ArrayList<String>();
-		for(ChannelDescriptor<?> d: list){
-			names.add(d.getName());
-		}
-		List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
-		
 		List<Channel<?>> beans = new ArrayList<Channel<?>>();
-		for(int i=0;i<list.size();i++){
-			ChannelDescriptor<?> d = list.get(i);
-			beans.add(new DefaultChannel<>(d.getType(), channels.get(i), null, d.getMonitored()));
-		}
-		return(beans);
-		}
-		catch(CAException | ExecutionException e){
+		if(dummyMode){
+		try {
+			List<String> names = new ArrayList<String>();
+			for (ChannelDescriptor<?> d : list) {
+				names.add(d.getName());
+			}
+			List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
+
+			
+			for (int i = 0; i < list.size(); i++) {
+				ChannelDescriptor<?> d = list.get(i);
+				beans.add(new DefaultChannel<>(d.getType(), channels.get(i), null, d.getMonitored()));
+			}
+		} catch (CAException | ExecutionException e) {
 			throw new ChannelException("", e);
 		}
+		}
+		else{
+			for(ChannelDescriptor<?> d: list){
+				beans.add(new DummyChannel<>(d.getType(), d.getName(), null, d.getMonitored()));
+			}
+		}
+		
+		return beans;
 	}
 	
 	
@@ -188,7 +217,7 @@ public class DefaultChannelService implements ChannelService {
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
 				if(annotation != null){
-					if(field.getType().equals(DefaultChannel.class)){
+					if(field.getType().equals(Channel.class)){
 						fields.add(new Object[] {field, annotation});
 						channelNames.add(baseName+annotation.name()[0]);
 					}
@@ -205,7 +234,10 @@ public class DefaultChannelService implements ChannelService {
 			}
 			
 			// Create and set ChannelBean object of the given bean object
-			List<gov.aps.jca.Channel> channels = channelFactory.createChannels(channelNames);
+			List<gov.aps.jca.Channel> channels = null;
+			if(!dummyMode){
+				channels = channelFactory.createChannels(channelNames);
+			}
 			int ct = 0;
 			for(Object[] f: fields){
 				Field field = (Field) f[0] ;
@@ -216,14 +248,26 @@ public class DefaultChannelService implements ChannelService {
 					List<Channel<?>> list = new ArrayList<Channel<?>>();
 					for(int x=0;x<annotation.name().length;x++){
 						// Create ChannelBean object
-						list.add(new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
+						// TODO Use default factory method instead of creating object 
+						if(dummyMode){
+							list.add(new DummyChannel<>(annotation.type(), channelNames.get(ct), null, annotation.monitor()));
+						}
+						else{
+							list.add(new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
+						}
 						ct++;
 					}
 					field.set(object, list);	
 				}
 				else{
 					// Create ChannelBean object
-					field.set(object, new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
+					// TODO Use default factory method instead of creating object
+					if(dummyMode){
+						field.set(object, new DummyChannel<>(annotation.type(), channelNames.get(ct), null, annotation.monitor()));
+					}
+					else{
+						field.set(object, new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
+					}
 					ct++;
 				}
 				
@@ -279,10 +323,10 @@ public class DefaultChannelService implements ChannelService {
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
 				if(annotation != null){
-					if(field.getType().equals(DefaultChannel.class)){
+					if(field.getType().equals(Channel.class)){
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
-						((DefaultChannel<?>) field.get(object)).destroy();
+						((Channel<?>) field.get(object)).destroy();
 						// Set field/attribute value to null
 						field.set(object, null);
 						field.setAccessible(accessible);
@@ -292,8 +336,8 @@ public class DefaultChannelService implements ChannelService {
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
 						@SuppressWarnings("unchecked")
-						List<DefaultChannel<?>> l = ((List<DefaultChannel<?>>) field.get(object));
-						for(DefaultChannel<?> b: l){
+						List<Channel<?>> l = ((List<Channel<?>>) field.get(object));
+						for(Channel<?> b: l){
 							b.destroy();
 						}
 						// Set field/attribute value to null
@@ -332,12 +376,13 @@ public class DefaultChannelService implements ChannelService {
 	 * Destroy this service and free all hold resources ...
 	 */
 	@Override
-	public void destroy(){
-		try{
-			channelFactory.destroyContext();
-		}
-		catch(CAException e){
-			throw new RuntimeException("Unable to destroy the internal channel factory instance", e);
+	public void destroy() {
+		if (!dummyMode) {
+			try {
+				channelFactory.destroyContext();
+			} catch (CAException e) {
+				throw new RuntimeException("Unable to destroy the internal channel factory instance", e);
+			}
 		}
 	}
 	

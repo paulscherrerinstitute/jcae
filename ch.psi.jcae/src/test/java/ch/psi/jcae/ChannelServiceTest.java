@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.impl.DefaultChannel;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
@@ -114,8 +113,8 @@ public class ChannelServiceTest {
 		// Check to get values
 		one.getType().getValue();
 		logger.fine(one.getType().getName()+ " - " + one.getType().getValue());
-		List<DefaultChannel<String>> x = one.getMylist();
-		for (DefaultChannel<String> l : x) {
+		List<Channel<String>> x = one.getMylist();
+		for (Channel<String> l : x) {
 			l.getValue();
 			logger.info( l.getName() + " - " + l.getValue());
 		}
@@ -169,16 +168,16 @@ public class ChannelServiceTest {
 	private class TestObject {
 		
 		@CaChannel( name="SOUT1", type=String.class, monitor=true)
-		private DefaultChannel<String> type;
+		private Channel<String> type;
 
 		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
-		private List<DefaultChannel<String>> mylist;
+		private List<Channel<String>> mylist;
 		
-		public DefaultChannel<String> getType() {
+		public Channel<String> getType() {
 			return type;
 		}
 
-		public List<DefaultChannel<String>> getMylist() {
+		public List<Channel<String>> getMylist() {
 			return(mylist);
 		}
 		
