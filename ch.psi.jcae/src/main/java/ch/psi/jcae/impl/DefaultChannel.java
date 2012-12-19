@@ -110,7 +110,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		
 		// Set channel size
 		int csize = channel.getElementCount();
-		if(size != null){
+		if(size != null && size>0){
 			if(size>0 && size<=csize){
 				this.elementCount=size;
 			}
@@ -120,7 +120,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		}
 		else{
 			if(type.isArray()){
-				this.elementCount = null; // the size of the array may vary over time (always take the actual size of the channel)
+				this.elementCount = csize; // the size of the array may vary over time (always take the actual size of the channel)
 			}
 			else{
 				this.elementCount = 1 ; // if it is not an array type size is always 1
@@ -180,7 +180,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 */
 	@Override
 	public Future<E> getValueAsync(boolean force) throws IllegalStateException, ChannelException {
-		if(monitored){ // If monitored return future holding actual value
+		if(!force && monitored){ // If monitored return future holding actual value
 			return new GetMonitoredFuture<E>(value.get());
 		}
 		else {
@@ -331,10 +331,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 */
 	@Override
 	public Integer getSize(){
-			if(type.isArray() && elementCount!=null){
-				return(channel.getElementCount());
-			}
-			return elementCount;
+		return elementCount;
 	}
 	
 	/**
@@ -438,10 +435,8 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 				public void monitorChanged(MonitorEvent event) {
 					if (event.getStatus() == CAStatus.NORMAL) {
 						try {
-
 							E v = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
 							propertyChangeSupport.firePropertyChange(PROPERTY_VALUE, value.getAndSet(v), v);
-
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "Exception occured while calling callback", e);
 						}
@@ -449,6 +444,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 						if (!((Channel) event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)) {
 							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: " + event.getStatus() + " - Channel: " + event.getSource().toString());
 						}
+						logger.severe("Monitor fired but there is something else");
 					}
 
 				}

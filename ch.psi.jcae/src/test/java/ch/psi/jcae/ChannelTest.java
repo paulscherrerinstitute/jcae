@@ -42,7 +42,12 @@ import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 
 /**
- * JUnit test case for testing the functionality of a <code>ChannelBean</code>
+ * JUnit test case for testing the functionality of a <code>Channel</code>
+ * 
+ * IMPORTANT NOTE:
+ * The JCAE library is capable in setting channels faster that the "camon" command can handle. Therefor don't be confused
+ * that camon is not showing a value change. To have camon catching up you have to insert <code>Thread.sleep()</code> statements
+ * 
  * @author ebner
  *
  */
@@ -265,20 +270,66 @@ public class ChannelTest {
 	 */
 	@Test
 	public void testSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		Double value = 1d;
-		// Test if scalar and getValue(int size) is called
-		Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
-		beand.setValue(value); // Wait forever
-
-		// Test how ChannelBean does behave is Scaler attached to waveform
-		Channel<Double> beandd = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
-		Double v = beandd.getValue();
 		
-		if(!v.equals(value)){
-			fail("Set value does not equal retrieved value");
+		Channel<Double> channel1 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT));
+		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
+		Channel<Double> channel2 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT));
+		
+		Double ovalue = channel1.getValue();
+		for(Double value=1.1;value<10;value++){
+			channel1.setValue(value); // Wait forever
+			Double v = channel2.getValue();
+			
+			if(!v.equals(value)){
+				fail(String.format("Set value [%s] does not equal retrieved value [%s]", value, v));
+			}
 		}
 		
-		// TODO need to add a test to test timeout, ... (therefore we need other record that is blocking some time)
+		// Reset value to old value
+		channel1.setValue((ovalue.intValue()+1.0)%100); // Have this to ensure that if someone is doing a camon that things change (see note header)
+	}
+	
+	@Test
+	public void testSetValueString() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		
+		Channel<String> channel1 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT));
+		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
+		Channel<String> channel2 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT));
+		
+		for(Double value=1.1;value<10;value++){
+			channel1.setValue(value+""); // Wait forever
+			String v = channel2.getValue();
+			
+			if(!v.equals(value+"")){
+				fail(String.format("Set value [%s] does not equal retrieved value [%s]", value, v));
+			}
+		}
+		
+		// Reset value to old value
+		channel1.setValue(System.currentTimeMillis()+""); // Have this to ensure that if someone is doing a camon that things change (see note header)
+	}
+	
+	@Test
+	public void testSetValueMonitored() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		
+		Channel<Double> channel1 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT, true));
+		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
+		Channel<Double> channel2 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT, true));
+		
+		Double ovalue = channel1.getValue();
+		for(Double value=1.1;value<10;value++){
+			channel1.setValue(value); // Wait forever
+			// Sometimes it needs some time to have the monitor catch up. Therefore we introduce a safty wait of 5 millisecond
+			Thread.sleep(5);
+			Double v = channel2.getValue();
+			
+			if(!v.equals(value)){
+				fail(String.format("Set value [%s] does not equal retrieved value [%s]", value, v));
+			}
+		}
+		
+		// Reset value to old value
+		channel1.setValue((ovalue.intValue()+1.0)%100); // Have this to ensure that if someone is doing a camon that things change (see note header)
 	}
 	
 	

@@ -37,7 +37,6 @@ import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.annotation.CaChannelList;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
@@ -109,11 +108,11 @@ public class DefaultChannelService implements ChannelService {
 		try{
 			Channel<T> ca;
 			if(dummyMode){
-				ca = new DummyChannel<>(descriptor.getType(), descriptor.getName(), null, descriptor.getMonitored());
+				ca = new DummyChannel<>(descriptor.getType(), descriptor.getName(), descriptor.getSize(), descriptor.getMonitored());
 			}
 			else{
 				gov.aps.jca.Channel channel = channelFactory.createChannel(descriptor.getName());
-				ca = new DefaultChannel<T>(descriptor.getType(), channel, null, descriptor.getMonitored());
+				ca = new DefaultChannel<T>(descriptor.getType(), channel, descriptor.getSize(), descriptor.getMonitored());
 			}
 			return(ca);
 		}
@@ -142,31 +141,30 @@ public class DefaultChannelService implements ChannelService {
 	 */
 	@Override
 	public List<Channel<?>> createChannels(List<ChannelDescriptor<?>> list) throws ChannelException, InterruptedException, TimeoutException {
-		List<Channel<?>> beans = new ArrayList<Channel<?>>();
-		if(dummyMode){
-		try {
-			List<String> names = new ArrayList<String>();
+		List<Channel<?>> channelObject = new ArrayList<Channel<?>>();
+		if (dummyMode) {
 			for (ChannelDescriptor<?> d : list) {
-				names.add(d.getName());
+				channelObject.add(new DummyChannel<>(d.getType(), d.getName(), d.getSize(), d.getMonitored()));
 			}
-			List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
+		}
+		else
+		{
+			try {
+				List<String> names = new ArrayList<String>();
+				for (ChannelDescriptor<?> d : list) {
+					names.add(d.getName());
+				}
+				List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
 
-			
-			for (int i = 0; i < list.size(); i++) {
-				ChannelDescriptor<?> d = list.get(i);
-				beans.add(new DefaultChannel<>(d.getType(), channels.get(i), null, d.getMonitored()));
-			}
-		} catch (CAException | ExecutionException e) {
-			throw new ChannelException("", e);
-		}
-		}
-		else{
-			for(ChannelDescriptor<?> d: list){
-				beans.add(new DummyChannel<>(d.getType(), d.getName(), null, d.getMonitored()));
+				for (int i = 0; i < list.size(); i++) {
+					ChannelDescriptor<?> d = list.get(i);
+					channelObject.add(new DefaultChannel<>(d.getType(), channels.get(i), d.getSize(), d.getMonitored()));
+				}
+			} catch (CAException | ExecutionException e) {
+				throw new ChannelException("", e);
 			}
 		}
-		
-		return beans;
+		return channelObject;
 	}
 	
 	
@@ -221,23 +219,21 @@ public class DefaultChannelService implements ChannelService {
 
 			for (Field field : c.getDeclaredFields()) {
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
-				if (annotation != null && field.getType().equals(Channel.class)) {
-					fieldList.add(field);
-					sizeMap.put(field, 1);
-					descriptorList.add(new ChannelDescriptor<>(annotation.type(), annotation.name(), annotation.monitor(), annotation.size()));
-				} else {
-					logger.warning("Annotation @" + CaChannel.class.getSimpleName() + " not applicable for field '" + field.getName() + "' of type '" + field.getType().getName() + "'");
-				}
-
-				CaChannelList lannotation = field.getAnnotation(CaChannelList.class);
-				if (lannotation != null && field.getType().equals(List.class)) {
-					fieldList.add(field);
-					sizeMap.put(field, lannotation.name().length);
-					for (String n : lannotation.name()) {
-						descriptorList.add(new ChannelDescriptor<>(lannotation.type(), n, lannotation.monitor(), lannotation.size()));
+				if(annotation!=null){
+					if (annotation.name().length==1 && field.getType().isAssignableFrom(Channel.class)) {
+						fieldList.add(field);
+						sizeMap.put(field, 1);
+						descriptorList.add(new ChannelDescriptor<>(annotation.type(), baseName+annotation.name()[0], annotation.monitor(), annotation.size()));
 					}
-				} else {
-					logger.warning("Annotation @" + CaChannelList.class.getSimpleName() + " not applicable for field '" + field.getName() + "' of type '" + field.getType().getName() + "'");
+					else if (annotation.name().length >0 && field.getType().isAssignableFrom(List.class)) {
+						fieldList.add(field);
+						sizeMap.put(field, annotation.name().length);
+						for (String n : annotation.name()) {
+							descriptorList.add(new ChannelDescriptor<>(annotation.type(), baseName+n, annotation.monitor(), annotation.size()));
+						}
+					} else {
+						logger.warning("Annotation @" + CaChannel.class.getSimpleName() + " not applicable for field '" + field.getName() + "' of type '" + field.getType().getName() + "'");
+					}
 				}
 			}
 			
@@ -251,7 +247,7 @@ public class DefaultChannelService implements ChannelService {
 				boolean accessible = f.isAccessible();
 				f.setAccessible(true);
 				int fsize = sizeMap.get(f);
-				if(fsize==1){
+				if(fsize==1 && f.getType().isAssignableFrom(Channel.class)){ // There might be a list of one element therefor we need the second check
 					f.set(object, channelList.get(ccount));
 					ccount++;
 				}
@@ -265,6 +261,7 @@ public class DefaultChannelService implements ChannelService {
 				}
 				f.setAccessible(accessible);
 			}
+			
 			
 			// Execute POST init function (if available)
 			for(Method m: c.getDeclaredMethods()){
@@ -313,7 +310,7 @@ public class DefaultChannelService implements ChannelService {
 			for(Field field: c.getDeclaredFields()){
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
 				if(annotation != null){
-					if(field.getType().equals(Channel.class)){
+					if(field.getType().isAssignableFrom(Channel.class)){
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
 						((Channel<?>) field.get(object)).destroy();
@@ -322,7 +319,7 @@ public class DefaultChannelService implements ChannelService {
 						field.setAccessible(accessible);
 						
 					}
-					else if(field.getType().equals(List.class)){
+					else if(field.getType().isAssignableFrom(List.class)){
 						boolean accessible = field.isAccessible();
 						field.setAccessible(true);
 						@SuppressWarnings("unchecked")

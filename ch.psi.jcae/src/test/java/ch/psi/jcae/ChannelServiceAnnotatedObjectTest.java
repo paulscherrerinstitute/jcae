@@ -21,7 +21,9 @@ package ch.psi.jcae;
 
 import static org.junit.Assert.*;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -37,7 +39,6 @@ import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
-import ch.psi.jcae.impl.DefaultChannel;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
@@ -114,19 +115,22 @@ public class ChannelServiceAnnotatedObjectTest {
 	public class TestObject {
 		
 		@CaChannel( name="BI", type=Integer.class, monitor=true)
-		private DefaultChannel<Integer> type;
-		
-		public DefaultChannel<Integer> getType() {
-			return type;
-		}
+		private Channel<Integer> field1 = null;
 
+		@CaChannel( name="BI", type=Integer.class, monitor=true)
+		private List<Channel<Integer>> field2 = null;
+		
+		@CaChannel( name="BI", type=Integer.class, monitor=true)
+		private Collection<Channel<Integer>> field3 = null; // Parent interface of List
+		
+		
 		@CaPreInit
 		public void preInit(){
 			logger.info("Execute PRE - Timestamp: "+System.currentTimeMillis());
 			timestamps.put("pre", System.currentTimeMillis());
 			
-			if(type != null){
-				logger.warning("ChannelBean already created");
+			if(field1 != null || field2 != null || field3 != null){
+				logger.warning("Channels already created");
 				errorInSequence = true;
 			}
 		}
@@ -136,8 +140,8 @@ public class ChannelServiceAnnotatedObjectTest {
 			logger.info("Execute POST - Timestamp: "+System.currentTimeMillis());
 			timestamps.put("post", System.currentTimeMillis());
 			
-			if(type == null){
-				logger.warning("ChannelBean was not created before executing post");
+			if(field1 == null || field2 == null || field3 == null){
+				logger.warning("Channels were not created before executing post");
 				errorInSequence = true;
 			}
 		}
@@ -147,8 +151,8 @@ public class ChannelServiceAnnotatedObjectTest {
 			logger.info("Execute PRE destroy - Timestamp: "+System.currentTimeMillis());
 			timestamps.put("preDestroy", System.currentTimeMillis());
 			
-			if(type == null){
-				logger.warning("ChannelBean already destroyed before executing pre destroy");
+			if(field1 == null || field2 == null || field3 == null){
+				logger.warning("Channels are already destroyed before executing pre destroy");
 				errorInSequence = true;
 			}
 		}
@@ -158,7 +162,7 @@ public class ChannelServiceAnnotatedObjectTest {
 			logger.info("Execute POST destroy - Timestamp: "+System.currentTimeMillis());
 			timestamps.put("postDestroy", System.currentTimeMillis());
 			
-			if(type != null){
+			if(field1 != null || field2 != null || field3 != null){
 				logger.warning("ChannelBean was not destroyed before executing post destroy");
 				errorInSequence = true;
 			}

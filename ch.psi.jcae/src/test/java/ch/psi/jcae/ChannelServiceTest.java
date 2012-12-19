@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.annotation.CaChannelList;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
@@ -72,22 +71,25 @@ public class ChannelServiceTest {
 	 */
 	@Test
 	public void testCreateChannelBean() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		long s;
+		long e;
 		for(int i=0;i<100;i++){
 			
-			long s = System.currentTimeMillis();
-			Channel<String> bean = factory.createChannel(new ChannelDescriptor<>(String.class, TestChannels.BINARY_OUT));
-			long e = System.currentTimeMillis();
-			
-			// Print the elapsed time for creating the channel
-			logger.info("Elapsed time: "+(e-s));
+			s = System.currentTimeMillis();
+			Channel<Double> bean = factory.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT));
+			e = System.currentTimeMillis();
 			
 			// Check if channel is connected
 			if(! bean.isConnected()){
 				Assert.fail("Channel ["+bean.getName()+"] is not CONNECTED");
 			}
 			
+			// Print the elapsed time for creating the channel
+			logger.info("Attempt: "+i+" - Elapsed time: "+(e-s) +" - Value: "+ bean.getValue());
+			bean.setValue((double) System.currentTimeMillis()); // Change the value so that one can see a difference in the next log output
+			
 			bean.destroy();
-			Thread.sleep(100);
+			Thread.sleep(100); // Need to have a sleep here to ensure that the channel is really destroyed (destroy() just does a flushIO() - there is no confirmation that things are already destroyed after the return of this method)
 		}
 		
 	}
@@ -103,7 +105,7 @@ public class ChannelServiceTest {
 	 * @throws ExecutionException 
 	 */
 	@Test
-	public void manageTest() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+	public void annotationTest() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 		// Create test bean to manage
 		TestObject one = new TestObject();
@@ -112,23 +114,39 @@ public class ChannelServiceTest {
 		factory.createAnnotatedChannels(one, TestChannels.PREFIX);
 
 		// Check to get values
-		one.getType().getValue();
-		logger.fine(one.getType().getName()+ " - " + one.getType().getValue());
-		List<Channel<String>> x = one.getMylist();
-		for (Channel<String> l : x) {
-			l.getValue();
-			logger.info( l.getName() + " - " + l.getValue());
+		Channel<String> tc = one.getType();
+		if(! tc.isConnected()){
+			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+		}
+		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
+		
+		// Check to set values
+		for(int i=0;i<10;i++){
+			String val = "value"+i;
+			tc.setValue(val);
+			Thread.sleep(10);
+			String v = tc.getValue();
+			if(!v.equals(val)){
+				Assert.fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
+			}
+		}
+		// Write something else into the test channel to prepare the environment for the next test
+		tc.setValue(""+System.currentTimeMillis());
+		
+		
+		
+		logger.info("[Start] Channel list check");
+		
+		// Check whether all list channels are connected
+		Assert.assertTrue(one.getMylist().size()==4); // Check whether there are 4 channels in the list
+		for (Channel<String> l : one.getMylist()) {
+			if(! l.isConnected()){
+				Assert.fail("Channel ["+l.getName()+"] is not CONNECTED");
+			}
+			logger.info(String.format("%s - %s", l.getName(), l.getValue()));
 		}
 
-		// Check to set values
-		one.getType().setValue("value");
-		String v = one.getType().getValue(true);
-		if(!v.equals("value")){
-			Assert.fail("Value set does not correspond to the value that was retrieved");
-		}
 		
-		// Write something else into the test channel to prepare the environment for the next test
-		one.getType().setValue("old value");
 	}
 	
 	
@@ -168,10 +186,10 @@ public class ChannelServiceTest {
 	 */
 	private class TestObject {
 		
-		@CaChannel( name="SOUT1", type=String.class, monitor=true)
+		@CaChannel( name="SOUT1", type=String.class, monitor=false)
 		private Channel<String> type;
 
-		@CaChannelList( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
+		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
 		private List<Channel<String>> mylist;
 		
 		public Channel<String> getType() {
