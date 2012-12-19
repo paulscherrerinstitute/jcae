@@ -29,6 +29,13 @@ public class ChannelDescriptor<T> {
 		this.monitored = monitored;
 	}
 	
+	public ChannelDescriptor(Class<T> type, String name, Boolean monitored, Integer size){
+		this.name = name;
+		this.type = type;
+		this.monitored = monitored;
+		this.size = size;
+	}
+	
 	/**
 	 * @return the name
 	 */

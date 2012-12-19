@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.annotation.CaChannelList;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
@@ -170,7 +171,7 @@ public class ChannelServiceTest {
 		@CaChannel( name="SOUT1", type=String.class, monitor=true)
 		private Channel<String> type;
 
-		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
+		@CaChannelList( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
 		private List<Channel<String>> mylist;
 		
 		public Channel<String> getType() {

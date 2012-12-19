@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CaChannel {
+public @interface CaChannelList {
 	/**
 	 * Data type of ChannelBean value
 	 */
@@ -40,7 +40,7 @@ public @interface CaChannel {
 	/**
 	 * Name of channel
 	 */
-	String name();
+	String[] name();
 	/**
 	 * Flag whether to monitor the channel or not (default: false)
 	 * If using monitor=true the ChannelBean type must match the type of the Channel Access channel. 

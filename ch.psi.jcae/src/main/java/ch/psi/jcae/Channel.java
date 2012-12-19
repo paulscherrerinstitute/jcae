@@ -38,5 +38,6 @@ public interface Channel<T> {
 	
 	
 	public void addPropertyChangeListener( PropertyChangeListener l );
+	public void addPropertyChangeListener( String name, PropertyChangeListener l );
 	public void removePropertyChangeListener( PropertyChangeListener l );
 }

@@ -299,6 +299,14 @@ public class DummyChannel<T> implements Channel<T> {
 		}
 		propertyChangeSupport.addPropertyChangeListener(l);
 	}
+	
+	@Override
+	public void addPropertyChangeListener( String name, PropertyChangeListener l ){
+		if (!monitored) {
+			this.monitored = true;
+		}
+		propertyChangeSupport.addPropertyChangeListener(name, l);
+	}
 
 	/*
 	 * (non-Javadoc)

@@ -75,10 +75,9 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	private Monitor monitor;
 	private ConnectionListener listener;
 	private Channel channel;
-	private int elementCount = 1;
+	private final Integer elementCount;
 	
 	
-//	private E value = null;
 	private final AtomicReference<E> value = new AtomicReference<>();
 	
 	
@@ -91,11 +90,8 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * to the Channel if the <code>monitored</code> parameter is true.
 	 * @param type
 	 * @param channel
-	 * @param timeout		Timeout for set/get operations
-	 * @param waitTimeout	Timeout for wait operations
-	 * @param retries		Retries for set/get operations if something fails during an operation
+	 * @param size		Retries for set/get operations if something fails during an operation
 	 * @param monitored		Attach a Monitor to the Channel
-	 * @throws CAException 
 	 * @throws InterruptedException 
 	 * @throws ChannelException 
 	 * @throws TimeoutException 
@@ -114,20 +110,22 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		
 		// Set channel size
 		int csize = channel.getElementCount();
-		logger.fine("Channel size: "+ csize);
 		if(size != null){
 			if(size>0 && size<=csize){
-				logger.fine("Set channel size to "+size);
-				elementCount=size;
+				this.elementCount=size;
 			}
 			else{
 				throw new IllegalArgumentException("Specified channel size ["+size+"]  is not applicable. Maximum size is "+csize);
 			}
 		}
 		else{
-			elementCount = channel.getElementCount();
+			if(type.isArray()){
+				this.elementCount = null; // the size of the array may vary over time (always take the actual size of the channel)
+			}
+			else{
+				this.elementCount = 1 ; // if it is not an array type size is always 1
+			}
 		}
-		
 		
 		attachConnectionListener();
 		
@@ -236,11 +234,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	/**
 	 * Wait until channel has reached the specified value.
 	 * @param rvalue	Value the channel should reach
-	 * @param timeout	Wait timeout in milliseconds. (if timeout=0 wait forever)
-	 * @throws TimeoutException 
 	 * @throws ChannelException 
-	 * @throws CAException
-	 * @throws InterruptedException 
 	 */
 	public Future<E> waitForValue(E rvalue) throws ChannelException {
 		
@@ -284,10 +278,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * @param comparator	Implementation of the Comparator interface that defines when a value is reached. The Comparator
 	 * 						need to return 0 if the condition is met.
 	 * 						The first argument of the comparator is the value of the channel, the second the expected value.
-	 * @param timeout
 	 * @throws ChannelException 
-	 * @throws CAException		Timeout occured, ...
-	 * @throws InterruptedException
 	 */
 	public Future<E> waitForValue(E rvalue, Comparator<E> comparator) throws ChannelException {
 		return new WaitFuture<E>(channel, elementCount, rvalue, comparator);
@@ -340,11 +331,10 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 */
 	@Override
 	public Integer getSize(){
-		// FIXME need to return actually used size !!!! 
-		if(type.isArray()){
-			return(channel.getElementCount());
-		}
-		return 1;
+			if(type.isArray() && elementCount!=null){
+				return(channel.getElementCount());
+			}
+			return elementCount;
 	}
 	
 	/**
@@ -374,9 +364,6 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * 
 	 * @param monitored the monitored to set
 	 * @throws ChannelException 
-	 * @throws ExecutionException 
-	 * @throws TimeoutException 
-	 * @throws InterruptedException 
 	 */
 	@Override
 	public void setMonitored(boolean monitored) throws ChannelException {
@@ -400,7 +387,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 
 	/**
 	 * Attach connection listener to channel for this bean
-	 * @throws CAException
+	 * @throws ChannelException
 	 */
 	private void attachConnectionListener() throws ChannelException{
 		try{
@@ -433,8 +420,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Attach a monitor to the channel of the bean
-	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws ChannelException 
 	 */
 	private void attachMonitor() throws ChannelException {
 		
@@ -500,7 +486,6 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	/**
 	 * Destroy channel bean. Method will detach a possible monitor of this bean for the channel and 
 	 * destroy the channel of the bean.
-	 * @throws CAException 
 	 * @throws ChannelException 
 	 */
 	@Override
@@ -532,10 +517,6 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * If the channel is not set to monitored it will be automatically set to be monitored!
 	 * 
 	 * @param l		Listener object
-	 * @throws ExecutionException 
-	 * @throws TimeoutException 
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
 	 */
 	@Override
 	public void addPropertyChangeListener( PropertyChangeListener l ) {
@@ -550,6 +531,20 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		}
 	} 
 
+	@Override
+	public void addPropertyChangeListener( String name, PropertyChangeListener l ) {
+		try{
+			if(!isMonitored()){
+				setMonitored(true);
+			}
+			propertyChangeSupport.addPropertyChangeListener(name, l );
+		}
+		catch(ChannelException e){
+			throw new RuntimeException(e);
+		}
+	} 
+	
+	
 	/**
 	 * Remove property change listener from this object
 	 * @param l		Listener object

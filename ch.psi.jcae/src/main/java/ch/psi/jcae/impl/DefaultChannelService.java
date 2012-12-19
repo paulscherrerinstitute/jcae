@@ -25,7 +25,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -35,6 +37,7 @@ import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.annotation.CaChannelList;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
@@ -210,68 +213,57 @@ public class DefaultChannelService implements ChannelService {
 				}
 			}
 			
-			// Connect ChannelBeans
-			List<Object[]> fields = new ArrayList<Object[]>();
-			List<String> channelNames = new ArrayList<String>();
 			
-			for(Field field: c.getDeclaredFields()){
+			// Parse annotations
+			List<Field> fieldList = new ArrayList<>();
+			Map<Field, Integer> sizeMap = new HashMap<>(); // Map holding the number of channels that are associated to the field
+			List<ChannelDescriptor<?>> descriptorList = new ArrayList<>();
+
+			for (Field field : c.getDeclaredFields()) {
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
-				if(annotation != null){
-					if(field.getType().equals(Channel.class)){
-						fields.add(new Object[] {field, annotation});
-						channelNames.add(baseName+annotation.name()[0]);
+				if (annotation != null && field.getType().equals(Channel.class)) {
+					fieldList.add(field);
+					sizeMap.put(field, 1);
+					descriptorList.add(new ChannelDescriptor<>(annotation.type(), annotation.name(), annotation.monitor(), annotation.size()));
+				} else {
+					logger.warning("Annotation @" + CaChannel.class.getSimpleName() + " not applicable for field '" + field.getName() + "' of type '" + field.getType().getName() + "'");
+				}
+
+				CaChannelList lannotation = field.getAnnotation(CaChannelList.class);
+				if (lannotation != null && field.getType().equals(List.class)) {
+					fieldList.add(field);
+					sizeMap.put(field, lannotation.name().length);
+					for (String n : lannotation.name()) {
+						descriptorList.add(new ChannelDescriptor<>(lannotation.type(), n, lannotation.monitor(), lannotation.size()));
 					}
-					else if(field.getType().equals(List.class)){
-						fields.add(new Object[] {field, annotation});
-						for(String n: annotation.name()){
-							channelNames.add(baseName+n);
-						}
-					}
-					else{
-						logger.warning("Annotation @"+CaChannel.class.getSimpleName()+" not applicable for field '"+field.getName()+"' of type '"+field.getType().getName()+"'");
-					}
+				} else {
+					logger.warning("Annotation @" + CaChannelList.class.getSimpleName() + " not applicable for field '" + field.getName() + "' of type '" + field.getType().getName() + "'");
 				}
 			}
 			
-			// Create and set ChannelBean object of the given bean object
-			List<gov.aps.jca.Channel> channels = null;
-			if(!dummyMode){
-				channels = channelFactory.createChannels(channelNames);
-			}
-			int ct = 0;
-			for(Object[] f: fields){
-				Field field = (Field) f[0] ;
-				boolean accessible = field.isAccessible();
-				field.setAccessible(true);
-				CaChannel annotation = (CaChannel)f[1];
-				if(annotation.name().length>1){
-					List<Channel<?>> list = new ArrayList<Channel<?>>();
-					for(int x=0;x<annotation.name().length;x++){
-						// Create ChannelBean object
-						// TODO Use default factory method instead of creating object 
-						if(dummyMode){
-							list.add(new DummyChannel<>(annotation.type(), channelNames.get(ct), null, annotation.monitor()));
-						}
-						else{
-							list.add(new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
-						}
-						ct++;
-					}
-					field.set(object, list);	
+			// Create all channels
+			List<Channel<?>> channelList = createChannels(descriptorList);
+			
+			// Set channels
+			int ccount =0;
+			for(int fc=0;fc<fieldList.size();fc++){
+				Field f = fieldList.get(fc);
+				boolean accessible = f.isAccessible();
+				f.setAccessible(true);
+				int fsize = sizeMap.get(f);
+				if(fsize==1){
+					f.set(object, channelList.get(ccount));
+					ccount++;
 				}
 				else{
-					// Create ChannelBean object
-					// TODO Use default factory method instead of creating object
-					if(dummyMode){
-						field.set(object, new DummyChannel<>(annotation.type(), channelNames.get(ct), null, annotation.monitor()));
+					List<Channel<?>> list = new ArrayList<>();
+					for(int i=0;i<sizeMap.get(f);i++){
+						list.add(channelList.get(ccount));
+						ccount++;
 					}
-					else{
-						field.set(object, new DefaultChannel<>(annotation.type(), channels.get(ct), null, annotation.monitor()));
-					}
-					ct++;
+					f.set(object, list);
 				}
-				
-				field.setAccessible(accessible);
+				f.setAccessible(accessible);
 			}
 			
 			// Execute POST init function (if available)
@@ -291,8 +283,6 @@ public class DefaultChannelService implements ChannelService {
 			throw new ChannelException("An error occured while using reflection to set object values",e);
 		} catch (InvocationTargetException e) {
 			throw new ChannelException("Cannot execute pre/post init function(s)",e);
-		} catch (CAException | ExecutionException e) {
-			throw new ChannelException("Unable to create channels", e);
 		}
 	}
 	
