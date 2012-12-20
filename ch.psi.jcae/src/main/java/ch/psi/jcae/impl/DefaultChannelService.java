@@ -36,6 +36,8 @@ import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
+import ch.psi.jcae.Descriptor;
+import ch.psi.jcae.DummyChannelDescriptor;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
@@ -53,15 +55,6 @@ public class DefaultChannelService implements ChannelService {
 	private static final Logger logger = Logger.getLogger(DefaultChannelService.class.getName());
 
 	private final JCAChannelFactory channelFactory;
-
-	private final boolean dummyMode;
-	
-	
-	
-	public DefaultChannelService(){
-		this(false);
-	}
-	
 	
 	/**
 	 * Constructor - Create ChannelBeanFactory object. The constructor will initialize a 
@@ -71,18 +64,12 @@ public class DefaultChannelService implements ChannelService {
 	 * 
 	 * @throws CAException
 	 */
-	public DefaultChannelService(boolean dummyMode){
-		this.dummyMode = dummyMode;
-		if(dummyMode){
-			channelFactory = null;
+	public DefaultChannelService(){
+		try{
+			channelFactory = new JCAChannelFactory();
 		}
-		else{
-			try{
-				channelFactory = new JCAChannelFactory();
-			}
-			catch(CAException e){
-				throw new RuntimeException("Unable to initialize internal channel factory",e);
-			}
+		catch(CAException e){
+			throw new RuntimeException("Unable to initialize internal channel factory",e);
 		}
 	}
 	
@@ -104,21 +91,25 @@ public class DefaultChannelService implements ChannelService {
 	 * @throws ExecutionException 
 	 */
 	@Override
-	public <T> Channel<T> createChannel(ChannelDescriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException {
-		try{
-			Channel<T> ca;
-			if(dummyMode){
-				ca = new DummyChannel<>(descriptor.getType(), descriptor.getName(), descriptor.getSize(), descriptor.getMonitored());
+	public <T> Channel<T> createChannel(Descriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException {
+
+		Channel<T> ca;
+		if (descriptor instanceof ChannelDescriptor) {
+			ChannelDescriptor<T> d = (ChannelDescriptor<T>) descriptor;
+			try {
+				gov.aps.jca.Channel channel = channelFactory.createChannel(d.getName());
+				ca = new DefaultChannel<T>(d.getType(), channel, d.getSize(), d.getMonitored());
+			} catch (CAException | ExecutionException e) {
+				throw new ChannelException("Unable to create channel " + d.getName(), e);
 			}
-			else{
-				gov.aps.jca.Channel channel = channelFactory.createChannel(descriptor.getName());
-				ca = new DefaultChannel<T>(descriptor.getType(), channel, descriptor.getSize(), descriptor.getMonitored());
-			}
-			return(ca);
+		} else if (descriptor instanceof DummyChannelDescriptor) {
+			DummyChannelDescriptor<T> d = (DummyChannelDescriptor<T>) descriptor;
+			ca = new DummyChannel<>(d.getType(), d.getName(), d.getSize(), d.getMonitored());
+		} else {
+			throw new IllegalArgumentException("Descriptor of type " + descriptor.getClass().getName() + " is not supported");
 		}
-		catch(CAException | ExecutionException e){
-			throw new ChannelException("Unable to create channel "+descriptor.getName(),e);
-		}
+		return (ca);
+
 	}
 	
 	
@@ -140,30 +131,34 @@ public class DefaultChannelService implements ChannelService {
 	 * @throws ExecutionException 
 	 */
 	@Override
-	public List<Channel<?>> createChannels(List<ChannelDescriptor<?>> list) throws ChannelException, InterruptedException, TimeoutException {
+	public List<Channel<?>> createChannels(List<Descriptor<?>> list) throws ChannelException, InterruptedException, TimeoutException {
 		List<Channel<?>> channelObject = new ArrayList<Channel<?>>();
-		if (dummyMode) {
-			for (ChannelDescriptor<?> d : list) {
-				channelObject.add(new DummyChannel<>(d.getType(), d.getName(), d.getSize(), d.getMonitored()));
-			}
-		}
-		else
-		{
-			try {
-				List<String> names = new ArrayList<String>();
-				for (ChannelDescriptor<?> d : list) {
-					names.add(d.getName());
+		
+		try{
+			List<String> names = new ArrayList<String>();
+			for(Descriptor<?> d: list){
+				if(d instanceof ChannelDescriptor){
+					ChannelDescriptor<?> dd = (ChannelDescriptor<?>)d;
+					names.add(dd.getName());
 				}
-				List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
-
-				for (int i = 0; i < list.size(); i++) {
-					ChannelDescriptor<?> d = list.get(i);
-					channelObject.add(new DefaultChannel<>(d.getType(), channels.get(i), d.getSize(), d.getMonitored()));
-				}
-			} catch (CAException | ExecutionException e) {
-				throw new ChannelException("", e);
 			}
+			List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
+			
+			int ccount = 0;
+			for(Descriptor<?> d: list){
+				if(d instanceof ChannelDescriptor){
+					channelObject.add(new DefaultChannel<>(d.getType(), channels.get(ccount), d.getSize(), d.getMonitored()));
+					ccount++;
+				}
+				else if(d instanceof DummyChannelDescriptor){
+					DummyChannelDescriptor<?> dd = (DummyChannelDescriptor<?>) d;
+					channelObject.add(new DummyChannel<>(dd.getType(), dd.getName(), dd.getSize(), dd.getMonitored()));
+				}
+			}
+		} catch (CAException | ExecutionException e) {
+			throw new ChannelException("", e);
 		}
+		
 		return channelObject;
 	}
 	
@@ -215,7 +210,7 @@ public class DefaultChannelService implements ChannelService {
 			// Parse annotations
 			List<Field> fieldList = new ArrayList<>();
 			Map<Field, Integer> sizeMap = new HashMap<>(); // Map holding the number of channels that are associated to the field
-			List<ChannelDescriptor<?>> descriptorList = new ArrayList<>();
+			List<Descriptor<?>> descriptorList = new ArrayList<>();
 
 			for (Field field : c.getDeclaredFields()) {
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
@@ -364,12 +359,10 @@ public class DefaultChannelService implements ChannelService {
 	 */
 	@Override
 	public void destroy() {
-		if (!dummyMode) {
-			try {
-				channelFactory.destroyContext();
-			} catch (CAException e) {
-				throw new RuntimeException("Unable to destroy the internal channel factory instance", e);
-			}
+		try {
+			channelFactory.destroyContext();
+		} catch (CAException e) {
+			throw new RuntimeException("Unable to destroy the internal channel factory instance", e);
 		}
 	}
 	

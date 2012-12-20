@@ -14,9 +14,9 @@ import java.util.concurrent.TimeoutException;
  */
 public interface ChannelService {
 
-	public <T> Channel<T> createChannel(ChannelDescriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException;
+	public <T> Channel<T> createChannel(Descriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException;
 //	public <T> void destroyChannel(Channel<T> channel);
-	public List<Channel<?>> createChannels(List<ChannelDescriptor<?>> descriptors) throws ChannelException, InterruptedException, TimeoutException;
+	public List<Channel<?>> createChannels(List<Descriptor<?>> descriptors) throws ChannelException, InterruptedException, TimeoutException;
 //	public <T> void destroyChannels(Collection<Channel<?>> channels);
 
 	

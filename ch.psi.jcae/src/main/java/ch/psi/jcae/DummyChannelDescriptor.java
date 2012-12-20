@@ -8,26 +8,26 @@ package ch.psi.jcae;
  * @author ebner
  *
  */
-public class ChannelDescriptor<T> extends Descriptor<T> {
+public class DummyChannelDescriptor<T> extends Descriptor<T> {
 
 	private String name;
 	
 	
-	public ChannelDescriptor(){
+	public DummyChannelDescriptor(){
 	}
 	
-	public ChannelDescriptor(Class<T> type, String name){
+	public DummyChannelDescriptor(Class<T> type, String name){
 		this.name = name;
 		this.type = type;
 	}
 	
-	public ChannelDescriptor(Class<T> type, String name, Boolean monitored){
+	public DummyChannelDescriptor(Class<T> type, String name, Boolean monitored){
 		this.name = name;
 		this.type = type;
 		this.monitored = monitored;
 	}
 	
-	public ChannelDescriptor(Class<T> type, String name, Boolean monitored, Integer size){
+	public DummyChannelDescriptor(Class<T> type, String name, Boolean monitored, Integer size){
 		this.name = name;
 		this.type = type;
 		this.monitored = monitored;
