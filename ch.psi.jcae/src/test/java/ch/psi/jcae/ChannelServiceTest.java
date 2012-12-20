@@ -19,7 +19,9 @@
 
 package ch.psi.jcae;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -111,7 +113,9 @@ public class ChannelServiceTest {
 		TestObject one = new TestObject();
 
 		// Manage Bean
-		factory.createAnnotatedChannels(one, TestChannels.PREFIX);
+		Map<String,String> m = new HashMap<>();
+		m.put("PREFIX", TestChannels.PREFIX);
+		factory.createAnnotatedChannels(one, m);
 
 		// Check to get values
 		Channel<String> tc = one.getType();
@@ -186,10 +190,10 @@ public class ChannelServiceTest {
 	 */
 	private class TestObject {
 		
-		@CaChannel( name="SOUT1", type=String.class, monitor=false)
+		@CaChannel( name="${PREFIX}SOUT1", type=String.class, monitor=false)
 		private Channel<String> type;
 
-		@CaChannel( name={"SOUT2", "SOUT3", "SOUT4", "SOUT5"}, type=String.class, monitor=true)
+		@CaChannel( name={"${PREFIX}SOUT2", "${PREFIX}SOUT3", "${PREFIX}SOUT4", "${PREFIX}SOUT5"}, type=String.class, monitor=true)
 		private List<Channel<String>> mylist;
 		
 		public Channel<String> getType() {

@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -82,7 +83,9 @@ public class ChannelServiceAnnotatedObjectTest {
 	@Test
 	public void testConnectChannelBeans() throws CAException, ChannelException, InterruptedException, TimeoutException, ExecutionException {
 		TestObject object = new TestObject();
-		cservice.createAnnotatedChannels(object, TestChannels.PREFIX);
+		Map<String,String> m = new HashMap<>();
+		m.put("PREFIX", TestChannels.PREFIX);
+		cservice.createAnnotatedChannels(object, m);
 		
 		// Check whether pre and post methods are executed
 		if(timestamps.get("pre")!=null && timestamps.get("post")!=null){
@@ -114,13 +117,13 @@ public class ChannelServiceAnnotatedObjectTest {
 	
 	public class TestObject {
 		
-		@CaChannel( name="BI", type=Integer.class, monitor=true)
+		@CaChannel( name="${PREFIX}BI", type=Integer.class, monitor=true)
 		private Channel<Integer> field1 = null;
 
-		@CaChannel( name="BI", type=Integer.class, monitor=true)
+		@CaChannel( name="${PREFIX}BI", type=Integer.class, monitor=true)
 		private List<Channel<Integer>> field2 = null;
 		
-		@CaChannel( name="BI", type=Integer.class, monitor=true)
+		@CaChannel( name="${PREFIX}BI", type=Integer.class, monitor=true)
 		private Collection<Channel<Integer>> field3 = null; // Parent interface of List
 		
 		

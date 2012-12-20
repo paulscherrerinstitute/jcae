@@ -36,9 +36,11 @@ import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
+import ch.psi.jcae.CompositeChannelDescriptor;
 import ch.psi.jcae.Descriptor;
 import ch.psi.jcae.DummyChannelDescriptor;
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.annotation.CaCompositeChannel;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
@@ -102,6 +104,19 @@ public class DefaultChannelService implements ChannelService {
 			} catch (CAException | ExecutionException e) {
 				throw new ChannelException("Unable to create channel " + d.getName(), e);
 			}
+		} else if(descriptor instanceof CompositeChannelDescriptor){
+			CompositeChannelDescriptor<T> d = (CompositeChannelDescriptor<T>) descriptor;
+			try{
+				List<String> names = new ArrayList<String>();
+				names.add(d.getName());
+				names.add(d.getReadback());
+				
+				List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
+				
+				ca = new CompositeChannel<>(new DefaultChannel<T>(d.getType(), channels.get(0), d.getSize(), false), new DefaultChannel<T>(d.getType(), channels.get(1), d.getSize(), d.getMonitored()));
+			} catch (CAException | ExecutionException e) {
+				throw new ChannelException("Unable to create channel " + d.getName(), e);
+			}
 		} else if (descriptor instanceof DummyChannelDescriptor) {
 			DummyChannelDescriptor<T> d = (DummyChannelDescriptor<T>) descriptor;
 			ca = new DummyChannel<>(d.getType(), d.getName(), d.getSize(), d.getMonitored());
@@ -130,6 +145,7 @@ public class DefaultChannelService implements ChannelService {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Channel<?>> createChannels(List<Descriptor<?>> list) throws ChannelException, InterruptedException, TimeoutException {
 		List<Channel<?>> channelObject = new ArrayList<Channel<?>>();
@@ -141,6 +157,11 @@ public class DefaultChannelService implements ChannelService {
 					ChannelDescriptor<?> dd = (ChannelDescriptor<?>)d;
 					names.add(dd.getName());
 				}
+				else if(d instanceof CompositeChannelDescriptor){
+					CompositeChannelDescriptor<?> dd = (CompositeChannelDescriptor<?>)d;
+					names.add(dd.getName());
+					names.add(dd.getReadback());
+				}
 			}
 			List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
 			
@@ -148,6 +169,15 @@ public class DefaultChannelService implements ChannelService {
 			for(Descriptor<?> d: list){
 				if(d instanceof ChannelDescriptor){
 					channelObject.add(new DefaultChannel<>(d.getType(), channels.get(ccount), d.getSize(), d.getMonitored()));
+					ccount++;
+				}
+				else if(d instanceof CompositeChannelDescriptor){
+					
+					DefaultChannel<?> c = new DefaultChannel<>(d.getType(), channels.get(ccount), d.getSize(), false);
+					ccount++;
+					DefaultChannel<?> cr = new DefaultChannel<>(d.getType(), channels.get(ccount), d.getSize(), d.getMonitored());
+					
+					channelObject.add(new CompositeChannel(c, cr));
 					ccount++;
 				}
 				else if(d instanceof DummyChannelDescriptor){
@@ -176,7 +206,7 @@ public class DefaultChannelService implements ChannelService {
 	 */
 	@Override
 	public void createAnnotatedChannels(Object object) throws ChannelException, InterruptedException, TimeoutException {
-		createAnnotatedChannels(object, "");
+		createAnnotatedChannels(object, new HashMap<String,String>());
 	}
 	
 	/**
@@ -193,7 +223,7 @@ public class DefaultChannelService implements ChannelService {
 	 * @throws ExecutionException 
 	 */
 	@Override
-	public void createAnnotatedChannels(Object object, String baseName) throws ChannelException, InterruptedException, TimeoutException {
+	public void createAnnotatedChannels(Object object, Map<String,String> macros) throws ChannelException, InterruptedException, TimeoutException {
 		try{
 			Class<?> c = object.getClass();
 			
@@ -214,20 +244,28 @@ public class DefaultChannelService implements ChannelService {
 
 			for (Field field : c.getDeclaredFields()) {
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
+				CaCompositeChannel compositeAnnotation = field.getAnnotation(CaCompositeChannel.class);
 				if(annotation!=null){
 					if (annotation.name().length==1 && field.getType().isAssignableFrom(Channel.class)) {
 						fieldList.add(field);
 						sizeMap.put(field, 1);
-						descriptorList.add(new ChannelDescriptor<>(annotation.type(), baseName+annotation.name()[0], annotation.monitor(), annotation.size()));
+						descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(annotation.name()[0], macros), annotation.monitor(), annotation.size()));
 					}
 					else if (annotation.name().length >0 && field.getType().isAssignableFrom(List.class)) {
 						fieldList.add(field);
 						sizeMap.put(field, annotation.name().length);
 						for (String n : annotation.name()) {
-							descriptorList.add(new ChannelDescriptor<>(annotation.type(), baseName+n, annotation.monitor(), annotation.size()));
+							descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(n, macros), annotation.monitor(), annotation.size()));
 						}
 					} else {
 						logger.warning("Annotation @" + CaChannel.class.getSimpleName() + " not applicable for field '" + field.getName() + "' of type '" + field.getType().getName() + "'");
+					}
+				}
+				else if (compositeAnnotation!=null){
+					if(field.getType().isAssignableFrom(Channel.class)){
+						fieldList.add(field);
+						sizeMap.put(field, 1);
+						descriptorList.add(new CompositeChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), macros), MacroResolver.format(compositeAnnotation.readback(), macros), compositeAnnotation.monitor(), compositeAnnotation.size()));
 					}
 				}
 			}

@@ -8,28 +8,28 @@ package ch.psi.jcae;
  * @author ebner
  *
  */
-public class CompositChannelDescriptor<T> extends Descriptor<T>{
+public class CompositeChannelDescriptor<T> extends Descriptor<T>{
 
 	private String name;
 	private String readback;
 	
-	public CompositChannelDescriptor(){
+	public CompositeChannelDescriptor(){
 	}
 	
-	public CompositChannelDescriptor(Class<T> type, String name, String readback){
+	public CompositeChannelDescriptor(Class<T> type, String name, String readback){
 		this.name = name;
 		this.type = type;
 		this.readback = readback;
 	}
 	
-	public CompositChannelDescriptor(Class<T> type, String name, String readback, Boolean monitored){
+	public CompositeChannelDescriptor(Class<T> type, String name, String readback, Boolean monitored){
 		this.name = name;
 		this.type = type;
 		this.readback = readback;
 		this.monitored = monitored;
 	}
 	
-	public CompositChannelDescriptor(Class<T> type, String name, String readback, Boolean monitored, Integer size){
+	public CompositeChannelDescriptor(Class<T> type, String name, String readback, Boolean monitored, Integer size){
 		this.name = name;
 		this.type = type;
 		this.readback = readback;

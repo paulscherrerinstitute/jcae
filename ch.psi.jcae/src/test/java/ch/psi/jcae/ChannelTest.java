@@ -292,9 +292,9 @@ public class ChannelTest {
 	@Test
 	public void testSetValueString() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
-		Channel<String> channel1 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT));
+		Channel<String> channel1 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT1));
 		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
-		Channel<String> channel2 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT));
+		Channel<String> channel2 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT1));
 		
 		for(Double value=1.1;value<10;value++){
 			channel1.setValue(value+""); // Wait forever
@@ -308,6 +308,55 @@ public class ChannelTest {
 		// Reset value to old value
 		channel1.setValue(System.currentTimeMillis()+""); // Have this to ensure that if someone is doing a camon that things change (see note header)
 	}
+	
+	
+	boolean testflag = false;
+	@Test
+	public void testCompositeChannel() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
+		Channel<String> setChannel = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT1));
+		Channel<String> readbackChannel = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT2));
+		
+		
+		Channel<String> channel = cservice.createChannel(new CompositeChannelDescriptor<>(String.class, TestChannels.STRING_OUT1, TestChannels.STRING_OUT2));
+		
+		String valSet = "";
+		String valReadback = "result";
+		
+		setChannel.setValue(valSet);
+		readbackChannel.setValue(valReadback);
+		
+		Thread.sleep(100);
+		String val = "testvalue";
+		channel.setValue(val);
+		
+		assertEquals(setChannel.getValue(), val);
+		assertEquals(readbackChannel.getValue(), valReadback); // Readback must not have been changed
+
+		Thread.sleep(100);
+		readbackChannel.setValue(val);
+		
+		assertEquals(val, readbackChannel.getValue());
+		assertEquals(val, setChannel.getValue());
+		
+		
+		// Test whether monitor is working
+		testflag = false;
+		PropertyChangeListener l = new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				testflag = true;
+			}
+		};
+		
+		channel.addPropertyChangeListener(l);
+		
+		readbackChannel.setValue("result");
+		Thread.sleep(10); // sleep 10 milliseconds to ensure that listener was fired
+		assertTrue(testflag);
+		
+	}
+	
 	
 	@Test
 	public void testSetValueMonitored() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {

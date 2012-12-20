@@ -37,5 +37,7 @@ public class TestChannels {
 	
 	public static final String MBBI = PREFIX+"MBBI";
 	
-	public static final String STRING_OUT = PREFIX+"SOUT1";
+	public static final String STRING_OUT1 = PREFIX+"SOUT1";
+	public static final String STRING_OUT2 = PREFIX+"SOUT2";
+	public static final String STRING_OUT3 = PREFIX+"SOUT3";
 }

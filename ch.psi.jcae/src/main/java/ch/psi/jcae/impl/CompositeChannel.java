@@ -20,12 +20,12 @@ import ch.psi.jcae.ChannelException;
  * Name of the composite channel is the name of the set channel. The size, source, etc. is taken from the readback channel.
  * 
  */
-public class CompositChannel<T> implements Channel<T>{
+public class CompositeChannel<T> implements Channel<T>{
 
 	private Channel<T> channel;
 	private Channel<T> readback;
 	
-	public CompositChannel(Channel<T> channel, Channel<T> readback){
+	public CompositeChannel(Channel<T> channel, Channel<T> readback){
 		this.channel = channel;
 		this.readback = readback;
 	}

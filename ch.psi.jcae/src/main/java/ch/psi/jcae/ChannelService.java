@@ -6,6 +6,7 @@ package ch.psi.jcae;
 
 //import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -23,7 +24,7 @@ public interface ChannelService {
 	
 	// Annotation related functions
 	public void createAnnotatedChannels(Object object) throws ChannelException, InterruptedException, TimeoutException;
-	public void createAnnotatedChannels(Object object, String prefix) throws ChannelException, InterruptedException, TimeoutException;
+	public void createAnnotatedChannels(Object object, Map<String,String> macros) throws ChannelException, InterruptedException, TimeoutException;
 	public void destroyAnnotatedChannels(Object object) throws ChannelException;
 	
 	
