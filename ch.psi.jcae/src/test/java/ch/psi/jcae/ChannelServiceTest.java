@@ -52,7 +52,9 @@ public class ChannelServiceTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		factory = new DefaultChannelService();
+		DefaultChannelService s = new DefaultChannelService();
+		s.getGlobalMacros().put("PREFIX", TestChannels.PREFIX);
+		factory = s;
 	}
 
 	/**
@@ -114,7 +116,7 @@ public class ChannelServiceTest {
 
 		// Manage Bean
 		Map<String,String> m = new HashMap<>();
-		m.put("PREFIX", TestChannels.PREFIX);
+//		m.put("PREFIX", TestChannels.PREFIX);
 		factory.createAnnotatedChannels(one, m);
 
 		// Check to get values

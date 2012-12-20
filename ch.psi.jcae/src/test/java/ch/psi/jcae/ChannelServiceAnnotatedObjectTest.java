@@ -62,7 +62,9 @@ public class ChannelServiceAnnotatedObjectTest {
 	@Before
 	public void setUp() throws Exception {
 		// Get default factory
-		cservice = new DefaultChannelService();
+		DefaultChannelService s = new DefaultChannelService();
+		s.getGlobalMacros().put("PREFIX", TestChannels.PREFIX);
+		cservice = s;
 	}
 
 	/**
@@ -84,7 +86,7 @@ public class ChannelServiceAnnotatedObjectTest {
 	public void testConnectChannelBeans() throws CAException, ChannelException, InterruptedException, TimeoutException, ExecutionException {
 		TestObject object = new TestObject();
 		Map<String,String> m = new HashMap<>();
-		m.put("PREFIX", TestChannels.PREFIX);
+//		m.put("PREFIX", TestChannels.PREFIX);
 		cservice.createAnnotatedChannels(object, m);
 		
 		// Check whether pre and post methods are executed

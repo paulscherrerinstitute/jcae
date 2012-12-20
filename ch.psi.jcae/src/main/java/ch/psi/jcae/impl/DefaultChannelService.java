@@ -58,6 +58,14 @@ public class DefaultChannelService implements ChannelService {
 
 	private final JCAChannelFactory channelFactory;
 	
+	private final boolean dryrun;
+	private Map<String,String> globalMacros = new HashMap<>();
+	
+	
+	public DefaultChannelService(){
+		this(false);
+	}
+	
 	/**
 	 * Constructor - Create ChannelBeanFactory object. The constructor will initialize a 
 	 * default ChannelFactory factory and read the <code>jca.properties</code> file to 
@@ -66,7 +74,8 @@ public class DefaultChannelService implements ChannelService {
 	 * 
 	 * @throws CAException
 	 */
-	public DefaultChannelService(){
+	public DefaultChannelService(boolean dryrun){
+		this.dryrun = dryrun;
 		try{
 			channelFactory = new JCAChannelFactory();
 		}
@@ -224,7 +233,13 @@ public class DefaultChannelService implements ChannelService {
 	 */
 	@Override
 	public void createAnnotatedChannels(Object object, Map<String,String> macros) throws ChannelException, InterruptedException, TimeoutException {
+		
 		try{
+			// Merge global macros and passed macros
+			Map<String,String> mac = new HashMap<>();
+			mac.putAll(globalMacros);
+			mac.putAll(macros);
+			
 			Class<?> c = object.getClass();
 			
 			// Execute pre init function (if available)
@@ -249,13 +264,23 @@ public class DefaultChannelService implements ChannelService {
 					if (annotation.name().length==1 && field.getType().isAssignableFrom(Channel.class)) {
 						fieldList.add(field);
 						sizeMap.put(field, 1);
-						descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(annotation.name()[0], macros), annotation.monitor(), annotation.size()));
+						if(dryrun){
+							descriptorList.add(new DummyChannelDescriptor<>(annotation.type(), MacroResolver.format(annotation.name()[0], mac), annotation.monitor(), annotation.size()));
+						}
+						else{
+							descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(annotation.name()[0], mac), annotation.monitor(), annotation.size()));
+						}
 					}
 					else if (annotation.name().length >0 && field.getType().isAssignableFrom(List.class)) {
 						fieldList.add(field);
 						sizeMap.put(field, annotation.name().length);
 						for (String n : annotation.name()) {
-							descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(n, macros), annotation.monitor(), annotation.size()));
+							if(dryrun){
+								descriptorList.add(new DummyChannelDescriptor<>(annotation.type(), MacroResolver.format(n, mac), annotation.monitor(), annotation.size()));
+							}
+							else{
+								descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(n, mac), annotation.monitor(), annotation.size()));
+							}
 						}
 					} else {
 						logger.warning("Annotation @" + CaChannel.class.getSimpleName() + " not applicable for field '" + field.getName() + "' of type '" + field.getType().getName() + "'");
@@ -265,7 +290,7 @@ public class DefaultChannelService implements ChannelService {
 					if(field.getType().isAssignableFrom(Channel.class)){
 						fieldList.add(field);
 						sizeMap.put(field, 1);
-						descriptorList.add(new CompositeChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), macros), MacroResolver.format(compositeAnnotation.readback(), macros), compositeAnnotation.monitor(), compositeAnnotation.size()));
+						descriptorList.add(new CompositeChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), MacroResolver.format(compositeAnnotation.readback(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
 					}
 				}
 			}
@@ -412,4 +437,22 @@ public class DefaultChannelService implements ChannelService {
 		super.finalize();
 		destroy();
 	}
+
+	
+	
+	/**
+	 * @return the globalMacros
+	 */
+	public Map<String, String> getGlobalMacros() {
+		return globalMacros;
+	}
+
+	/**
+	 * @param globalMacros the globalMacros to set
+	 */
+	public void setGlobalMacros(Map<String, String> globalMacros) {
+		this.globalMacros = globalMacros;
+	}
+	
+	
 }
