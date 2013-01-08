@@ -40,5 +40,21 @@ public class MacroResolverTest {
 		
 		assertEquals("My dog is named fido, and Jane Doe owns him.", result);
 	}
+	
+	/**
+	 * Test whether a non existing macro is replaced the correct way
+	 */
+	@Test
+	public void testFormatNonexistingMacro() {
+		Map<String, String> map = new HashMap<>();
+		map.put("macro1", "fido");
+		map.put("macro2", "Jane Doe");
+
+		String format = "${macro2}-${macro1}-${macrono}-${macro2}";
+		String result = MacroResolver.format(format, map);
+		logger.info(result);
+		
+		assertEquals(map.get("macro2")+"-"+map.get("macro1")+"-${macrono}-"+map.get("macro2"), result);
+	}
 
 }

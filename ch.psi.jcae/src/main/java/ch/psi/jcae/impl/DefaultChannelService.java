@@ -234,6 +234,8 @@ public class DefaultChannelService implements ChannelService {
 	@Override
 	public void createAnnotatedChannels(Object object, Map<String,String> macros) throws ChannelException, InterruptedException, TimeoutException {
 		
+		logger.info("Create annotated channels of class "+object.getClass().getName()+" "+ (dryrun?"[dryrun]":""));
+		
 		try{
 			// Merge global macros and passed macros
 			Map<String,String> mac = new HashMap<>();
@@ -290,7 +292,12 @@ public class DefaultChannelService implements ChannelService {
 					if(field.getType().isAssignableFrom(Channel.class)){
 						fieldList.add(field);
 						sizeMap.put(field, 1);
-						descriptorList.add(new CompositeChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), MacroResolver.format(compositeAnnotation.readback(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
+						if(dryrun){
+							descriptorList.add(new DummyChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
+						}
+						else{
+							descriptorList.add(new CompositeChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), MacroResolver.format(compositeAnnotation.readback(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
+						}
 					}
 				}
 			}

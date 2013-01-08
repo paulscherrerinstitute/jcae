@@ -16,7 +16,12 @@ public class MacroResolver {
         Matcher m = pattern.matcher(format);
         String result = format;
         while (m.find()) {
-            result = result.replaceFirst(regex, macros.get(m.group(1)));
+        	String ma = m.group(1);
+        	String replacement = macros.get(ma);
+        	if(replacement==null){ // use of an non existing macro
+        		replacement=fieldStart+ma+fieldEnd;
+        	}
+            result = result.replaceFirst(fieldStart+ma+fieldEnd, replacement);
         }
         return result;
     }

@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.annotation.CaCompositeChannel;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 /**
@@ -184,6 +185,85 @@ public class ChannelServiceTest {
 		}
 	}
 	
+	@Test
+	public void annotationTestDryrun() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		
+		DefaultChannelService factory1 = new DefaultChannelService(true);
+		
+		// Create test bean to manage
+		TestObject one = new TestObject();
+
+		// Manage Bean
+		Map<String,String> m = new HashMap<>();
+		m.put("PREFIX", "DOES-NOT-EXIST:");
+		factory1.createAnnotatedChannels(one, m);
+
+		// Check to get values
+		Channel<String> tc = one.getType();
+		if(! tc.isConnected()){
+			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+		}
+		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
+		
+		// Check to set values
+		for(int i=0;i<10;i++){
+			String val = "value"+i;
+			tc.setValue(val);
+			Thread.sleep(10);
+			String v = tc.getValue();
+			if(!v.equals(val)){
+				Assert.fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
+			}
+		}
+		// Write something else into the test channel to prepare the environment for the next test
+		tc.setValue(""+System.currentTimeMillis());
+		
+		
+		// Check to get values
+		tc = one.getTypeTwo();
+		if(! tc.isConnected()){
+			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+		}
+		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
+		
+		// Check to set values
+		for(int i=0;i<10;i++){
+			String val = "value"+i;
+			tc.setValue(val);
+			Thread.sleep(10);
+			String v = tc.getValue();
+			if(!v.equals(val)){
+				Assert.fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
+			}
+		}
+		// Write something else into the test channel to prepare the environment for the next test
+		tc.setValue(""+System.currentTimeMillis());
+		
+		
+		// Check to get values
+		tc = one.getTypeThree();
+		if(! tc.isConnected()){
+			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+		}
+		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
+		
+		
+		
+		
+		logger.info("[Start] Channel list check");
+		
+		// Check whether all list channels are connected
+		Assert.assertTrue(one.getMylist().size()==4); // Check whether there are 4 channels in the list
+		for (Channel<String> l : one.getMylist()) {
+			if(! l.isConnected()){
+				Assert.fail("Channel ["+l.getName()+"] is not CONNECTED");
+			}
+			logger.info(String.format("%s - %s", l.getName(), l.getValue()));
+		}
+
+		
+	}
+	
 	
 	/**
 	 * Test class containing ChannelBean attributes with annotations. 
@@ -198,6 +278,12 @@ public class ChannelServiceTest {
 		@CaChannel( name={"${PREFIX}SOUT2", "${PREFIX}SOUT3", "${PREFIX}SOUT4", "${PREFIX}SOUT5"}, type=String.class, monitor=true)
 		private List<Channel<String>> mylist;
 		
+		@CaCompositeChannel(type=String.class, name="${PREFIX}SOUT1", readback="${PREFIX}SOUT2")
+		private Channel<String> typeTwo;
+		
+		@CaChannel( name="${NON-EXISTING-MACRO}SOUT1", type=String.class, monitor=false) // Use of non specified macro
+		private Channel<String> typeThree;
+		
 		public Channel<String> getType() {
 			return type;
 		}
@@ -205,7 +291,14 @@ public class ChannelServiceTest {
 		public List<Channel<String>> getMylist() {
 			return(mylist);
 		}
-		
+
+		public Channel<String> getTypeTwo() {
+			return typeTwo;
+		}
+
+		public Channel<String> getTypeThree() {
+			return typeThree;
+		}
 	}
 
 }
