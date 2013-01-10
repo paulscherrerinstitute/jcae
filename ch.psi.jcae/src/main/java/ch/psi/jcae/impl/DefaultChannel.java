@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.handler.Handlers;
+import ch.psi.jcae.impl.type.ByteArrayString;
 
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -119,7 +120,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 			}
 		}
 		else{
-			if(type.isArray()){
+			if(type.isArray() || type.isAssignableFrom(ByteArrayString.class)){ // TODO FIXME Remove this hardcoded thing!
 				this.elementCount = csize; // the size of the array may vary over time (always take the actual size of the channel)
 			}
 			else{

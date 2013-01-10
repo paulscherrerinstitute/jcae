@@ -76,6 +76,7 @@ public class ByteArrayStringChannelTest {
 	 */
 	@Test
 	public void testGetSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		
 		ByteArrayString ovalue = b.getValue();
 		logger.info("Channel value as String: "+ ovalue.getValue());
 		

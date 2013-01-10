@@ -113,7 +113,7 @@ public class ChannelServiceTest {
 	public void annotationTest() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
 		// Create test bean to manage
-		TestObject one = new TestObject();
+		TestObjectTwo one = new TestObjectTwo();
 
 		// Manage Bean
 		Map<String,String> m = new HashMap<>();
@@ -298,6 +298,26 @@ public class ChannelServiceTest {
 
 		public Channel<String> getTypeThree() {
 			return typeThree;
+		}
+	}
+	
+	private class TestObjectTwo {
+		
+		@CaChannel( name="${PREFIX}SOUT1", type=String.class, monitor=false)
+		private Channel<String> type;
+
+		@CaChannel( name={"${PREFIX}SOUT2", "${PREFIX}SOUT3", "${PREFIX}SOUT4", "${PREFIX}SOUT5"}, type=String.class, monitor=true)
+		private List<Channel<String>> mylist;
+		
+		@CaCompositeChannel(type=String.class, name="${PREFIX}SOUT1", readback="${PREFIX}SOUT2")
+		private Channel<String> typeTwo;
+		
+		public Channel<String> getType() {
+			return type;
+		}
+
+		public List<Channel<String>> getMylist() {
+			return(mylist);
 		}
 	}
 
