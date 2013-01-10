@@ -196,9 +196,42 @@ public class DummyChannel<T> implements Channel<T> {
 	 * java.util.Comparator)
 	 */
 	@Override
-	public Future<T> waitForValue(T rvalue, Comparator<T> comparator) throws ChannelException {
-		// TODO Implement this function
-		throw new UnsupportedOperationException();
+	public Future<T> waitForValue(final T rvalue, final Comparator<T> comparator) throws ChannelException {
+		return new Future<T>() {
+
+			@Override
+			public boolean cancel(boolean mayInterruptIfRunning) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public boolean isCancelled() {
+				return false;
+			}
+
+			@Override
+			public boolean isDone() {
+				return true;
+			}
+
+			@Override
+			public T get() throws InterruptedException, ExecutionException {
+				if(value!=null && comparator.compare(value, rvalue)==0){
+					return rvalue;
+				}
+				throw new IllegalStateException();
+			}
+
+			@Override
+			public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+				if(value!=null && comparator.compare(value, rvalue)==0){
+					return rvalue;
+				}
+				else{
+					throw new TimeoutException("Value not reached in time");
+				}
+			}
+		};
 	}
 
 	/*
@@ -208,9 +241,42 @@ public class DummyChannel<T> implements Channel<T> {
 	 * java.util.Comparator, long)
 	 */
 	@Override
-	public Future<T> waitForValue(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws ChannelException {
-		// TODO Implement this function
-		throw new UnsupportedOperationException();
+	public Future<T> waitForValue(final T rvalue, final Comparator<T> comparator, long waitRetryPeriod) throws ChannelException {
+		return new Future<T>() {
+
+			@Override
+			public boolean cancel(boolean mayInterruptIfRunning) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public boolean isCancelled() {
+				return false;
+			}
+
+			@Override
+			public boolean isDone() {
+				return true;
+			}
+
+			@Override
+			public T get() throws InterruptedException, ExecutionException {
+				if(value!=null && comparator.compare(value, rvalue)==0){
+					return rvalue;
+				}
+				throw new IllegalStateException();
+			}
+
+			@Override
+			public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+				if(value!=null && comparator.compare(value, rvalue)==0){
+					return rvalue;
+				}
+				else{
+					throw new TimeoutException("Value not reached in time");
+				}
+			}
+		};
 	}
 
 	/*
