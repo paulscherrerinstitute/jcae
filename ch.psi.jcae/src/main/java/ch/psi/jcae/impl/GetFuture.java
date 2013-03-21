@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 import ch.psi.jcae.impl.handler.Handlers;
 
@@ -39,6 +40,10 @@ import gov.aps.jca.event.GetListener;
  */
 public class GetFuture<T> implements GetListener, Future<T>
 {
+	
+	
+	private static final Logger logger = Logger.getLogger(GetFuture.class.getName());
+	
 	/**
 	 * Channel DBR value
 	 */
@@ -64,6 +69,10 @@ public class GetFuture<T> implements GetListener, Future<T>
 	    
 	    if (ev.getStatus() == CAStatus.NORMAL){
 		    latch.countDown();
+	    }
+	    else{
+	    	logger.warning("Get failed with status: "+ev.getStatus());
+	    	latch.notifyAll();
 	    }
 	}
     

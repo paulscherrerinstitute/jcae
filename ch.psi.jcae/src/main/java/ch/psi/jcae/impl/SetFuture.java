@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.event.PutEvent;
@@ -39,6 +40,8 @@ import gov.aps.jca.event.PutListener;
 public class SetFuture<T> implements PutListener, Future<T>
 {
 	
+	private static final Logger logger = Logger.getLogger(SetFuture.class.getName());
+	
 	private final CountDownLatch latch = new CountDownLatch(1);
 	private T value;
 
@@ -50,6 +53,10 @@ public class SetFuture<T> implements PutListener, Future<T>
 	public void putCompleted(PutEvent ev) {
 	    if(ev.getStatus() == CAStatus.NORMAL){
 	    	latch.countDown();
+	    }
+	    else{
+	    	logger.warning("Set failed with status: "+ev.getStatus());
+	    	latch.notifyAll();
 	    }
 	}
 

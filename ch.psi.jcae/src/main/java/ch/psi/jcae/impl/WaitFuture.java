@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.handler.Handlers;
@@ -45,6 +46,9 @@ import gov.aps.jca.event.MonitorListener;
  */
 public class WaitFuture<E> implements MonitorListener, Future<E> {
 
+	
+	private static final Logger logger = Logger.getLogger(WaitFuture.class.getName());
+	
 	/**
 	 * Value to wait for
 	 */
@@ -109,6 +113,10 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 			catch(CAStatusException e){
 				throw new RuntimeException("Something went wrong while waiting for a channel to get to the specific value: "+waitValue+"]", e);
 			}
+		}
+		else{
+			logger.warning("Monitor failed with status: "+event.getStatus());
+			latch.notifyAll();
 		}
 	}
 

@@ -103,6 +103,10 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 							throw new RuntimeException("Something went wrong while waiting for a channel to get to the specific value: "+waitValue+"]", e);
 						}
 					}
+					else{
+						logger.warning("Monitor failed with status: "+event.getStatus());
+						latch.notifyAll();
+					}
 				}
 			};
 			
