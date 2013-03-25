@@ -72,7 +72,7 @@ public class GetFuture<T> implements GetListener, Future<T>
 	    }
 	    else{
 	    	logger.warning("Get failed with status: "+ev.getStatus());
-	    	latch.notifyAll();
+//	    	latch.notifyAll();
 	    }
 	}
     

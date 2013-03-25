@@ -56,7 +56,7 @@ public class SetFuture<T> implements PutListener, Future<T>
 	    }
 	    else{
 	    	logger.warning("Set failed with status: "+ev.getStatus());
-	    	latch.notifyAll();
+//	    	latch.notifyAll();
 	    }
 	}
 
