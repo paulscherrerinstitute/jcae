@@ -75,7 +75,7 @@ public class ChannelTest {
 	@Test
 	public void testSetGetValueStringWaveform() throws Exception {
 		try{
-		Channel<String[]> bean = cservice.createChannel(new ChannelDescriptor<>(String[].class, TestChannels.STRING_WAVEFORM));
+		Channel<String[]> bean = cservice.createChannel(new ChannelDescriptor<String[]>(String[].class, TestChannels.STRING_WAVEFORM));
 		
 //		List<String> list = new ArrayList<String>();
 		
@@ -126,7 +126,7 @@ public class ChannelTest {
 	 */
 	@Test
 	public void testGetValueWaveform() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		Channel<byte[]> bean = cservice.createChannel(new ChannelDescriptor<>(byte[].class, TestChannels.CHARACTER_WAVEFORM));
+		Channel<byte[]> bean = cservice.createChannel(new ChannelDescriptor<byte[]>(byte[].class, TestChannels.CHARACTER_WAVEFORM));
 
 		// Set test string to waveform
 		String setvalue = "some value";
@@ -175,7 +175,7 @@ public class ChannelTest {
 	 */
 	@Test
 	public void testGetHostname() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		Channel<String> bean = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.BINARY_IN));
+		Channel<String> bean = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.BINARY_IN));
 		logger.fine("Size of the Channel: "+bean.getSource());
 		if(! bean.getSource().equals(iocname)){
 			Assert.fail("Ioc name returned does not match the expected ioc name");
@@ -186,7 +186,7 @@ public class ChannelTest {
 	@Test
 	public void testGetValueComplexType() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
-		Channel<DoubleTimestamp> bean = cservice.createChannel(new ChannelDescriptor<>(DoubleTimestamp.class, TestChannels.BINARY_IN, true));
+		Channel<DoubleTimestamp> bean = cservice.createChannel(new ChannelDescriptor<DoubleTimestamp>(DoubleTimestamp.class, TestChannels.BINARY_IN, true));
 		DoubleTimestamp v = bean.getValue();
 		System.out.printf("%f %s offset: %d\n",v.getValue(), v.getTimestamp(), v.getNanosecondOffset());
 		bean.addPropertyChangeListener(new PropertyChangeListener() {
@@ -200,7 +200,7 @@ public class ChannelTest {
 			}
 		});
 
-		Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
+		Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.BINARY_IN));
 		beand.setValue(12d);
 		Thread.sleep(1000);
 		beand.setValue(1d);
@@ -221,19 +221,19 @@ public class ChannelTest {
 	@Test
 	public void testGetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
-		Channel<double[]> bean = cservice.createChannel(new ChannelDescriptor<>(double[].class, TestChannels.CHARACTER_WAVEFORM));
+		Channel<double[]> bean = cservice.createChannel(new ChannelDescriptor<double[]>(double[].class, TestChannels.CHARACTER_WAVEFORM));
 		bean.getValue(); // Get first value of the array
 
 		// Test if scalar and getValue(int size) is called
-		Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
+		Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.BINARY_IN));
 		beand.getValue();
 
 		// Test how ChannelBean does behave is Scaler attached to waveform
-		Channel<Double> beandd = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.DOUBLE_WAVEFORM));
+		Channel<Double> beandd = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.DOUBLE_WAVEFORM));
 		beandd.getValue();
 
 		// Test get on a MBBI record
-		Channel<String> beans = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.MBBI, true));
+		Channel<String> beans = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.MBBI, true));
 		beans.getValue();
 	}
 	
@@ -250,7 +250,7 @@ public class ChannelTest {
 		
 
 		// Test if scalar and getValue(int size) is called
-		Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
+		Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.BINARY_IN));
 		Thread.sleep(5000);
 		
 		// TODO NEED TO MANUALLY REBOOT IOC
@@ -271,9 +271,9 @@ public class ChannelTest {
 	@Test
 	public void testSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
-		Channel<Double> channel1 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT));
+		Channel<Double> channel1 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.ANALOG_OUT));
 		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
-		Channel<Double> channel2 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT));
+		Channel<Double> channel2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.ANALOG_OUT));
 		
 		Double ovalue = channel1.getValue();
 		for(Double value=1.1;value<10;value++){
@@ -292,9 +292,9 @@ public class ChannelTest {
 	@Test
 	public void testSetValueString() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
-		Channel<String> channel1 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT1));
+		Channel<String> channel1 = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1));
 		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
-		Channel<String> channel2 = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT1));
+		Channel<String> channel2 = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1));
 		
 		for(Double value=1.1;value<10;value++){
 			channel1.setValue(value+""); // Wait forever
@@ -314,11 +314,11 @@ public class ChannelTest {
 	@Test
 	public void testCompositeChannel() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
-		Channel<String> setChannel = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT1));
-		Channel<String> readbackChannel = cservice.createChannel(new ChannelDescriptor<>(String.class, TestChannels.STRING_OUT2));
+		Channel<String> setChannel = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1));
+		Channel<String> readbackChannel = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT2));
 		
 		
-		Channel<String> channel = cservice.createChannel(new CompositeChannelDescriptor<>(String.class, TestChannels.STRING_OUT1, TestChannels.STRING_OUT2));
+		Channel<String> channel = cservice.createChannel(new CompositeChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1, TestChannels.STRING_OUT2));
 		
 		String valSet = "";
 		String valReadback = "result";
@@ -361,9 +361,9 @@ public class ChannelTest {
 	@Test
 	public void testSetValueMonitored() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
-		Channel<Double> channel1 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT, true));
+		Channel<Double> channel1 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.ANALOG_OUT, true));
 		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
-		Channel<Double> channel2 = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT, true));
+		Channel<Double> channel2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.ANALOG_OUT, true));
 		
 		Double ovalue = channel1.getValue();
 		for(Double value=1.1;value<10;value++){
@@ -393,10 +393,10 @@ public class ChannelTest {
 	@Test
 	public void testWaitForValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
-		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		beand.setValue(1);
 		
-		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -425,10 +425,10 @@ public class ChannelTest {
 		final Integer testvalue = 0;
 		
 		// Test if scalar and getValue(int size) is called
-		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		beand.setValue(testvalue+1);
 		
-		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -465,10 +465,10 @@ public class ChannelTest {
 	@Test( expected=TimeoutException.class )
 	public void testWaitForValueTimeout() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
-		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		beand.setValue(1);
 		
-		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -479,7 +479,9 @@ public class ChannelTest {
 					beanset.setValue(0);
 				} catch (InterruptedException e) {
 					// Ignore this because 
-				} catch( ExecutionException | ChannelException e){
+				} catch( ExecutionException e){
+					e.printStackTrace();
+				} catch( ChannelException e){
 					e.printStackTrace();
 				}
 				
@@ -509,10 +511,10 @@ public class ChannelTest {
 	@Test(expected=TimeoutException.class)
 	public void testWaitForValueComparator() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
-		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		beand.setValue(1);
 		
-		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -556,10 +558,10 @@ public class ChannelTest {
 	@Test
 	public void testWaitForValueComparatorTwo() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
-		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		beand.setValue(1);
 		
-		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -607,10 +609,10 @@ public class ChannelTest {
 	@Test
 	public void testWaitForValueNoTimeout() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if scalar and getValue(int size) is called
-		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		Channel<Integer> beand = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		beand.setValue(1);
 		
-		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<>(Integer.class, TestChannels.BINARY_IN));
+		final Channel<Integer> beanset = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, TestChannels.BINARY_IN));
 		
 		Thread t = new Thread(new Runnable() {
 			
@@ -654,7 +656,7 @@ public class ChannelTest {
 	@Test
 	public void testConnectionListener() throws InterruptedException, CAException, TimeoutException, ChannelException, ExecutionException {
 
-		Channel<Double> bean = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
+		Channel<Double> bean = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.BINARY_IN));
 
 		logger.info("Bean connected: " + bean.isConnected());
 		
@@ -679,7 +681,7 @@ public class ChannelTest {
 	@Test
 	public void testPropertyChangeSupportArray() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
-		Channel<double[]> bean = cservice.createChannel(new ChannelDescriptor<>(double[].class, TestChannels.DOUBLE_WAVEFORM, true));
+		Channel<double[]> bean = cservice.createChannel(new ChannelDescriptor<double[]>(double[].class, TestChannels.DOUBLE_WAVEFORM, true));
 		
 		valueFromListener = null;
 		bean.addPropertyChangeListener(new PropertyChangeListener() {
@@ -708,8 +710,8 @@ public class ChannelTest {
 	@Test
 	public void testTimestampMonitor() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Test if array and getValue(int size) is called
-		Channel<Double> c = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
-		Channel<DoubleTimestamp> bean = cservice.createChannel(new ChannelDescriptor<>(DoubleTimestamp.class, TestChannels.BINARY_IN, true));
+		Channel<Double> c = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.BINARY_IN));
+		Channel<DoubleTimestamp> bean = cservice.createChannel(new ChannelDescriptor<DoubleTimestamp>(DoubleTimestamp.class, TestChannels.BINARY_IN, true));
 		bean.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			@Override
@@ -741,14 +743,14 @@ public class ChannelTest {
 	
 	@Test(expected=IllegalStateException.class)
 	public void testDestruction() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		final Channel<Double> b = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_IN));
+		final Channel<Double> b = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.BINARY_IN));
 		cservice.destroy();
 		b.destroy(); // Expect an illegal state exception here as the channel is already closed!
 	}
 	
 	@Test
 	public void testSetChannel() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		Channel<Double> bean = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.BINARY_OUT, true));
+		Channel<Double> bean = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.BINARY_OUT, true));
 		for(int i=0;i<100;i++){
 			logger.info("Set value [iteration: "+i+"]");
 			bean.setValue(2.0);
@@ -768,7 +770,7 @@ public class ChannelTest {
 	@Test
 	public void testWaitForValueAbort() throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException  {
 		// Test if scalar and getValue(int size) is called
-		final Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT, true));
+		final Channel<Double> beand = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.ANALOG_OUT, true));
 		beand.setValue(0.0);
 
 		Thread t = new Thread(new Runnable() {

@@ -22,7 +22,7 @@ public class Activator implements BundleActivator {
 	
 	public void start(BundleContext context) throws Exception {
 		logger.info("Start ChannelService");
-		Hashtable<String, String> properties = new Hashtable<>();
+		Hashtable<String, String> properties = new Hashtable<String,String>();
 //		properties.put("id", "blablub");
 		service = new DefaultChannelService();
 		context.registerService(ChannelService.class.getName(), service, (Dictionary<String,String>) properties);

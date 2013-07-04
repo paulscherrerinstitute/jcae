@@ -79,7 +79,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	private final Integer elementCount;
 	
 	
-	private final AtomicReference<E> value = new AtomicReference<>();
+	private final AtomicReference<E> value = new AtomicReference<E>();
 	
 	
 	private boolean connected = false;

@@ -17,7 +17,7 @@ import ch.psi.jcae.impl.type.DoubleTimestamp;
 public class Handlers {
 	
 	
-	public static Map<Class<?>, Handler<?>> HANDLERS = new HashMap<>();
+	public static Map<Class<?>, Handler<?>> HANDLERS = new HashMap<Class<?>, Handler<?>>();
 	
 	// Static initializer
 	static {

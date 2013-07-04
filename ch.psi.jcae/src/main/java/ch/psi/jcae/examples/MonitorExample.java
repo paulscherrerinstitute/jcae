@@ -36,7 +36,7 @@ public class MonitorExample {
         DefaultChannelService service = new DefaultChannelService();
 
         // Create ChannelBean
-        Channel<String> bean = service.createChannel(new ChannelDescriptor<>(String.class, "ARIDI-PCT:CURRENT", true));
+        Channel<String> bean = service.createChannel(new ChannelDescriptor<String>(String.class, "ARIDI-PCT:CURRENT", true));
 
         // Add PropertyChangeListener to ChannelBean to get value updates
         bean.addPropertyChangeListener(new PropertyChangeListener() {

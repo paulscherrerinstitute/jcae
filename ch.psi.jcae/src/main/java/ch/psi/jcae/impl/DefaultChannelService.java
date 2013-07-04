@@ -59,7 +59,7 @@ public class DefaultChannelService implements ChannelService {
 	private final JCAChannelFactory channelFactory;
 	
 	private final boolean dryrun;
-	private Map<String,String> globalMacros = new HashMap<>();
+	private Map<String,String> globalMacros = new HashMap<String,String>();
 	
 	
 	public DefaultChannelService(){
@@ -110,7 +110,9 @@ public class DefaultChannelService implements ChannelService {
 			try {
 				gov.aps.jca.Channel channel = channelFactory.createChannel(d.getName());
 				ca = new DefaultChannel<T>(d.getType(), channel, d.getSize(), d.getMonitored());
-			} catch (CAException | ExecutionException e) {
+			} catch (CAException e){
+				throw new ChannelException("Unable to create channel " + d.getName(), e);
+			} catch( ExecutionException e){
 				throw new ChannelException("Unable to create channel " + d.getName(), e);
 			}
 		} else if(descriptor instanceof CompositeChannelDescriptor){
@@ -122,13 +124,15 @@ public class DefaultChannelService implements ChannelService {
 				
 				List<gov.aps.jca.Channel> channels = channelFactory.createChannels(names);
 				
-				ca = new CompositeChannel<>(new DefaultChannel<T>(d.getType(), channels.get(0), d.getSize(), false), new DefaultChannel<T>(d.getType(), channels.get(1), d.getSize(), d.getMonitored()));
-			} catch (CAException | ExecutionException e) {
+				ca = new CompositeChannel<T>(new DefaultChannel<T>(d.getType(), channels.get(0), d.getSize(), false), new DefaultChannel<T>(d.getType(), channels.get(1), d.getSize(), d.getMonitored()));
+			} catch (CAException e){
+				throw new ChannelException("Unable to create channel " + d.getName(), e);
+			} catch( ExecutionException e){
 				throw new ChannelException("Unable to create channel " + d.getName(), e);
 			}
 		} else if (descriptor instanceof DummyChannelDescriptor) {
 			DummyChannelDescriptor<T> d = (DummyChannelDescriptor<T>) descriptor;
-			ca = new DummyChannel<>(d.getType(), d.getName(), d.getSize(), d.getMonitored());
+			ca = new DummyChannel<T>(d.getType(), d.getName(), d.getSize(), d.getMonitored());
 		} else {
 			throw new IllegalArgumentException("Descriptor of type " + descriptor.getClass().getName() + " is not supported");
 		}
@@ -177,24 +181,27 @@ public class DefaultChannelService implements ChannelService {
 			int ccount = 0;
 			for(Descriptor<?> d: list){
 				if(d instanceof ChannelDescriptor){
-					channelObject.add(new DefaultChannel<>(d.getType(), channels.get(ccount), d.getSize(), d.getMonitored()));
+					channelObject.add(new DefaultChannel(d.getType(), channels.get(ccount), d.getSize(), d.getMonitored()));
 					ccount++;
 				}
 				else if(d instanceof CompositeChannelDescriptor){
 					
-					DefaultChannel<?> c = new DefaultChannel<>(d.getType(), channels.get(ccount), d.getSize(), false);
+					DefaultChannel<?> c = new DefaultChannel(d.getType(), channels.get(ccount), d.getSize(), false);
 					ccount++;
-					DefaultChannel<?> cr = new DefaultChannel<>(d.getType(), channels.get(ccount), d.getSize(), d.getMonitored());
+					DefaultChannel<?> cr = new DefaultChannel(d.getType(), channels.get(ccount), d.getSize(), d.getMonitored());
 					
 					channelObject.add(new CompositeChannel(c, cr));
 					ccount++;
 				}
 				else if(d instanceof DummyChannelDescriptor){
 					DummyChannelDescriptor<?> dd = (DummyChannelDescriptor<?>) d;
-					channelObject.add(new DummyChannel<>(dd.getType(), dd.getName(), dd.getSize(), dd.getMonitored()));
+					channelObject.add(new DummyChannel(dd.getType(), dd.getName(), dd.getSize(), dd.getMonitored()));
 				}
 			}
-		} catch (CAException | ExecutionException e) {
+		} catch (CAException e){
+			throw new ChannelException("", e);
+		}
+		catch(ExecutionException e) {
 			throw new ChannelException("", e);
 		}
 		
@@ -231,6 +238,7 @@ public class DefaultChannelService implements ChannelService {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void createAnnotatedChannels(Object object, Map<String,String> macros) throws ChannelException, InterruptedException, TimeoutException {
 		
@@ -238,7 +246,7 @@ public class DefaultChannelService implements ChannelService {
 		
 		try{
 			// Merge global macros and passed macros
-			Map<String,String> mac = new HashMap<>();
+			Map<String,String> mac = new HashMap<String,String>();
 			mac.putAll(globalMacros);
 			mac.putAll(macros);
 			
@@ -255,9 +263,9 @@ public class DefaultChannelService implements ChannelService {
 			
 			
 			// Parse annotations
-			List<Field> fieldList = new ArrayList<>();
-			Map<Field, Integer> sizeMap = new HashMap<>(); // Map holding the number of channels that are associated to the field
-			List<Descriptor<?>> descriptorList = new ArrayList<>();
+			List<Field> fieldList = new ArrayList<Field>();
+			Map<Field, Integer> sizeMap = new HashMap<Field,Integer>(); // Map holding the number of channels that are associated to the field
+			List<Descriptor<?>> descriptorList = new ArrayList<Descriptor<?>>();
 
 			for (Field field : c.getDeclaredFields()) {
 				CaChannel annotation = field.getAnnotation(CaChannel.class);
@@ -267,10 +275,10 @@ public class DefaultChannelService implements ChannelService {
 						fieldList.add(field);
 						sizeMap.put(field, 1);
 						if(dryrun){
-							descriptorList.add(new DummyChannelDescriptor<>(annotation.type(), MacroResolver.format(annotation.name()[0], mac), annotation.monitor(), annotation.size()));
+							descriptorList.add(new DummyChannelDescriptor(annotation.type(), MacroResolver.format(annotation.name()[0], mac), annotation.monitor(), annotation.size()));
 						}
 						else{
-							descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(annotation.name()[0], mac), annotation.monitor(), annotation.size()));
+							descriptorList.add(new ChannelDescriptor(annotation.type(), MacroResolver.format(annotation.name()[0], mac), annotation.monitor(), annotation.size()));
 						}
 					}
 					else if (annotation.name().length >0 && field.getType().isAssignableFrom(List.class)) {
@@ -278,10 +286,10 @@ public class DefaultChannelService implements ChannelService {
 						sizeMap.put(field, annotation.name().length);
 						for (String n : annotation.name()) {
 							if(dryrun){
-								descriptorList.add(new DummyChannelDescriptor<>(annotation.type(), MacroResolver.format(n, mac), annotation.monitor(), annotation.size()));
+								descriptorList.add(new DummyChannelDescriptor(annotation.type(), MacroResolver.format(n, mac), annotation.monitor(), annotation.size()));
 							}
 							else{
-								descriptorList.add(new ChannelDescriptor<>(annotation.type(), MacroResolver.format(n, mac), annotation.monitor(), annotation.size()));
+								descriptorList.add(new ChannelDescriptor(annotation.type(), MacroResolver.format(n, mac), annotation.monitor(), annotation.size()));
 							}
 						}
 					} else {
@@ -293,10 +301,10 @@ public class DefaultChannelService implements ChannelService {
 						fieldList.add(field);
 						sizeMap.put(field, 1);
 						if(dryrun){
-							descriptorList.add(new DummyChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
+							descriptorList.add(new DummyChannelDescriptor(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
 						}
 						else{
-							descriptorList.add(new CompositeChannelDescriptor<>(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), MacroResolver.format(compositeAnnotation.readback(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
+							descriptorList.add(new CompositeChannelDescriptor(compositeAnnotation.type(), MacroResolver.format(compositeAnnotation.name(), mac), MacroResolver.format(compositeAnnotation.readback(), mac), compositeAnnotation.monitor(), compositeAnnotation.size()));
 						}
 					}
 				}
@@ -317,7 +325,7 @@ public class DefaultChannelService implements ChannelService {
 					ccount++;
 				}
 				else{
-					List<Channel<?>> list = new ArrayList<>();
+					List<Channel<?>> list = new ArrayList<Channel<?>>();
 					for(int i=0;i<sizeMap.get(f);i++){
 						list.add(channelList.get(ccount));
 						ccount++;

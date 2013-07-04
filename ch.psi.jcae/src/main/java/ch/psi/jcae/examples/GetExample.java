@@ -35,7 +35,7 @@ public class GetExample {
         DefaultChannelService factory = new DefaultChannelService();
 
         // Connect to channel
-        Channel<String> bean = factory.createChannel(new ChannelDescriptor<>(String.class, "ARIDI-PCT:CURRENT", true));
+        Channel<String> bean = factory.createChannel(new ChannelDescriptor<String>(String.class, "ARIDI-PCT:CURRENT", true));
 
         // Get value
         String value = bean.getValue();

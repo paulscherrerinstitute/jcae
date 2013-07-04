@@ -52,9 +52,9 @@ public class WaveformTest {
 
 		DefaultChannelService cservice = new DefaultChannelService();
 
-		Channel<int[]> bean = cservice.createChannel(new ChannelDescriptor<>(int[].class, dataChannel));
+		Channel<int[]> bean = cservice.createChannel(new ChannelDescriptor<int[]>(int[].class, dataChannel));
 
-		Channel<Integer> mode = cservice.createChannel(new ChannelDescriptor<>(Integer.class, sizeChannel));
+		Channel<Integer> mode = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, sizeChannel));
 
 		int oldmode = mode.getValue();
 		logger.log(Level.INFO, "Mode: {0}", mode.getValue());
@@ -64,7 +64,7 @@ public class WaveformTest {
 
 		mode.setValue(1);
 
-		bean = cservice.createChannel(new ChannelDescriptor<>(int[].class, dataChannel));
+		bean = cservice.createChannel(new ChannelDescriptor<int[]>(int[].class, dataChannel));
 
 		logger.log(Level.INFO, "Mode: {0}", mode.getValue());
 		logger.log(Level.INFO, "Size: {0}", bean.getSize());
@@ -73,7 +73,7 @@ public class WaveformTest {
 
 		mode.setValue(oldmode);
 
-		bean = cservice.createChannel(new ChannelDescriptor<>(int[].class, dataChannel));
+		bean = cservice.createChannel(new ChannelDescriptor<int[]>(int[].class, dataChannel));
 
 		logger.log(Level.INFO, "Mode: {0}", mode.getValue());
 		logger.log(Level.INFO, "Size: {0}", bean.getSize());

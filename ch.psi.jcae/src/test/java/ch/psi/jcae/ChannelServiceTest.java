@@ -81,7 +81,7 @@ public class ChannelServiceTest {
 		for(int i=0;i<100;i++){
 			
 			s = System.currentTimeMillis();
-			Channel<Double> bean = factory.createChannel(new ChannelDescriptor<>(Double.class, TestChannels.ANALOG_OUT));
+			Channel<Double> bean = factory.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.ANALOG_OUT));
 			e = System.currentTimeMillis();
 			
 			// Check if channel is connected
@@ -116,7 +116,7 @@ public class ChannelServiceTest {
 		TestObjectTwo one = new TestObjectTwo();
 
 		// Manage Bean
-		Map<String,String> m = new HashMap<>();
+		Map<String,String> m = new HashMap<String,String>();
 //		m.put("PREFIX", TestChannels.PREFIX);
 		factory.createAnnotatedChannels(one, m);
 
@@ -164,7 +164,7 @@ public class ChannelServiceTest {
 			DefaultChannelService factory1 = new DefaultChannelService();
 			
 			long s = System.currentTimeMillis();
-			Channel<String> bean = factory1.createChannel(new ChannelDescriptor<>(String.class, TestChannels.BINARY_OUT));
+			Channel<String> bean = factory1.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.BINARY_OUT));
 			long e = System.currentTimeMillis();
 			
 			// Print the elapsed time for creating the channel
@@ -194,7 +194,7 @@ public class ChannelServiceTest {
 		TestObject one = new TestObject();
 
 		// Manage Bean
-		Map<String,String> m = new HashMap<>();
+		Map<String,String> m = new HashMap<String,String>();
 		m.put("PREFIX", "DOES-NOT-EXIST:");
 		factory1.createAnnotatedChannels(one, m);
 

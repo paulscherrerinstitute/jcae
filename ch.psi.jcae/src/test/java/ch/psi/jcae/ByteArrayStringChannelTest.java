@@ -55,7 +55,7 @@ public class ByteArrayStringChannelTest {
 	@Before
 	public void setUp() throws Exception {
 		cservice = new DefaultChannelService();
-		b = cservice.createChannel(new ChannelDescriptor<>(ByteArrayString.class, TestChannels.CHARACTER_WAVEFORM));
+		b = cservice.createChannel(new ChannelDescriptor<ByteArrayString>(ByteArrayString.class, TestChannels.CHARACTER_WAVEFORM));
 	}
 
 	/**

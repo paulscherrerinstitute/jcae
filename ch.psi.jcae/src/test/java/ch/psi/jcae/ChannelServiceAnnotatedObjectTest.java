@@ -85,7 +85,7 @@ public class ChannelServiceAnnotatedObjectTest {
 	@Test
 	public void testConnectChannelBeans() throws CAException, ChannelException, InterruptedException, TimeoutException, ExecutionException {
 		TestObject object = new TestObject();
-		Map<String,String> m = new HashMap<>();
+		Map<String,String> m = new HashMap<String,String>();
 //		m.put("PREFIX", TestChannels.PREFIX);
 		cservice.createAnnotatedChannels(object, m);
 		

@@ -29,7 +29,7 @@ public class MacroResolverTest {
 	 */
 	@Test
 	public void testFormat() {
-		Map<String, String> map = new HashMap<>();
+		Map<String, String> map = new HashMap<String,String>();
 		map.put("name", "fido");
 		map.put("owner", "Jane Doe");
 		map.put("gender", "him");
@@ -46,7 +46,7 @@ public class MacroResolverTest {
 	 */
 	@Test
 	public void testFormatNonexistingMacro() {
-		Map<String, String> map = new HashMap<>();
+		Map<String, String> map = new HashMap<String,String>();
 		map.put("macro1", "fido");
 		map.put("macro2", "Jane Doe");
 
