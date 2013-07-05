@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
-
 import gov.aps.jca.CAException;
 import gov.aps.jca.JCALibrary;
 import gov.aps.jca.cas.ProcessVariable;
@@ -14,8 +13,10 @@ import gov.aps.jca.cas.ServerContext;
 import gov.aps.jca.configuration.DefaultConfiguration;
 
 import com.cosylab.epics.caj.cas.util.DefaultServerImpl;
+
 import java.util.ArrayList;
 
+@SuppressWarnings("restriction")
 public class CaServer implements SignalHandler {
 
 	private static Logger logger = Logger.getLogger(CaServer.class.getName());
