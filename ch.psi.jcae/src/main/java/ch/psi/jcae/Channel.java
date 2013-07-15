@@ -21,10 +21,15 @@ public interface Channel<T> {
 	public void setValue(T value) throws InterruptedException, ExecutionException, ChannelException;
 	public Future<T> setValueAsync(T value) throws ChannelException;
 
-	public Future<T> waitForValue(T rvalue) throws ChannelException;
-	public Future<T> waitForValue(T rvalue, long waitRetryPeriod) throws ChannelException;
-	public Future<T> waitForValue(T rvalue, Comparator<T> comparator) throws ChannelException;
-	public Future<T> waitForValue(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws ChannelException;
+	public T waitForValue(T rvalue) throws InterruptedException, ExecutionException, ChannelException;
+	public T waitForValue(T rvalue, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException;
+	public T waitForValue(T rvalue, Comparator<T> comparator) throws InterruptedException, ExecutionException, ChannelException;
+	public T waitForValue(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException;
+	
+	public Future<T> waitForValueAsync(T rvalue) throws ChannelException;
+	public Future<T> waitForValueAsync(T rvalue, long waitRetryPeriod) throws ChannelException;
+	public Future<T> waitForValueAsync(T rvalue, Comparator<T> comparator) throws ChannelException;
+	public Future<T> waitForValueAsync(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws ChannelException;
 	
 	public String getName();
 	public boolean isConnected();

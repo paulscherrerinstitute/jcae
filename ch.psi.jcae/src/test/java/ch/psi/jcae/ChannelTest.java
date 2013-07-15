@@ -413,7 +413,7 @@ public class ChannelTest {
 		});
 		t.start();
 		
-		beand.waitForValue(0).get(2000L, TimeUnit.MILLISECONDS);
+		beand.waitForValueAsync(0).get(2000L, TimeUnit.MILLISECONDS);
 		
 		
 		// TODO Test if channel is already on the given value (measure time)
@@ -444,7 +444,7 @@ public class ChannelTest {
 			}
 		});
 		t.start();
-		Integer v = beand.waitForValue(0, 1000L).get(6000L, TimeUnit.MILLISECONDS);
+		Integer v = beand.waitForValueAsync(0, 1000L).get(6000L, TimeUnit.MILLISECONDS);
 
 		assertTrue("Channel not reached value "+testvalue, v==testvalue);
 		
@@ -491,7 +491,7 @@ public class ChannelTest {
 		
 		try{
 		// Wait for the channel to get to 0 using the default wait timeout
-		beand.waitForValue(0).get(1, TimeUnit.MILLISECONDS); // Need to throw an TimeoutException
+		beand.waitForValueAsync(0).get(1, TimeUnit.MILLISECONDS); // Need to throw an TimeoutException
 		}
 		finally{
 			t.interrupt(); // terminate thread
@@ -543,7 +543,7 @@ public class ChannelTest {
 				}
 			}
 		};
-		beand.waitForValue(0, c).get(2000L, TimeUnit.MILLISECONDS);
+		beand.waitForValueAsync(0, c).get(2000L, TimeUnit.MILLISECONDS);
 	}
 	
 	/**
@@ -591,7 +591,7 @@ public class ChannelTest {
 			}
 		};
 		long start = System.currentTimeMillis();
-		beand.waitForValue(1, c).get(2000L, TimeUnit.MILLISECONDS); // Wait until channel is not 1
+		beand.waitForValueAsync(1, c).get(2000L, TimeUnit.MILLISECONDS); // Wait until channel is not 1
 		long end = System.currentTimeMillis();
 		
 		logger.info("Elapsed time: "+(end-start));
@@ -796,7 +796,7 @@ public class ChannelTest {
 		t.start();
 		
 		try{
-			beand.waitForValue(1.0, new Comparator<Double>() {
+			beand.waitForValueAsync(1.0, new Comparator<Double>() {
 				@Override
 				public int compare(Double setvalue, Double value) {
 					if(value>(setvalue-0.1) && value<=(setvalue+0.1)){

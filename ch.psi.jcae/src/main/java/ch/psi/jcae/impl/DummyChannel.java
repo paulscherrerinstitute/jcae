@@ -16,8 +16,7 @@ import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
 
 /**
- * @author ebner
- * 
+ * Dummy implementation of a channel
  */
 public class DummyChannel<T> implements Channel<T> {
 
@@ -35,42 +34,21 @@ public class DummyChannel<T> implements Channel<T> {
 		this.monitored = monitored;
 	}
 	
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#getValue()
-	 */
 	@Override
 	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		return value;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#getValue(boolean)
-	 */
 	@Override
 	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		return value;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#getValueAsync()
-	 */
 	@Override
 	public Future<T> getValueAsync() throws IllegalStateException, ChannelException {
 		return getValueAsync(true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#getValueAsync(boolean)
-	 */
 	@Override
 	public Future<T> getValueAsync(boolean force) throws IllegalStateException, ChannelException {
 		return new Future<T>() {
@@ -102,21 +80,11 @@ public class DummyChannel<T> implements Channel<T> {
 		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#setValue(java.lang.Object)
-	 */
 	@Override
 	public void setValue(T value) throws InterruptedException, ExecutionException, ChannelException {
 		propertyChangeSupport.firePropertyChange("value", this.value, this.value = value);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#setValueAsync(java.lang.Object)
-	 */
 	@Override
 	public Future<T> setValueAsync(T v) throws ChannelException {
 		propertyChangeSupport.firePropertyChange("value", this.value, this.value = v);
@@ -149,13 +117,8 @@ public class DummyChannel<T> implements Channel<T> {
 		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object)
-	 */
 	@Override
-	public Future<T> waitForValue(T rvalue) throws ChannelException {
+	public Future<T> waitForValueAsync(T rvalue) throws ChannelException {
 		// Default comparator checking for equality
 		Comparator<T> comparator = new Comparator<T>() {
 			@Override
@@ -166,16 +129,11 @@ public class DummyChannel<T> implements Channel<T> {
 				return -1;
 			}
 		};
-		return waitForValue(rvalue, comparator);
+		return waitForValueAsync(rvalue, comparator);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object, long)
-	 */
 	@Override
-	public Future<T> waitForValue(T rvalue, long waitRetryPeriod) throws ChannelException {
+	public Future<T> waitForValueAsync(T rvalue, long waitRetryPeriod) throws ChannelException {
 		// Default comparator checking for equality
 		Comparator<T> comparator = new Comparator<T>() {
 			@Override
@@ -186,17 +144,11 @@ public class DummyChannel<T> implements Channel<T> {
 				return -1;
 			}
 		};
-		return waitForValue(rvalue, comparator, waitRetryPeriod);
+		return waitForValueAsync(rvalue, comparator, waitRetryPeriod);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object,
-	 * java.util.Comparator)
-	 */
 	@Override
-	public Future<T> waitForValue(final T rvalue, final Comparator<T> comparator) throws ChannelException {
+	public Future<T> waitForValueAsync(final T rvalue, final Comparator<T> comparator) throws ChannelException {
 		return new Future<T>() {
 
 			@Override
@@ -234,14 +186,8 @@ public class DummyChannel<T> implements Channel<T> {
 		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object,
-	 * java.util.Comparator, long)
-	 */
 	@Override
-	public Future<T> waitForValue(final T rvalue, final Comparator<T> comparator, long waitRetryPeriod) throws ChannelException {
+	public Future<T> waitForValueAsync(final T rvalue, final Comparator<T> comparator, long waitRetryPeriod) throws ChannelException {
 		return new Future<T>() {
 
 			@Override
@@ -279,31 +225,36 @@ public class DummyChannel<T> implements Channel<T> {
 		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#getName()
-	 */
+	@Override
+	public T waitForValue(T rvalue) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue).get();
+	}
+
+	@Override
+	public T waitForValue(T rvalue, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, waitRetryPeriod).get();
+	}
+
+	@Override
+	public T waitForValue(final T rvalue, final Comparator<T> comparator) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, comparator).get();
+	}
+
+	@Override
+	public T waitForValue(final T rvalue, final Comparator<T> comparator, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, comparator,waitRetryPeriod).get();
+	}
+	
 	@Override
 	public String getName() {
 		return name;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#isConnected()
-	 */
 	@Override
 	public boolean isConnected() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#getSize()
-	 */
 	@Override
 	public Integer getSize() {
 		if(size==null){
@@ -312,52 +263,26 @@ public class DummyChannel<T> implements Channel<T> {
 		return size;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#getSource()
-	 */
 	@Override
 	public String getSource() {
 		return "dummy.ioc.psi.ch";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#isMonitored()
-	 */
 	@Override
 	public boolean isMonitored() {
 		return monitored;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#setMonitored(boolean)
-	 */
 	@Override
 	public void setMonitored(boolean monitored) throws ChannelException {
 		this.monitored = monitored;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#destroy()
-	 */
 	@Override
 	public void destroy() throws ChannelException {
 		// do nothing
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#addPropertyChangeListener(java.beans.
-	 * PropertyChangeListener)
-	 */
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener l) {
 		if (!monitored) {
@@ -374,12 +299,6 @@ public class DummyChannel<T> implements Channel<T> {
 		propertyChangeSupport.addPropertyChangeListener(name, l);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ch.psi.jcae.Channel#removePropertyChangeListener(java.beans.
-	 * PropertyChangeListener)
-	 */
 	@Override
 	public void removePropertyChangeListener(PropertyChangeListener l) {
 		propertyChangeSupport.removePropertyChangeListener(l);

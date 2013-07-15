@@ -32,7 +32,6 @@ import java.util.logging.Logger;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.handler.Handlers;
 import ch.psi.jcae.impl.type.ByteArrayString;
-
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -237,7 +236,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * @param rvalue	Value the channel should reach
 	 * @throws ChannelException 
 	 */
-	public Future<E> waitForValue(E rvalue) throws ChannelException {
+	public Future<E> waitForValueAsync(E rvalue) throws ChannelException {
 		
 		// Default comparator checking for equality
 		Comparator<E> comparator = new Comparator<E>() {
@@ -249,7 +248,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 				return -1;
 			}
 		};
-		return waitForValue(rvalue, comparator);
+		return waitForValueAsync(rvalue, comparator);
 	}
 	
 	/**
@@ -259,7 +258,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * @return
 	 * @throws ChannelException
 	 */
-	public Future<E> waitForValue(E rvalue, long waitRetryPeriod) throws ChannelException {
+	public Future<E> waitForValueAsync(E rvalue, long waitRetryPeriod) throws ChannelException {
 		// Default comparator checking for equality
 		Comparator<E> comparator = new Comparator<E>() {
 			@Override
@@ -270,7 +269,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 				return -1;
 			}
 		};
-		return waitForValue(rvalue, comparator, waitRetryPeriod);
+		return waitForValueAsync(rvalue, comparator, waitRetryPeriod);
 	}
 	
 	/**
@@ -281,7 +280,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * 						The first argument of the comparator is the value of the channel, the second the expected value.
 	 * @throws ChannelException 
 	 */
-	public Future<E> waitForValue(E rvalue, Comparator<E> comparator) throws ChannelException {
+	public Future<E> waitForValueAsync(E rvalue, Comparator<E> comparator) throws ChannelException {
 		return new WaitFuture<E>(channel, elementCount, rvalue, comparator);
 	}
 	
@@ -293,11 +292,29 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * @return
 	 * @throws ChannelException
 	 */
-	public Future<E> waitForValue(E rvalue, Comparator<E> comparator, long waitRetryPeriod) throws ChannelException {
+	public Future<E> waitForValueAsync(E rvalue, Comparator<E> comparator, long waitRetryPeriod) throws ChannelException {
 		return new WaitRetryFuture<E>(channel, elementCount, rvalue, comparator, waitRetryPeriod);
 	}
 	
-	
+	@Override
+	public E waitForValue(E rvalue) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue).get();
+	}
+
+	@Override
+	public E waitForValue(E rvalue, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, waitRetryPeriod).get();
+	}
+
+	@Override
+	public E waitForValue(final E rvalue, final Comparator<E> comparator) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, comparator).get();
+	}
+
+	@Override
+	public E waitForValue(final E rvalue, final Comparator<E> comparator, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, comparator,waitRetryPeriod).get();
+	}
 	
 	
 	/**

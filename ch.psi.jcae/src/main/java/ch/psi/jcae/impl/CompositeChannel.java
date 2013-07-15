@@ -30,162 +30,122 @@ public class CompositeChannel<T> implements Channel<T>{
 		this.readback = readback;
 	}
 	
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#getValue()
-	 */
 	@Override
 	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		return readback.getValue();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#getValue(boolean)
-	 */
 	@Override
 	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		return readback.getValue(force);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#getValueAsync()
-	 */
 	@Override
 	public Future<T> getValueAsync() throws IllegalStateException, ChannelException {
 		return readback.getValueAsync();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#getValueAsync(boolean)
-	 */
 	@Override
 	public Future<T> getValueAsync(boolean force) throws IllegalStateException, ChannelException {
 		return readback.getValueAsync(force);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#setValue(java.lang.Object)
-	 */
 	@Override
 	public void setValue(T value) throws InterruptedException, ExecutionException, ChannelException {
 		channel.setValue(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#setValueAsync(java.lang.Object)
-	 */
 	@Override
 	public Future<T> setValueAsync(T value) throws ChannelException {
 		return channel.setValueAsync(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object)
-	 */
 	@Override
-	public Future<T> waitForValue(T rvalue) throws ChannelException {
-		return readback.waitForValue(rvalue);
+	public Future<T> waitForValueAsync(T rvalue) throws ChannelException {
+		return readback.waitForValueAsync(rvalue);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object, long)
-	 */
 	@Override
-	public Future<T> waitForValue(T rvalue, long waitRetryPeriod) throws ChannelException {
-		return readback.waitForValue(rvalue, waitRetryPeriod);
+	public Future<T> waitForValueAsync(T rvalue, long waitRetryPeriod) throws ChannelException {
+		return readback.waitForValueAsync(rvalue, waitRetryPeriod);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object, java.util.Comparator)
-	 */
 	@Override
-	public Future<T> waitForValue(T rvalue, Comparator<T> comparator) throws ChannelException {
-		return readback.waitForValue(rvalue, comparator);
+	public Future<T> waitForValueAsync(T rvalue, Comparator<T> comparator) throws ChannelException {
+		return readback.waitForValueAsync(rvalue, comparator);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#waitForValue(java.lang.Object, java.util.Comparator, long)
-	 */
 	@Override
-	public Future<T> waitForValue(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws ChannelException {
-		return readback.waitForValue(rvalue, comparator, waitRetryPeriod);
+	public Future<T> waitForValueAsync(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws ChannelException {
+		return readback.waitForValueAsync(rvalue, comparator, waitRetryPeriod);
+	}
+	
+	@Override
+	public T waitForValue(T rvalue) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue).get();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#getName()
-	 */
+	@Override
+	public T waitForValue(T rvalue, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, waitRetryPeriod).get();
+	}
+
+	@Override
+	public T waitForValue(final T rvalue, final Comparator<T> comparator) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, comparator).get();
+	}
+
+	@Override
+	public T waitForValue(final T rvalue, final Comparator<T> comparator, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
+		return waitForValueAsync(rvalue, comparator,waitRetryPeriod).get();
+	}
+
 	@Override
 	public String getName() {
 		return channel.getName(); // Name is the name of the set channel
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#isConnected()
-	 */
 	@Override
 	public boolean isConnected() {
 		return channel.isConnected() && readback.isConnected();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#getSize()
-	 */
 	@Override
 	public Integer getSize() {
 		return readback.getSize();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#getSource()
-	 */
 	@Override
 	public String getSource() {
 		return readback.getSource();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#isMonitored()
-	 */
 	@Override
 	public boolean isMonitored() {
 		return readback.isMonitored();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#setMonitored(boolean)
-	 */
 	@Override
 	public void setMonitored(boolean monitored) throws ChannelException {
 		readback.setMonitored(monitored);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#destroy()
-	 */
 	@Override
 	public void destroy() throws ChannelException {
 		channel.destroy();
 		readback.destroy();
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#addPropertyChangeListener(java.beans.PropertyChangeListener)
-	 */
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener l) {
 		readback.addPropertyChangeListener(l);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-	 */
 	@Override
 	public void addPropertyChangeListener(String name, PropertyChangeListener l) {
 		readback.addPropertyChangeListener(name, l);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.Channel#removePropertyChangeListener(java.beans.PropertyChangeListener)
-	 */
 	@Override
 	public void removePropertyChangeListener(PropertyChangeListener l) {
 		readback.removePropertyChangeListener(l);
