@@ -30,5 +30,8 @@ public interface ChannelService {
 	 */
 	public Map<String,String> getMacros();
 	
+	public void setDryrun(boolean dryrun);
+	public boolean isDryrun();
+	
 	public void destroy();
 }

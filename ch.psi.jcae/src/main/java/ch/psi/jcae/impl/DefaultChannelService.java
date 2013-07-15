@@ -58,7 +58,7 @@ public class DefaultChannelService implements ChannelService {
 
 	private final JCAChannelFactory channelFactory;
 	
-	private final boolean dryrun;
+	private boolean dryrun;
 	private Map<String,String> globalMacros = new HashMap<String,String>();
 	
 	
@@ -472,8 +472,12 @@ public class DefaultChannelService implements ChannelService {
 		return globalMacros;
 	}
 	
+	@Override
 	public void setDryrun(boolean dryrun){
-		
+		this.dryrun = dryrun;
 	}
 	
+	public boolean isDryrun(){
+		return dryrun;
+	}
 }
