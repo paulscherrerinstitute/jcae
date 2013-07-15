@@ -63,7 +63,7 @@ public class ChannelServiceAnnotatedObjectTest {
 	public void setUp() throws Exception {
 		// Get default factory
 		DefaultChannelService s = new DefaultChannelService();
-		s.getGlobalMacros().put("PREFIX", TestChannels.PREFIX);
+		s.getMacros().put("PREFIX", TestChannels.PREFIX);
 		cservice = s;
 	}
 

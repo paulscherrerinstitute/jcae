@@ -635,7 +635,7 @@ public class ChannelTest {
 		
 		try{
 			// Wait forever
-			beand.waitForValue(0,null);
+			beand.waitForValue(0);
 		}
 		finally{
 			t.interrupt();

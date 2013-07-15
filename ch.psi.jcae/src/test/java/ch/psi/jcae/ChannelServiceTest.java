@@ -54,7 +54,7 @@ public class ChannelServiceTest {
 	@Before
 	public void setUp() throws Exception {
 		DefaultChannelService s = new DefaultChannelService();
-		s.getGlobalMacros().put("PREFIX", TestChannels.PREFIX);
+		s.getMacros().put("PREFIX", TestChannels.PREFIX);
 		factory = s;
 	}
 

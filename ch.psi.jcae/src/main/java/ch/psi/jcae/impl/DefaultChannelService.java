@@ -208,6 +208,15 @@ public class DefaultChannelService implements ChannelService {
 		return channelObject;
 	}
 	
+	@Override
+	public void createAnnotatedChannels(Object object) throws ChannelException, InterruptedException, TimeoutException {
+		createAnnotatedChannels(object, new HashMap<String,String>(), this.dryrun);
+	}
+	
+	@Override
+	public void createAnnotatedChannels(Object object, Map<String,String> macros) throws ChannelException, InterruptedException, TimeoutException {
+		createAnnotatedChannels(object,macros,this.dryrun);
+	}
 	
 	/**
 	 * Create all ChannelBeans that are annotated of the passed object
@@ -221,8 +230,8 @@ public class DefaultChannelService implements ChannelService {
 	 * @throws ExecutionException 
 	 */
 	@Override
-	public void createAnnotatedChannels(Object object) throws ChannelException, InterruptedException, TimeoutException {
-		createAnnotatedChannels(object, new HashMap<String,String>());
+	public void createAnnotatedChannels(Object object, boolean dryrun) throws ChannelException, InterruptedException, TimeoutException {
+		createAnnotatedChannels(object, new HashMap<String,String>(), dryrun);
 	}
 	
 	/**
@@ -240,7 +249,7 @@ public class DefaultChannelService implements ChannelService {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void createAnnotatedChannels(Object object, Map<String,String> macros) throws ChannelException, InterruptedException, TimeoutException {
+	public void createAnnotatedChannels(Object object, Map<String,String> macros, boolean dryrun) throws ChannelException, InterruptedException, TimeoutException {
 		
 		logger.info("Create annotated channels of class "+object.getClass().getName()+" "+ (dryrun?"[dryrun]":""));
 		
@@ -454,20 +463,17 @@ public class DefaultChannelService implements ChannelService {
 	}
 
 	
+	public void setMacros(Map<String, String> macros) {
+		this.globalMacros = macros;
+	}
 	
-	/**
-	 * @return the globalMacros
-	 */
-	public Map<String, String> getGlobalMacros() {
+	@Override
+	public Map<String,String> getMacros(){
 		return globalMacros;
 	}
-
-	/**
-	 * @param globalMacros the globalMacros to set
-	 */
-	public void setGlobalMacros(Map<String, String> globalMacros) {
-		this.globalMacros = globalMacros;
-	}
 	
+	public void setDryrun(boolean dryrun){
+		
+	}
 	
 }
