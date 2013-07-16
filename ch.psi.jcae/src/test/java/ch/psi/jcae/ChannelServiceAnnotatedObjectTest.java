@@ -62,7 +62,7 @@ public class ChannelServiceAnnotatedObjectTest {
 	@Before
 	public void setUp() throws Exception {
 		// Get default factory
-		DefaultChannelService s = new DefaultChannelService();
+		DefaultChannelService s = new DefaultChannelService(true);
 		s.getMacros().put("PREFIX", TestChannels.PREFIX);
 		cservice = s;
 	}
@@ -87,7 +87,13 @@ public class ChannelServiceAnnotatedObjectTest {
 		TestObject object = new TestObject();
 		Map<String,String> m = new HashMap<String,String>();
 //		m.put("PREFIX", TestChannels.PREFIX);
-		cservice.createAnnotatedChannels(object, m);
+		try{
+			cservice.createAnnotatedChannels(object, m);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 		
 		// Check whether pre and post methods are executed
 		if(timestamps.get("pre")!=null && timestamps.get("post")!=null){
@@ -141,7 +147,10 @@ public class ChannelServiceAnnotatedObjectTest {
 		}
 		
 		@CaPostInit
-		public void postInit(){
+		public void postInit() throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
+			System.out.println("VALUE: "+field1.getValue());
+			int i = field1.getValue();
+			System.out.println(i);
 			logger.info("Execute POST - Timestamp: "+System.currentTimeMillis());
 			timestamps.put("post", System.currentTimeMillis());
 			

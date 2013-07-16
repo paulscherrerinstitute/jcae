@@ -28,10 +28,20 @@ public class DummyChannel<T> implements Channel<T> {
 
 	private T value = null;
 
+	@SuppressWarnings("unchecked")
 	public DummyChannel(Class<T> type, String name, Integer size, boolean monitored){
 		this.name = name;
 		this.size = size;
 		this.monitored = monitored;
+		if(Double.class.equals(type)){
+			value = (T) new Double(0);
+		}
+		else if(Integer.class.equals(type)){
+			value = (T) new Integer(0);
+		}
+		else if(String.class.equals(type)){
+			value = (T) new String();
+		}
 	}
 	
 	@Override
