@@ -24,6 +24,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -302,8 +303,8 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	}
 
 	@Override
-	public E waitForValue(E rvalue, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
-		return waitForValueAsync(rvalue, waitRetryPeriod).get();
+	public E waitForValue(E rvalue, long timeout) throws InterruptedException, ExecutionException, ChannelException, TimeoutException {
+		return waitForValueAsync(rvalue).get(timeout, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
