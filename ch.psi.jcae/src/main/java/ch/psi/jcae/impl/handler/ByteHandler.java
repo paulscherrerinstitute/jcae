@@ -13,30 +13,25 @@ import gov.aps.jca.dbr.DBR_Byte;
 import gov.aps.jca.event.PutListener;
 
 /**
- * @author ebner
- *
+ * Byte specific handler
  */
 public class ByteHandler implements Handler<Byte> {
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.impl.handler.Handler#setValue(gov.aps.jca.Channel, java.lang.Object, gov.aps.jca.event.PutListener)
-	 */
+	@Override
+	public <E> void setValue(Channel channel, E value) throws CAException {
+		channel.put(((byte[]) value));
+	}
+	
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((byte[]) value), listener);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.impl.handler.Handler#getValue(gov.aps.jca.dbr.DBR)
-	 */
 	@Override
 	public Byte getValue(DBR dbr) throws CAStatusException {
 		return ((Byte)((DBR_Byte) dbr.convert(DBR_Byte.TYPE)).getByteValue()[0]);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.impl.handler.Handler#getDBRType()
-	 */
 	@Override
 	public DBRType getDBRType() {
 		return DBR_Byte.TYPE;

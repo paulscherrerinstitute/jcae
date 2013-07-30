@@ -16,22 +16,20 @@ import gov.aps.jca.dbr.DBR_TIME_Double;
 import gov.aps.jca.event.PutListener;
 
 /**
- * @author ebner
- *
+ * DoubleTimestamp specific handler
  */
 public class DoubleTimestampHandler implements Handler<DoubleTimestamp> {
-
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.impl.handler.Handler#setValue(gov.aps.jca.Channel, java.lang.Object, gov.aps.jca.event.PutListener)
-	 */
+	
+	@Override
+	public <E> void setValue(Channel channel, E value) throws CAException {
+		channel.put(((DoubleTimestamp) value).getValue());
+	}
+	
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((DoubleTimestamp) value).getValue(), listener);
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.impl.handler.Handler#getValue(gov.aps.jca.dbr.DBR)
-	 */
 	@Override
 	public DoubleTimestamp getValue(DBR dbr) throws CAStatusException {
 		DoubleTimestamp t = new DoubleTimestamp();
@@ -44,9 +42,6 @@ public class DoubleTimestampHandler implements Handler<DoubleTimestamp> {
 		return t;
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.psi.jcae.impl.handler.Handler#getDBRType()
-	 */
 	@Override
 	public DBRType getDBRType() {
 		return DBRType.TIME_DOUBLE;
