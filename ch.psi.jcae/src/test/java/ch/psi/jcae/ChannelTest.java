@@ -26,12 +26,12 @@ import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import junit.framework.Assert;
-
 import gov.aps.jca.CAException;
 
 import org.junit.After;
@@ -40,6 +40,7 @@ import org.junit.Test;
 
 import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
+import ch.psi.jcae.util.ComparatorDouble;
 
 /**
  * JUnit test case for testing the functionality of a <code>Channel</code>
@@ -288,6 +289,51 @@ public class ChannelTest {
 		// Reset value to old value
 		channel1.setValue((ovalue.intValue()+1.0)%100); // Have this to ensure that if someone is doing a camon that things change (see note header)
 	}
+	
+	
+	@Test
+	public void testSetValueAsync() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		
+		Channel<Double> c = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.ANALOG_OUT));
+		c.setValue(1.0);
+		System.out.println("done");
+		c.setValueAsync(5.0);
+		System.out.println("done");
+	}
+	
+	@Test
+	public void testT() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
+		Channel<Double> ch = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
+		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
+		for(double i=0;i<=5.0; i=i+1){
+			System.out.println("SET "+i);
+			ch.setValueNoWait(i);
+			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
+			System.out.println("VALUE "+ch2.getValue());
+			System.out.println("NEW "+f.get());
+//			System.out.println("done");
+		}
+	}
+	
+	@Test
+	public void testT2() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
+		Channel<Double> ch1 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
+		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT2", false));
+		Channel<Double> ch1r = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
+		for(double i=0;i<=5.0; i=i+1){
+			System.out.println("SET[1] "+i);
+			Future<Double> f = ch1.setValueAsync(i);
+			System.out.println("SET[2] "+i);
+			Future<Double> f2 = ch2.setValueAsync(i);
+//			ch.setValueAsync(i);
+//			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
+			System.out.println("VALUE "+ch1r.getValue());
+//			System.out.println("NEW "+f.get());
+			f.get();
+//			System.out.println("done");
+		}
+	}
+	
 	
 	@Test
 	public void testSetValueString() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {

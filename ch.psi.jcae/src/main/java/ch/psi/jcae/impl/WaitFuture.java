@@ -39,10 +39,7 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 /**
- * Utilty class to wait for a channel to get to a specific value
- * @author ebner
- *
- * @param <E>
+ * Future to wait for a channel to get to a specific value
  */
 public class WaitFuture<E> implements MonitorListener, Future<E> {
 
@@ -102,21 +99,23 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void monitorChanged(MonitorEvent event) {
-		if (event.getStatus() == CAStatus.NORMAL){
-			try{
-				value = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
-				
-				if(value!=null && this.comparator.compare(value, waitValue)==0){
-					latch.countDown();
+		if(event.getStatus()!=null){ // when monitor is connected the status is usually null - ignore this
+			if (event.getStatus() == CAStatus.NORMAL){
+				try{
+					value = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
+					
+					if(value!=null && this.comparator.compare(value, waitValue)==0){
+						latch.countDown();
+					}
+				}
+				catch(CAStatusException e){
+					throw new RuntimeException("Something went wrong while waiting for a channel to get to the specific value: "+waitValue+"]", e);
 				}
 			}
-			catch(CAStatusException e){
-				throw new RuntimeException("Something went wrong while waiting for a channel to get to the specific value: "+waitValue+"]", e);
+			else{
+				logger.warning("Monitor failed with status: "+event.getStatus());
+	//			latch.notifyAll();
 			}
-		}
-		else{
-			logger.warning("Monitor failed with status: "+event.getStatus());
-//			latch.notifyAll();
 		}
 	}
 

@@ -38,9 +38,6 @@ import ch.psi.jcae.impl.handler.Handlers;
  * Task that is creating (and replacing - if a monitor was created before by this task) a monitor.
  * This task is periodically triggered and ensures that if a monitor callback is lost on the
  * network that after some time never the less the value is recognized (when creating a new monitor).
- * 
- * @author ebner
- *
  */
 public class WaitRetryTimerTask<E> extends TimerTask {
 	

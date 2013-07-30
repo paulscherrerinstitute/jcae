@@ -17,8 +17,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 /**
- * @author ebner
- *
+ * Future to wait for an event. The underlying listener gets periodically renewed
  */
 public class WaitRetryFuture<T> implements Future<T>{
 

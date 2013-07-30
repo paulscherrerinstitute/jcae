@@ -34,8 +34,6 @@ import gov.aps.jca.event.PutListener;
  * Utility class implementing @see gov.aps.jca.PutListener used to accomplish an 
  * asynchronous put. The class decrements the passed latch once
  * the put operation has finished successfully.
- * @author ebner
- *
  */
 public class SetFuture<T> implements PutListener, Future<T>
 {

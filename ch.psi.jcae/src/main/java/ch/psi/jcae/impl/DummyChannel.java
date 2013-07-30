@@ -94,6 +94,11 @@ public class DummyChannel<T> implements Channel<T> {
 	public void setValue(T value) throws InterruptedException, ExecutionException, ChannelException {
 		propertyChangeSupport.firePropertyChange("value", this.value, this.value = value);
 	}
+	
+	@Override
+	public void setValueNoWait(T value) throws InterruptedException, ExecutionException, ChannelException {
+		propertyChangeSupport.firePropertyChange("value", this.value, this.value = value);
+	}
 
 	@Override
 	public Future<T> setValueAsync(T v) throws ChannelException {

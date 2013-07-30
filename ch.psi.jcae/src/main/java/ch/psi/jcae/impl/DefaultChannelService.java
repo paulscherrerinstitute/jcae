@@ -49,8 +49,6 @@ import ch.psi.jcae.annotation.CaPreInit;
 /**
  * Factory class for creating ChannelBean objects (more easily).
  * Internally the factory uses the <code>ChannelFactory</code> Singleton to create JCA channel objects.
- * @author ebner
- *
  */
 public class DefaultChannelService implements ChannelService {
 	

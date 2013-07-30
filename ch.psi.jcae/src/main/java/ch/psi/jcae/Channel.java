@@ -17,7 +17,8 @@ public interface Channel<T> {
 	public Future<T> getValueAsync() throws IllegalStateException, ChannelException;
 	public Future<T> getValueAsync(boolean force) throws IllegalStateException, ChannelException;
 	
-	
+
+	public void setValueNoWait(T value)throws InterruptedException, ExecutionException, ChannelException;
 	public void setValue(T value) throws InterruptedException, ExecutionException, ChannelException;
 	public Future<T> setValueAsync(T value) throws ChannelException;
 

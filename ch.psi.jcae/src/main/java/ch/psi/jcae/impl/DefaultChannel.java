@@ -210,6 +210,16 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		setValueAsync(value).get();
 	}
 	
+	@Override
+	public void setValueNoWait(E value) throws InterruptedException, ExecutionException, ChannelException {
+		try{
+			Handlers.HANDLERS.get(type).setValue(channel, value);
+			channel.getContext().flushIO();
+		}
+		catch(CAException e){
+			throw new ChannelException("Unable to set value to channel", e);
+		}
+	}
 	
 	/**
 	 * Set value asynchronously

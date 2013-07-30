@@ -151,4 +151,9 @@ public class CompositeChannel<T> implements Channel<T>{
 		readback.removePropertyChangeListener(l);
 	}
 
+	@Override
+	public void setValueNoWait(T value) throws InterruptedException, ExecutionException, ChannelException {
+		channel.setValueAsync(value);
+	}
+
 }
