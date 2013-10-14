@@ -21,9 +21,7 @@ package ch.psi.jcae.util;
 import java.util.Comparator;
 
 /**
- * Comparator to OR compare Integers
- * @author ebner
- *
+ * Double comparison
  */
 public class ComparatorDouble implements Comparator<Double>{
 	

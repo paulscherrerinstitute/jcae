@@ -21,9 +21,7 @@ package ch.psi.jcae.util;
 import java.util.Comparator;
 
 /**
- * Comparator check whether String matches a regular expression. The second value is the regular.
- * @author ebner
- *
+ * Regular expression comparison
  */
 public class ComparatorREGEX implements Comparator<String>{
 	@Override
