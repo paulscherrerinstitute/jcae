@@ -324,7 +324,7 @@ public class ChannelTest {
 			System.out.println("SET[1] "+i);
 			Future<Double> f = ch1.setValueAsync(i);
 			System.out.println("SET[2] "+i);
-			Future<Double> f2 = ch2.setValueAsync(i);
+			ch2.setValueAsync(i);
 //			ch.setValueAsync(i);
 //			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
 			System.out.println("VALUE "+ch1r.getValue());
