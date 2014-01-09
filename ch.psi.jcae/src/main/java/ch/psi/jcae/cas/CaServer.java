@@ -96,9 +96,9 @@ public class CaServer {
 	}
 	
 	/**
-	 * Start the server as a deamon in a new thread
+	 * Start the server as a daemon in a new thread
 	 */
-	public void startAsDeamon(){
+	public void startAsDaemon(){
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {

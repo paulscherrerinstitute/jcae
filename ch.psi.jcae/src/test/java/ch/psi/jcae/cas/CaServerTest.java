@@ -62,7 +62,7 @@ public class CaServerTest {
 			
 			
 			CaServer s = new CaServer(processVariables);
-			s.startAsDeamon();
+			s.startAsDaemon();
 //			s.start();
 			
 			// Change value of the channel to something ...
