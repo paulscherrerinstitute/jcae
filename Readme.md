@@ -214,6 +214,110 @@ public class MyConverter extends AbstractConverterBean{
 }
 ```
 
+## Annotations
+jcae provides a way to annotate Java Beans consisting of ChannelBeans attribute. While annotating the 
+attributes one does not need to explicitly create/connect the ChannelBeans any more. Instead the 
+ChannelBeanFactory takes care of this. To be able to work with annotated Java Beans, the annotated 
+ChannelBeans need to be connected via the ChannelBeanFactory. This is done via the createChannelBeans(...) 
+function. While calling this function of the factory establishes all connections and monitors of the annotated 
+ChannelBeans.
+
+### Usage
+  * Bean Declaration
+
+```java
+public class TestBean{
+        @CaChannel(name=".ACQT", type=String.class, monitor=true)
+        private ChannelBean type
+        @CaChannel(name={".ONE", ".TWO", ".THREE"}, type=Double.class, monitor=true)
+        private <List> values;
+
+        // Getter and setters ...
+}
+```
+
+  * Connect ChannelBeans / Registration
+
+```java
+TestBean cbean = new TestBean();
+ChannelBeanFactory.getFactory().createChannelBeans(cbean, "PREFIX");
+```
+
+  * Disconnect Bean
+
+```java
+ChannelBeanFactory.getFactory().destroyChannelBeans(cbean);
+```
+
+  * Usage
+
+```java
+tbean.getType().getValue();
+```
+
+### @CaChannel
+The CaChannel annotation can be used to annotate ChannelBeans or list of channel beans. 
+The annotation takes following parameters:
+
+| Data Type | Name | Default Value | Description |
+| --- | --- | --- | --- |
+| Class<?> | type | | Type of the ChannelBean |
+| String | name | | Name(s) of the channel that should be managed by the (list of) ChannelBean(s) |
+| boolean | monitor | false | Flag to indicate whether the channel should be monitored |
+
+```java
+@CaChannel( name="TEST", type=String.class, monitor=true)
+private ChannelBean testvariable;
+Annotation list of ChannelBeans
+@CaChannel( name={"TEST1", "TEST2", "TEST3"}, type=Double.class, monitor=true)
+private <List> mylist;
+```
+
+### @CaPreInit
+Execute the annotated function(s) before initializing all ChannelBeans that are annotated 
+with @CaChannel. If multiple functions are annotated with @CaPreInit, the order of execution 
+is not guaranteed. The annotated method must NOT take any parameters!
+
+```java
+@CaPreInit
+public void myPreInit(){
+}
+```
+
+### @CaPostInit
+Execute the annotated function after initializing all ChannelBeans that are annotated with @CaChannel. 
+If multiple functions are annotated with @CaPostInit, the order of execution is not guaranteed. 
+The annotated method must NOT take any parameters!
+
+```java
+@CaPostInit
+public void postInit(){
+}
+```
+
+### @CaPreDestroy
+Execute the annotated function(s) before destruction of all ChannelBeans that are annotated with @CaChannel. 
+If multiple functions are annotated with @CaPreDestroy, the order of execution is not guaranteed. 
+The annotated method must NOT take any parameters!
+
+```java
+@CaPreDestroy
+public void myPreDestroy(){
+}
+```
+
+### @CaPostDestroy
+Execute the annotated function after destruction of all ChannelBeans that are annotated with @CaChannel.
+If multiple functions are annotated with @CaPostDestroy, the order of execution is not guaranteed. 
+The annotated method must NOT take any parameters!
+
+```java
+@CaPostDestroy
+public void postDestroy(){
+}
+```
+
+
 
 
 # Development
