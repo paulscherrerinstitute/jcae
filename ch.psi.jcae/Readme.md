@@ -24,3 +24,13 @@ Values can be set in different ways:
   * normal - wait until channel returns acknowledgement
   * async - get a handle (i.e. Future) to wait for set operation to finish
   * noWait - issues a set command while requesting no acknowledgement (fire and forget)
+  
+Ways to Get and Set Values
+  * Set/Put
+    * Fire and forget (different type of CA request send out)
+    * Get acknowledgement (both cases are handled the same)
+      * Wait until acknowledgement is here (synchronous)
+      * Do something and then check if acknowledgement was received (asynchronous)
+  * Get
+    * Wait until value is received
+    * Do something and then check back if value was received
