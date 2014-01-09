@@ -19,6 +19,7 @@
 package ch.psi.jcae.cas;
 
 import static org.junit.Assert.*;
+import gov.aps.jca.CAException;
 import gov.aps.jca.cas.ProcessVariable;
 
 import java.beans.PropertyChangeEvent;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +43,8 @@ import ch.psi.jcae.cas.ProcessVariableInt;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 public class CaServerTest {
+	
+	private static final Logger logger = Logger.getLogger(CaServerTest.class.getName());
 
 	@Before
 	public void setUp() throws Exception {
@@ -67,13 +71,14 @@ public class CaServerTest {
 			
 			// Change value of the channel to something ...
 			Thread.sleep(5000);
-			System.out.println("Set 10");
+			logger.info("Set 10");
 			statusPV.setValue(10);
 //			
 			Thread.sleep(5000);
-			System.out.println("Set 20");
+			logger.info("Set 20");
 			statusPV.setValue(20);
 			
+			s.stop();
 //			// Wait moreless for ever ...
 //			Thread.sleep(100000000000l);
 		}
@@ -84,7 +89,18 @@ public class CaServerTest {
 	}
 	
 	@Test
-	public void testCaClient() throws InterruptedException, ChannelException, TimeoutException, ExecutionException{
+	public void testCaClient() throws InterruptedException, ChannelException, TimeoutException, ExecutionException, IllegalStateException, CAException{
+		
+		List<ProcessVariable> processVariables = new ArrayList<ProcessVariable>();
+		ProcessVariableInt statusPV = new ProcessVariableInt("CH-PSI-CAS:TEST", null);
+		
+		processVariables.add(statusPV);
+		// Create server
+		
+		
+		CaServer s = new CaServer(processVariables);
+		s.startAsDaemon();
+		
 		ChannelService factory = new DefaultChannelService();
 		Channel<Integer> b = factory.createChannel(new ChannelDescriptor<Integer>(Integer.class, "CH-PSI-CAS:TEST", true));
 		b.addPropertyChangeListener(new PropertyChangeListener() {
@@ -99,6 +115,9 @@ public class CaServerTest {
 			System.out.println("Value: "+v);
 			b.setValue((v+1));
 		}
+		
+		s.stop();
+		
 		factory.destroy();
 		
 	}
