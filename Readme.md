@@ -31,7 +31,8 @@ name as prefix.
 
 ### ContextFactory
 
-||||
+| Property       | Value           | Description  |
+| ------------- |:-------------:| -----:|
 | ch.psi.jcae.ContextFactory.addressList | | Space separated list of IP addresses |
 | ch.psi.jcae.ContextFactory.autoAddressList | true, false | Auto address list |
 | ch.psi.jcae.ContextFactory.useShellVariables | true, false | Use settings set by the EPICS_CA_ADDR_LIST and EPICS_CA_AUTO_ADDR_LIST shell variable|
