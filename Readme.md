@@ -64,6 +64,42 @@ The channel factory uses a JCA Context for creating, managing and destructing ch
 ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
 ```
 
+## ChannelBean
+ChannelBean is the major abstraction provided by the jcae Library. It introduces an object oriented abstraction 
+of an Epics channel and hides the complexity of the creation/usage/destruction of the channel. 
+The value of the channel can be easily accessed and modified via get and set methods. A ChannelBean can be 
+created in two different modes. normal and monitor mode. In normal mode the value of the channel gets 
+collected (over the network) each time the get method is called. In monitor mode a monitor is established 
+for the channel that recognizes value changes and caches the value in a local variable. When the value of 
+the channel is accessed via the get method the cached value is returned instead of getting it explicitly 
+(over the network).
+
+### Usage
+The following section gives a short overview of the functionality of ChannelBean and its usage. 
+Examples are shown for the creation, usage and destruction.
+
+#### Creation
+A ChannelBean is created via the ChannelBeanFactory. The factory is a Singleton Object an can be 
+retrieved via the static method `getFactory()`:
+
+```java
+// Retrieve channel bean factory
+ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+// Create channel bean
+ChannelBean<String> bean = factory.createChannelBean(String.class, "MYCHANNEL:XYZ", true);
+```
+
+#### Get/Set Value
+
+```java
+//Get value
+String value = bean.getValue();
+// Get value explicitly over the network (If ChannelBean is created in monitor mode)
+value = bean.getValue(true);
+// Set value
+bean.setValue("hello");
+```
+
 
 
 
