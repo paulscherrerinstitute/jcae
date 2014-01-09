@@ -317,6 +317,226 @@ public void postDestroy(){
 }
 ```
 
+## Examples
+
+### Get Example
+
+```java
+import ch.psi.jcae.ChannelBean;
+import ch.psi.jcae.ChannelBeanFactory;
+import gov.aps.jca.CAException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class GetExample {
+
+    public static void main(String[] args) throws CAException, InterruptedException {
+
+        // Get channel factory
+        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+
+        // Connect to channel
+        ChannelBean<String> bean = factory.createChannelBean(String.class, "ARIDI-PCT:CURRENT", true);
+
+        // Get value
+        String value = bean.getValue();
+        Logger.getLogger(GetExample.class.getName()).log(Level.INFO, "{0}", value);
+
+        // Disconnect from channel
+        bean.destroy();
+
+        // Close all connections
+        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+    }
+}
+```
+
+### Monitor Example
+
+```java
+import ch.psi.jcae.ChannelBean;
+import ch.psi.jcae.ChannelBeanFactory;
+import gov.aps.jca.CAException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class MonitorExample {
+
+    public static void main(String[] args) throws CAException, InterruptedException {
+        // Get channel factory
+        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+
+        // Create ChannelBean
+        ChannelBean<String> bean = factory.createChannelBean(String.class, "ARIDI-PCT:CURRENT", true);
+
+        // Add PropertyChangeListener to ChannelBean to get value updates
+        bean.addPropertyChangeListener(new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent pce) {
+                if (pce.getPropertyName().equals(ChannelBean.PROPERTY_VALUE)) {
+                    Logger.getLogger(MonitorExample.class.getName()).log(Level.INFO, "Current: {0}", pce.getNewValue());
+                }
+            }
+        });
+
+        // Monitor the Channel for 10 seconds
+        Thread.sleep(10000);
+
+        // Destroy ChannelBean
+        bean.destroy();
+
+        // Destroy context of the factory
+        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+    }
+}
+```
+
+### Annotation Example
+
+```java
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import gov.aps.jca.CAException;
+import ch.psi.jcae.ChannelBean;
+import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.annotation.CaChannel;
+
+public class AnnotationExample {
+
+        public static void main(String[] args) throws CAException, InterruptedException {
+                // Get channel factory
+        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+
+        ChannelBeanContainer container = new ChannelBeanContainer();
+        
+        // Connect to channel(s) in the container
+        factory.createChannelBeans(container);
+        
+        Double value = container.getCurrent().getValue();
+        String unit = container.getUnit().getValue();
+        Logger.getLogger(AnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
+        
+        // Disconnect channel(s) in the container
+        factory.destroyChannelBeans(container);
+        
+        // Destroy context of the factory
+        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+        }
+}
+
+/**
+ * Container class
+ */
+class ChannelBeanContainer {
+
+        @CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
+        private ChannelBean<Double> current;
+        
+        @CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
+        private ChannelBean<String> unit;
+
+        /**
+         * @return the current
+         */
+        public ChannelBean<Double> getCurrent() {
+                return current;
+        }
+        
+        /**
+         * @return unit of the current
+         */
+        public ChannelBean<String> getUnit() {
+                return unit;
+        }
+}
+```
+
+### Complete Annotation Example
+
+```java
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import gov.aps.jca.CAException;
+import ch.psi.jcae.ChannelBean;
+import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.annotation.CaPostDestroy;
+import ch.psi.jcae.annotation.CaPostInit;
+import ch.psi.jcae.annotation.CaPreDestroy;
+import ch.psi.jcae.annotation.CaPreInit;
+
+public class CompleteAnnotationExample {
+
+        public static void main(String[] args) throws CAException, InterruptedException {
+                // Get channel factory
+        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+
+        ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
+        
+        // Connect to channel(s) in the container
+        factory.createChannelBeans(container);
+        
+        Double value = container.getCurrent().getValue();
+        String unit = container.getUnit().getValue();
+        Logger.getLogger(CompleteAnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
+        
+        // Disconnect channel(s) in the container
+        factory.destroyChannelBeans(container);
+        
+        // Destroy context of the factory
+        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+        }
+}
+
+/**
+ * Container class
+ */
+class ChannelBeanContainerComplete {
+
+        @CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
+        private ChannelBean<Double> current;
+        
+        @CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
+        private ChannelBean<String> unit;
+
+        @CaPreInit
+        public void preInit(){
+                // Code executed before connecting the channels
+        }
+        
+        @CaPostInit
+        public void postInit(){
+                // Code executed after connecting channels
+        }
+        
+        @CaPreDestroy
+        public void preDestroy(){
+                // Code executed before destroying channels
+        }
+        
+        @CaPostDestroy
+        public void postDestroy(){
+                // Code executed after destroying channels
+        }
+        
+        /**
+         * @return the current
+         */
+        public ChannelBean<Double> getCurrent() {
+                return current;
+        }
+        
+        /**
+         * @return unit of the current
+         */
+        public ChannelBean<String> getUnit() {
+                return unit;
+        }
+}
+```
+
 
 
 
