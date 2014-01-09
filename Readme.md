@@ -2,14 +2,25 @@
 
 The package ch.psi.jcae.cas contains an utility library to easily create an channel access server.
 
+# Usage
+
+## Prerequisites
+### Dependencies
+The easiest way to get all the jcae dependencies is to use the Maven. Add following dependency to your dependencies section:
+
+```xml
+<dependency>
+        <groupId>ch.psi</groupId>
+        <artifactId>jcae</artifactId>
+        <version>version.to.use</version>
+</dependency>
+```
+
+
 # Development
 The package is build via Maven.
 
 Use `mvn clean install deploy` to create a new version of the package and to upload the artifact to artifactory.
-
-
-## Google Code
-Use maven goal `gcupload:gcupload` to upload binaries (jar) to google code.
 
 # Notes
 
