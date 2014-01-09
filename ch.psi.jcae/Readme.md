@@ -3,8 +3,13 @@
 The package ch.psi.jcae.cas contains an utility library to easily create an channel access server.
 
 # Development
+The package is build via Maven.
+
+Use `mvn clean install deploy` to create a new version of the package and to upload the artifact to artifactory.
+
+
 ## Google Code
-Use maven goal `gcupload:gcupload` to upload binaries to google code.
+Use maven goal `gcupload:gcupload` to upload binaries (jar) to google code.
 
 # Notes
 
