@@ -100,7 +100,119 @@ value = bean.getValue(true);
 bean.setValue("hello");
 ```
 
+#### Wait for a specific value
+Wait for a channel to reach exactly a specific value:
 
+```java
+bean.waitForValue("world", 10000);
+```
+
+#### Wait for a channel to meet specified condition
+
+```java
+Comparator<Integer> c = new Comparator<Integer>() {
+    @Override
+    public int compare(Integer o1, Integer o2) {
+        if(o1!=o2){
+            return 0;
+        }
+        else{
+            return -1;
+        }
+    }
+};
+beand.waitForValue(1, c, 2000);
+```
+
+#### Destruction
+As the ChannelBean holds a Channel Access Connection that need to be closed explicitly, 
+the destroy() need to be called explicitly on that object. After calling the destroy() method 
+of the bean, the bean must not be used any more!
+
+```java
+bean.destroy();
+```
+
+#### Property Change Support
+One can register for ChannelBean status changes via the standard Java Bean Property 
+Change Support functionality. To do so register/unregister an object that implements 
+PropertyChangeListener as follows:
+
+```java
+// Register an object as PropertyChangeListener
+bean.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent pce) {
+                if(pce.getPropertyName().equals(ChannelBean.PROPERTY_VALUE)){
+                    Logger.getLogger(Main.class.getName()).log(Level.INFO, "Current: {0}", pce.getNewValue());
+                }
+            }
+        });
+```
+        
+For a ChannelBean you can register for ChannelBean.PROPERTY_VALUE and ChannelBean.PROPERTY_CONNECTION changes.
+
+
+#### Converter Beans
+Converters can be used to convert the value received by a ChannelBean into something different. 
+The behavior of a converter is similar to the one of the ChannelBean. If you set a value in the 
+ConverterBean it will automatically convert it and set it to its corresponding ChannelBean. 
+If a value changes on the Channel the ChannelBean will propagate the change to the ConverterBean and 
+this will inform all registered listeners.
+
+A classical example for a converter would be to convert a byte value (Channel) into a String and vice 
+versa. An other example would be to encrypt/decrypt the value before setting it on a channel. 
+Both scenarios can be done easily with the concept of a converter. jcae provides basic converter 
+functionality for converting Integer to String, Double to String, byte[] to String and vice versa. 
+It also provides the abstract class AbstractConverterBean which can be extended to write your own 
+(complex) converters.
+
+```java
+ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+ChannelBean bean = factory.createChannelBean(Integer.class, "MTEST-PC-JCAE:BI", true);
+IntegerStringConverterBean iscb = new IntegerStringConverterBean(bean);
+
+// Set value
+iscb.setValue("1345");
+
+// Get value
+iscb.getValue();
+
+// Get value and force a get request
+iscb.getValue(true);
+
+// Wait for a value
+iscb.waitForValue("123", timeout);
+
+//... see functions ChannelBean
+This is how one would write its own converter:
+import ch.psi.jcae.ChannelBean;
+import ch.psi.jcae.converter.AbstractConverterBean;
+
+/**
+ * MyConverter converts a Double value to a special String representation and vice versa.
+ */
+public class MyConverter extends AbstractConverterBean{
+
+    public MyConverter(ChannelBean bean){
+        super(bean);
+    }
+
+    @Override
+    protected String convertForward(Double e) {
+        String v = "";
+        // Put your conversion code here
+        return(v);
+    }
+
+    @Override
+    protected Double convertReverse(String t) {
+        Double v = 0d;
+        // Put your conversion code here
+        return(v);
+    }
+
+}
+```
 
 
 
