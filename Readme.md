@@ -30,6 +30,7 @@ the library. To uniquely identify which class is using the property, the propert
 name as prefix.
 
 ### ContextFactory
+
 | ch.psi.jcae.ContextFactory.addressList | | Space separated list of IP addresses |
 | ch.psi.jcae.ContextFactory.autoAddressList | true, false | Auto address list |
 | ch.psi.jcae.ContextFactory.useShellVariables | true, false | Use settings set by the EPICS_CA_ADDR_LIST and EPICS_CA_AUTO_ADDR_LIST shell variable|
@@ -39,10 +40,12 @@ name as prefix.
 | ch.psi.jcae.ContextFactory.serverPort | | Channel Access server port |
 
 ### ChannelFactory
+
 | ch.psi.jcae.ChannelFactory.timeout | 10000 | Timeout in milliseconds for creating a new channel |
 | ch.psi.jcae.ChannelFactory.retries | 0 | Retries for connecting to a channel |
 
 ### ChannelBeanFactory
+
 | ch.psi.jcae.ChannelBeanFactory.timeout | 10000 | Timeout for a request in milliseconds |
 | ch.psi.jcae.ChannelBeanFactory.waitTimeout | - | Timeout in milliseconds for a wait operation (not specified = wait forever) |
 | ch.psi.jcae.ChannelBeanFactory.waitRetryPeriod | - | While waiting for a value the period to exchange the monitor of the channel. This might avoid hanging if a monitor callback with a new value (we are waiting for) was lost on the network. While periodically restart the monitor we avoid this scenario. Ideally, if specified, this time is big but smaller than the waitTimeout. If this property is NOT specified only one monitor is started for the whole wait period (should be fine if everything in Channel access behaves as it should) |
