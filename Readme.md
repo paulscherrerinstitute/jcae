@@ -545,11 +545,17 @@ The package is build via Maven.
 
 Use `mvn clean install deploy` to create a new version of the package and to upload the artifact to artifactory.
 
+
+
+
 # Notes
 
 ## Channel Access Specification
 
 The specification can be found at: http://epics.cosylab.com/cosyjava/JCA-Common/Documentation/CAproto.html
+
+If you are trying to access channels that are served by gateways (e.g. Machine Gateway) you need to change 
+the default ChannelAccess Server Port from 5064 to 5062!
 
 DBR - data request buffer types
 DBF - database field types
