@@ -56,7 +56,7 @@ public class ChannelTest {
 	
 	private static Logger logger = Logger.getLogger(ChannelTest.class.getName());
 	
-	private static String iocname = "psi-softioc.psi.ch";
+	private static String iocname = "psi-softioc-2.psi.ch";
 	private ChannelService cservice;
 	
 	@Before
