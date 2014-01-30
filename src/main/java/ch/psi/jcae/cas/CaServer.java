@@ -18,7 +18,7 @@
  */
 package ch.psi.jcae.cas;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,7 +47,7 @@ public class CaServer {
 	 * 
 	 * @param processVariables	List of process variables that are served by the server. This parameter must not be null!
 	 */
-	public CaServer(List<ProcessVariable> processVariables){
+	public CaServer(Collection<ProcessVariable> processVariables){
 		server = new DefaultServerImpl();
 		// Register process variables on server
 		for(ProcessVariable pv: processVariables){
