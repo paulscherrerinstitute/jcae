@@ -121,5 +121,31 @@ public class CaServerTest {
 		factory.destroy();
 		
 	}
+	
+	@Test
+	public void testDoubleVariable(){
+		
+		List<ProcessVariable> processVariables = new ArrayList<ProcessVariable>();
+		ProcessVariableDouble pv = new ProcessVariableDouble("CH-PSI-CAS:TESTDOUBLE", null);
+		processVariables.add(pv);
+		
+		CaServer s = new CaServer(processVariables);
+		s.startAsDaemon();
+		
+		double value = 1.0;
+		for(int i = 0;i<100;i++){
+			pv.setValue(value);
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+			
+			if(i%10==0){
+				value++;
+			}
+		}
+		
+	}
 
 }

@@ -32,8 +32,6 @@ import com.cosylab.epics.caj.cas.util.DefaultServerImpl;
 
 /**
  * Implementation of a Channel Access Server
- * @author ebner
- *
  */
 public class CaServer {
 	
@@ -47,7 +45,7 @@ public class CaServer {
 	/**
 	 * Constructor: Create instance of a Channel Access server.
 	 * 
-	 * @param processVariables	List of process variables that are served by the server
+	 * @param processVariables	List of process variables that are served by the server. This parameter must not be null!
 	 */
 	public CaServer(List<ProcessVariable> processVariables){
 		server = new DefaultServerImpl();
