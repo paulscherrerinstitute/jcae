@@ -39,7 +39,7 @@ name as prefix.
 | ch.psi.jcae.ContextFactory.addLocalBroadcastInterfaces | true, false | Extend the address list with the local broadcast interfaces |
 | ch.psi.jcae.ContextFactory.queuedEventDispatcher | true, false | Use queued event dispatcher |
 | ch.psi.jcae.ContextFactory.maxArrayBytes | | Number of maximum bytes that are used to transfer an array |
-| ch.psi.jcae.ContextFactory.serverPort | | Channel Access server port |
+| ch.psi.jcae.ContextFactory.serverPort | | Channel Access server port (if using a gateway this is usually 5062) |
 
 ### ChannelFactory
 

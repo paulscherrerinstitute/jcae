@@ -6,22 +6,22 @@ package ch.psi.jcae.impl.type;
 
 import java.util.Date;
 
-public class DoubleTimestamp {
+public class StringTimestamp {
 
-	private Double value;
+	private String value;
 	private Date timestamp;
 	private Long nanosecondOffset;
 	
 	/**
 	 * @return the value
 	 */
-	public Double getValue() {
+	public String getValue() {
 		return value;
 	}
 	/**
 	 * @param value the value to set
 	 */
-	public void setValue(Double value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 	/**
