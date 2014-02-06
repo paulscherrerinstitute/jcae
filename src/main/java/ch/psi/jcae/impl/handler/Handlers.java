@@ -9,6 +9,7 @@ import java.util.Map;
 
 import ch.psi.jcae.impl.type.ByteArrayString;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
+import ch.psi.jcae.impl.type.StringTimestamp;
 
 /**
  * @author ebner
@@ -36,6 +37,7 @@ public class Handlers {
 		
 		// Complex types
 		HANDLERS.put(DoubleTimestamp.class, new DoubleTimestampHandler());
+		HANDLERS.put(StringTimestamp.class, new StringTimestampHandler());
 		HANDLERS.put(ByteArrayString.class, new ByteArrayStringHandler());
 	}
 	
