@@ -205,8 +205,9 @@ public class JcaeProperties {
 		}
 		
 		/**
-		 * Get properties for the ChannelFactory
+		 * Get properties for the ChannelService
 		 */
+		// TODO rename to ChannelService
 		prefix = "ch.psi.jcae.ChannelFactory.";
 		if(bundle.keySet().contains(prefix+"timeout")){
 			
