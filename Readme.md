@@ -58,16 +58,18 @@ name as prefix.
 | ch.psi.jcae.ChannelBeanFactory.retries | 0 | Retries for set/get operation (will not apply to waitForValue operation) |
 
 ## Destruction Context
-The channel factory uses a JCA Context for creating, managing and destructing channels. This context need to be destroyed at the end of every program. If the context is not destroyed, the Java Virtual Machine will not exit. The destruction of the Context is done as follows:
+The channel service uses a JCA Context for creating, managing and destructing channels. This context need to be destroyed at the end of every program. If the context is not destroyed, the Java Virtual Machine will not exit. Therefor the ChannelService instance need to be manually destroyed as follows:
 
 ```java
-ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+ChannelService service;
+//...
+service.destroy();
 ```
 
-## ChannelBean
-ChannelBean is the major abstraction provided by the jcae Library. It introduces an object oriented abstraction 
+## Channel
+`ch.psi.jcae.Channel` is the major abstraction provided by the jcae Library. It introduces an object oriented abstraction 
 of an Epics channel and hides the complexity of the creation/usage/destruction of the channel. 
-The value of the channel can be easily accessed and modified via get and set methods. A ChannelBean can be 
+The value of the channel can be easily accessed and modified via get and set methods. A Channel can be 
 created in two different modes. normal and monitor mode. In normal mode the value of the channel gets 
 collected (over the network) each time the get method is called. In monitor mode a monitor is established 
 for the channel that recognizes value changes and caches the value in a local variable. When the value of 
@@ -75,36 +77,37 @@ the channel is accessed via the get method the cached value is returned instead 
 (over the network).
 
 ### Usage
-The following section gives a short overview of the functionality of ChannelBean and its usage. 
+The following section gives a short overview of the functionality of Channel and its usage. 
 Examples are shown for the creation, usage and destruction.
 
 #### Creation
-A ChannelBean is created via the ChannelBeanFactory. The factory is a Singleton Object an can be 
-retrieved via the static method `getFactory()`:
+A Channel is created via a ChannelService instance. Ideally there is only one instance of a ChannelService per JVM
 
 ```java
-// Retrieve channel bean factory
-ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
-// Create channel bean
-ChannelBean<String> bean = factory.createChannelBean(String.class, "MYCHANNEL:XYZ", true);
+ChannelService cservice = new DefaultChannelService();
+Channel<String> channel = cservice.createChannel(new ChannelDescriptor<String>(String.class, "MYCHANNEL:XYZ", true));
 ```
 
 #### Get/Set Value
 
 ```java
 //Get value
-String value = bean.getValue();
+String value = channel.getValue();
 // Get value explicitly over the network (If ChannelBean is created in monitor mode)
-value = bean.getValue(true);
+value = channel.getValue(true);
 // Set value
-bean.setValue("hello");
+channel.setValue("hello");
 ```
 
 #### Wait for a specific value
 Wait for a channel to reach exactly a specific value:
 
 ```java
-bean.waitForValue("world", 10000);
+// Wait without timeout
+channel.waitForValue("world");
+
+// Wait with timeout
+channel.waitForValueAsync("world").get(10000L, TimeUnit.MILLISECONDS);
 ```
 
 #### Wait for a channel to meet specified condition
@@ -125,128 +128,66 @@ beand.waitForValue(1, c, 2000);
 ```
 
 #### Destruction
-As the ChannelBean holds a Channel Access Connection that need to be closed explicitly, 
+As the Channel holds a Channel Access connection that need to be closed explicitly, 
 the destroy() need to be called explicitly on that object. After calling the destroy() method 
-of the bean, the bean must not be used any more!
+of the channel object, the object must not be used any more!
 
 ```java
-bean.destroy();
+channel.destroy();
 ```
 
 #### Property Change Support
-One can register for ChannelBean status changes via the standard Java Bean Property 
-Change Support functionality. To do so register/unregister an object that implements 
+One can register for Channel status changes via the standard JavaBean PropertyChangeSupport functionality. 
+To do so register/unregister an object that implements 
 PropertyChangeListener as follows:
 
 ```java
 // Register an object as PropertyChangeListener
-bean.addPropertyChangeListener(new PropertyChangeListener() {
+channel.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent pce) {
-                if(pce.getPropertyName().equals(ChannelBean.PROPERTY_VALUE)){
+                if(pce.getPropertyName().equals(Channel.PROPERTY_VALUE)){
                     Logger.getLogger(Main.class.getName()).log(Level.INFO, "Current: {0}", pce.getNewValue());
                 }
             }
         });
 ```
         
-For a ChannelBean you can register for ChannelBean.PROPERTY_VALUE and ChannelBean.PROPERTY_CONNECTION changes.
+For a Channel you can register for Channel.PROPERTY_VALUE and Channel.PROPERTY_CONNECTION changes.
 
-
-#### Converter Beans
-Converters can be used to convert the value received by a ChannelBean into something different. 
-The behavior of a converter is similar to the one of the ChannelBean. If you set a value in the 
-ConverterBean it will automatically convert it and set it to its corresponding ChannelBean. 
-If a value changes on the Channel the ChannelBean will propagate the change to the ConverterBean and 
-this will inform all registered listeners.
-
-A classical example for a converter would be to convert a byte value (Channel) into a String and vice 
-versa. An other example would be to encrypt/decrypt the value before setting it on a channel. 
-Both scenarios can be done easily with the concept of a converter. jcae provides basic converter 
-functionality for converting Integer to String, Double to String, byte[] to String and vice versa. 
-It also provides the abstract class AbstractConverterBean which can be extended to write your own 
-(complex) converters.
-
-```java
-ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
-ChannelBean bean = factory.createChannelBean(Integer.class, "MTEST-PC-JCAE:BI", true);
-IntegerStringConverterBean iscb = new IntegerStringConverterBean(bean);
-
-// Set value
-iscb.setValue("1345");
-
-// Get value
-iscb.getValue();
-
-// Get value and force a get request
-iscb.getValue(true);
-
-// Wait for a value
-iscb.waitForValue("123", timeout);
-
-//... see functions ChannelBean
-This is how one would write its own converter:
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.converter.AbstractConverterBean;
-
-/**
- * MyConverter converts a Double value to a special String representation and vice versa.
- */
-public class MyConverter extends AbstractConverterBean{
-
-    public MyConverter(ChannelBean bean){
-        super(bean);
-    }
-
-    @Override
-    protected String convertForward(Double e) {
-        String v = "";
-        // Put your conversion code here
-        return(v);
-    }
-
-    @Override
-    protected Double convertReverse(String t) {
-        Double v = 0d;
-        // Put your conversion code here
-        return(v);
-    }
-
-}
-```
 
 ## Annotations
-jcae provides a way to annotate Java Beans consisting of ChannelBeans attribute. While annotating the 
-attributes one does not need to explicitly create/connect the ChannelBeans any more. Instead the 
-ChannelBeanFactory takes care of this. To be able to work with annotated Java Beans, the annotated 
-ChannelBeans need to be connected via the ChannelBeanFactory. This is done via the createChannelBeans(...) 
+`jcae` provides a way to annotate Channel declarations within Java classes. While annotating the 
+declarations one does not need to explicitly create/connect the Channel any more. To be able to 
+work with classes containing annotations, the annotated 
+Channels need to be connected via the ChannelService. This is done via the createAnnotatedChannels(...) 
 function. While calling this function of the factory establishes all connections and monitors of the annotated 
-ChannelBeans.
+Channels.
 
 ### Usage
-  * Bean Declaration
+  * Declaration
 
 ```java
-public class TestBean{
+public class TestClass{
         @CaChannel(name=".ACQT", type=String.class, monitor=true)
-        private ChannelBean type
+        private Channel<String> type;
         @CaChannel(name={".ONE", ".TWO", ".THREE"}, type=Double.class, monitor=true)
-        private <List> values;
+        private <List<Channel<Double>> values;
 
         // Getter and setters ...
 }
 ```
 
-  * Connect ChannelBeans / Registration
+  * Connect Channel / Registration
 
 ```java
-TestBean cbean = new TestBean();
-ChannelBeanFactory.getFactory().createChannelBeans(cbean, "PREFIX");
+TestClass cbean = new TestClass();
+channelService.createAnnotatedChannels(cbean, "PREFIX");
 ```
 
   * Disconnect Bean
 
 ```java
-ChannelBeanFactory.getFactory().destroyChannelBeans(cbean);
+channelService.destroyAnnotatedChannels(cbean);
 ```
 
   * Usage
@@ -256,7 +197,7 @@ tbean.getType().getValue();
 ```
 
 ### @CaChannel
-The CaChannel annotation can be used to annotate ChannelBeans or list of channel beans. 
+The CaChannel annotation can be used to annotate Channels or list of channels. 
 The annotation takes following parameters:
 
 | Data Type | Name | Default Value | Description |
@@ -267,14 +208,14 @@ The annotation takes following parameters:
 
 ```java
 @CaChannel( name="TEST", type=String.class, monitor=true)
-private ChannelBean testvariable;
-Annotation list of ChannelBeans
+private Channel<String> testvariable;
+// Annotation list of Channels
 @CaChannel( name={"TEST1", "TEST2", "TEST3"}, type=Double.class, monitor=true)
-private <List> mylist;
+private <List<Channel<Double>> list;
 ```
 
 ### @CaPreInit
-Execute the annotated function(s) before initializing all ChannelBeans that are annotated 
+Execute the annotated function(s) before initializing all Channels that are annotated 
 with @CaChannel. If multiple functions are annotated with @CaPreInit, the order of execution 
 is not guaranteed. The annotated method must NOT take any parameters!
 
@@ -285,7 +226,7 @@ public void myPreInit(){
 ```
 
 ### @CaPostInit
-Execute the annotated function after initializing all ChannelBeans that are annotated with @CaChannel. 
+Execute the annotated function after initializing all Channels that are annotated with @CaChannel. 
 If multiple functions are annotated with @CaPostInit, the order of execution is not guaranteed. 
 The annotated method must NOT take any parameters!
 
@@ -296,7 +237,7 @@ public void postInit(){
 ```
 
 ### @CaPreDestroy
-Execute the annotated function(s) before destruction of all ChannelBeans that are annotated with @CaChannel. 
+Execute the annotated function(s) before destruction of all Channels that are annotated with @CaChannel. 
 If multiple functions are annotated with @CaPreDestroy, the order of execution is not guaranteed. 
 The annotated method must NOT take any parameters!
 
@@ -307,7 +248,7 @@ public void myPreDestroy(){
 ```
 
 ### @CaPostDestroy
-Execute the annotated function after destruction of all ChannelBeans that are annotated with @CaChannel.
+Execute the annotated function after destruction of all Channels that are annotated with @CaChannel.
 If multiple functions are annotated with @CaPostDestroy, the order of execution is not guaranteed. 
 The annotated method must NOT take any parameters!
 
@@ -322,21 +263,26 @@ public void postDestroy(){
 ### Get Example
 
 ```java
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.Channel;
+import ch.psi.jcae.ChannelDescriptor;
+import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.impl.DefaultChannelService;
 import gov.aps.jca.CAException;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetExample {
 
-    public static void main(String[] args) throws CAException, InterruptedException {
+    public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 
         // Get channel factory
-        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+        DefaultChannelService factory = new DefaultChannelService();
 
         // Connect to channel
-        ChannelBean<String> bean = factory.createChannelBean(String.class, "ARIDI-PCT:CURRENT", true);
+        Channel<String> bean = factory.createChannel(new ChannelDescriptor<String>(String.class, "ARIDI-PCT:CURRENT", true));
 
         // Get value
         String value = bean.getValue();
@@ -346,7 +292,7 @@ public class GetExample {
         bean.destroy();
 
         // Close all connections
-        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+        factory.destroy();
     }
 }
 ```
@@ -354,28 +300,33 @@ public class GetExample {
 ### Monitor Example
 
 ```java
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.Channel;
+import ch.psi.jcae.ChannelDescriptor;
+import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.impl.DefaultChannel;
+import ch.psi.jcae.impl.DefaultChannelService;
 import gov.aps.jca.CAException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MonitorExample {
 
-    public static void main(String[] args) throws CAException, InterruptedException {
+    public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
         // Get channel factory
-        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+        DefaultChannelService service = new DefaultChannelService();
 
         // Create ChannelBean
-        ChannelBean<String> bean = factory.createChannelBean(String.class, "ARIDI-PCT:CURRENT", true);
+        Channel<String> bean = service.createChannel(new ChannelDescriptor<String>(String.class, "ARIDI-PCT:CURRENT", true));
 
         // Add PropertyChangeListener to ChannelBean to get value updates
         bean.addPropertyChangeListener(new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent pce) {
-                if (pce.getPropertyName().equals(ChannelBean.PROPERTY_VALUE)) {
+                if (pce.getPropertyName().equals(DefaultChannel.PROPERTY_VALUE)) {
                     Logger.getLogger(MonitorExample.class.getName()).log(Level.INFO, "Current: {0}", pce.getNewValue());
                 }
             }
@@ -388,7 +339,7 @@ public class MonitorExample {
         bean.destroy();
 
         // Destroy context of the factory
-        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
+        service.destroy();
     }
 }
 ```
@@ -396,34 +347,38 @@ public class MonitorExample {
 ### Annotation Example
 
 ```java
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import gov.aps.jca.CAException;
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.impl.DefaultChannel;
+import ch.psi.jcae.impl.DefaultChannelService;
 
 public class AnnotationExample {
 
-        public static void main(String[] args) throws CAException, InterruptedException {
-                // Get channel factory
-        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+	public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException {
+		// Get channel factory
+        ChannelService service = new DefaultChannelService();
 
         ChannelBeanContainer container = new ChannelBeanContainer();
         
         // Connect to channel(s) in the container
-        factory.createChannelBeans(container);
+        service.createAnnotatedChannels(container);
         
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
         Logger.getLogger(AnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
         
         // Disconnect channel(s) in the container
-        factory.destroyChannelBeans(container);
+        service.destroyAnnotatedChannels(container);
         
         // Destroy context of the factory
-        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
-        }
+        service.destroy();
+	}
 }
 
 /**
@@ -431,63 +386,66 @@ public class AnnotationExample {
  */
 class ChannelBeanContainer {
 
-        @CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-        private ChannelBean<Double> current;
-        
-        @CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-        private ChannelBean<String> unit;
+	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
+	private DefaultChannel<Double> current;
+	
+	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
+	private DefaultChannel<String> unit;
 
-        /**
-         * @return the current
-         */
-        public ChannelBean<Double> getCurrent() {
-                return current;
-        }
-        
-        /**
-         * @return unit of the current
-         */
-        public ChannelBean<String> getUnit() {
-                return unit;
-        }
+	/**
+	 * @return the current
+	 */
+	public DefaultChannel<Double> getCurrent() {
+		return current;
+	}
+	
+	/**
+	 * @return unit of the current
+	 */
+	public DefaultChannel<String> getUnit() {
+		return unit;
+	}
 }
 ```
 
 ### Complete Annotation Example
 
 ```java
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import gov.aps.jca.CAException;
-import ch.psi.jcae.ChannelBean;
-import ch.psi.jcae.ChannelBeanFactory;
+import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
+import ch.psi.jcae.impl.DefaultChannel;
+import ch.psi.jcae.impl.DefaultChannelService;
 
 public class CompleteAnnotationExample {
 
-        public static void main(String[] args) throws CAException, InterruptedException {
-                // Get channel factory
-        ChannelBeanFactory factory = ChannelBeanFactory.getFactory();
+	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		// Get channel factory
+        DefaultChannelService service = new DefaultChannelService();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
         // Connect to channel(s) in the container
-        factory.createChannelBeans(container);
+        service.createAnnotatedChannels(container);
         
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
         Logger.getLogger(CompleteAnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
         
         // Disconnect channel(s) in the container
-        factory.destroyChannelBeans(container);
+        service.destroyAnnotatedChannels(container);
         
         // Destroy context of the factory
-        ChannelBeanFactory.getFactory().getChannelFactory().destroyContext();
-        }
+        service.destroy();
+	}
 }
 
 /**
@@ -495,45 +453,45 @@ public class CompleteAnnotationExample {
  */
 class ChannelBeanContainerComplete {
 
-        @CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-        private ChannelBean<Double> current;
-        
-        @CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-        private ChannelBean<String> unit;
+	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
+	private DefaultChannel<Double> current;
+	
+	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
+	private DefaultChannel<String> unit;
 
-        @CaPreInit
-        public void preInit(){
-                // Code executed before connecting the channels
-        }
-        
-        @CaPostInit
-        public void postInit(){
-                // Code executed after connecting channels
-        }
-        
-        @CaPreDestroy
-        public void preDestroy(){
-                // Code executed before destroying channels
-        }
-        
-        @CaPostDestroy
-        public void postDestroy(){
-                // Code executed after destroying channels
-        }
-        
-        /**
-         * @return the current
-         */
-        public ChannelBean<Double> getCurrent() {
-                return current;
-        }
-        
-        /**
-         * @return unit of the current
-         */
-        public ChannelBean<String> getUnit() {
-                return unit;
-        }
+	@CaPreInit
+	public void preInit(){
+		// Code executed before connecting the channels
+	}
+	
+	@CaPostInit
+	public void postInit(){
+		// Code executed after connecting channels
+	}
+	
+	@CaPreDestroy
+	public void preDestroy(){
+		// Code executed before destroying channels
+	}
+	
+	@CaPostDestroy
+	public void postDestroy(){
+		// Code executed after destroying channels
+	}
+	
+	/**
+	 * @return the current
+	 */
+	public DefaultChannel<Double> getCurrent() {
+		return current;
+	}
+	
+	/**
+	 * @return unit of the current
+	 */
+	public DefaultChannel<String> getUnit() {
+		return unit;
+	}
 }
 ```
 
@@ -543,7 +501,7 @@ class ChannelBeanContainerComplete {
 # Development
 The package is build via Maven.
 
-Use `mvn clean install deploy` to create a new version of the package and to upload the artifact to artifactory.
+Use `mvn clean install deploy` to create a new version of the package and to upload the (PSI) artifact to artifactory.
 
 
 

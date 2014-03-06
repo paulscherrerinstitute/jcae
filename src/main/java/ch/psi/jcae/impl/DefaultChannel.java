@@ -61,17 +61,6 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 	
 	
-	/**
-	 * Key for property change support if value has changed
-	 */
-	public static final String PROPERTY_VALUE = "value";
-	
-	/**
-	 * Key for property change support if connection state has changed
-	 */
-	public static final String PROPERTY_CONNECTED = "connected";
-	
-	
 	private Class<E> type;
 	private Monitor monitor;
 	private ConnectionListener listener;

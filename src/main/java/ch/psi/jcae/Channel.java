@@ -12,6 +12,16 @@ import java.util.concurrent.TimeoutException;
 
 public interface Channel<T> {
 
+	/**
+	 * Key for property change support if value has changed
+	 */
+	public static final String PROPERTY_VALUE = "value";
+	
+	/**
+	 * Key for property change support if connection state has changed
+	 */
+	public static final String PROPERTY_CONNECTED = "connected";
+	
 	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException;
 	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException;
 	public Future<T> getValueAsync() throws IllegalStateException, ChannelException;
