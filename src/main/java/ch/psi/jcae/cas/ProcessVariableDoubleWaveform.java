@@ -47,12 +47,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	
 	private double[] value;
 	private short precision = 10;
-	
-	/**
-	 * Constructor - Create Process Variable
-	 * @param name
-	 * @param eventCallback
-	 */
+
 	public ProcessVariableDoubleWaveform(String name, ProcessVariableEventCallback eventCallback, int size) {
 		super(name, eventCallback);
 		value = new double[size];
@@ -62,7 +57,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	protected CAStatus readValue(DBR dbr, ProcessVariableReadCallback processvariablereadcallback) throws CAException {
 		logger.fine("Read value from process variable - DBR size: "+dbr.getCount());
 
-		// Determine size of the waveform returned. If the size is set in the request
+		// Determine size of the waveform to be returned. If the size is set in the request
 		// only this this size is returned.
 		int minCount = Math.min(value.length, dbr.getCount());
 		System.arraycopy(this.value, 0, dbr.getValue(), 0, minCount);
@@ -79,12 +74,11 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	@Override
 	protected CAStatus writeValue(DBR dbr, ProcessVariableWriteCallback processvariablewritecallback) throws CAException {
 		logger.fine("Set value to process variable");
-		
+
 		double[] values = ((DBR_Double) dbr.convert(DBRType.DOUBLE)).getDoubleValue(); 
 		value = values;
-		
+
 		TimeStamp timestamp = new TimeStamp();
-		// Post update event if there is an interest
 		if (interest)
 		{
 			// Set event mask
@@ -98,7 +92,6 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 			((TIME)monitorDBR).setSeverity(Severity.NO_ALARM);
 			((TIME)monitorDBR).setTimeStamp(timestamp);
 			
-			// port event
  	    	eventCallback.postEvent(mask, monitorDBR);
 		}
 		

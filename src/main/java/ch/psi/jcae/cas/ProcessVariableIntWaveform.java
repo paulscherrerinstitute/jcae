@@ -39,37 +39,27 @@ import com.cosylab.epics.caj.cas.handlers.AbstractCASResponseHandler;
 import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
 
 /**
- * Implemenatation of a Channel Access Channel of type int[]
+ * Implementatation of a Channel Access Channel of type int[]
  */
 public class ProcessVariableIntWaveform extends NumericProcessVariable{
 
 	private static Logger logger = Logger.getLogger(ProcessVariableIntWaveform.class.getName());
-	private int value[] = new int[]{10,12,199,0,0,0,0,0,0,0};
-	private int arraySize = 10;
 	
-	public ProcessVariableIntWaveform(String name, ProcessVariableEventCallback eventCallback) {
+	private int[] value;
+
+	public ProcessVariableIntWaveform(String name, ProcessVariableEventCallback eventCallback, int size) {
 		super(name, eventCallback);
+		value = new int[size];
 	}
 
 	@Override
 	protected CAStatus readValue(DBR dbr, ProcessVariableReadCallback processvariablereadcallback) throws CAException {
-		logger.finest("readValue() called");
-		
-		// Set value
-		int[] values = ((DBR_Int) dbr.convert(DBRType.INT)).getIntValue();
-		logger.info("ARRAY SIZE GET: "+values.length);
-//		values[0] = value;
-		
-		int minCount = Math.min(arraySize, dbr.getCount());
+		logger.fine("Read value from process variable - DBR size: "+dbr.getCount());
+
+		// Determine size of the waveform to be returned. If the size is set in the request
+		// only this this size is returned.
+		int minCount = Math.min(value.length, dbr.getCount());
 		System.arraycopy(this.value, 0, dbr.getValue(), 0, minCount);
-		
-//		values[1] = 12;
-//		int[] y = (int[])dbr.getValue();
-//		y[0]=value;
-//		y[1]=10;
-//		y[2]=30;
-		
-//		System.arraycopy(new int[]{1,23,12}, 0, dbr.getValue(), 0, 2);
 		
 		// Set timestamp and other flags
 		DBR_TIME_Int u = (DBR_TIME_Int) dbr;
@@ -82,28 +72,25 @@ public class ProcessVariableIntWaveform extends NumericProcessVariable{
 
 	@Override
 	protected CAStatus writeValue(DBR dbr, ProcessVariableWriteCallback processvariablewritecallback) throws CAException {
-		logger.finest("writeValue() called");
+		logger.fine("Set value to process variable");
+
 		int[] values = ((DBR_Int) dbr.convert(DBRType.INT)).getIntValue(); 
 		value = values;
-		logger.info("ARRAY SIZE: "+values.length+" VALUE: "+values[1]);
-		logger.finest("Value set: "+ value);
-		
+
 		TimeStamp timestamp = new TimeStamp();
-		// post event if there is an interest
 		if (interest)
 		{
-			// set event mask
+			// Set event mask
 			int mask = Monitor.VALUE | Monitor.LOG;
 			
-			// create and fill-in DBR
+			// Create and fill-in DBR
 			DBR monitorDBR = AbstractCASResponseHandler.createDBRforReading(this);
-			System.arraycopy(this.value, 0, monitorDBR.getValue(), 0, arraySize);
+			System.arraycopy(this.value, 0, monitorDBR.getValue(), 0, value.length);
 			fillInDBR(monitorDBR);
 			((TIME)monitorDBR).setStatus(Status.NO_ALARM);
 			((TIME)monitorDBR).setSeverity(Severity.NO_ALARM);
 			((TIME)monitorDBR).setTimeStamp(timestamp);
 			
-			// port event
  	    	eventCallback.postEvent(mask, monitorDBR);
 		}
 		
@@ -112,7 +99,7 @@ public class ProcessVariableIntWaveform extends NumericProcessVariable{
 
 	@Override
 	public DBRType getType() {
-		logger.finest("getType() called");
+		logger.fine("Get Process Variable type - INT");
 		return DBRType.INT;
 	}
 
@@ -142,7 +129,7 @@ public class ProcessVariableIntWaveform extends NumericProcessVariable{
 			
 			// create and fill-in DBR
 			DBR monitorDBR = AbstractCASResponseHandler.createDBRforReading(this);
-			System.arraycopy(this.value, 0, monitorDBR.getValue(), 0, arraySize);
+			System.arraycopy(this.value, 0, monitorDBR.getValue(), 0, value.length);
 			fillInDBR(monitorDBR);
 			((TIME)monitorDBR).setStatus(Status.NO_ALARM);
 			((TIME)monitorDBR).setSeverity(Severity.NO_ALARM);
@@ -156,7 +143,7 @@ public class ProcessVariableIntWaveform extends NumericProcessVariable{
 	@Override
 	public int getDimensionSize(int dimension) {
 		if (dimension == 0)
-			return arraySize;
+			return value.length;
 		else
 			return 0;
 	}
