@@ -105,7 +105,7 @@ public class ProcessVariableInt extends NumericProcessVariable{
 
 	/**
 	 * Get value of this process variable
-	 * @return
+	 * @return Value
 	 */
 	public int getValue() {
 		return value;
@@ -115,7 +115,7 @@ public class ProcessVariableInt extends NumericProcessVariable{
 	 * Set value of this process variable.
 	 * While setting value all registered monitors will be fired.
 	 * 
-	 * @param value
+	 * @param value	Value
 	 */
 	public void setValue(int value) {
 		this.value = value;

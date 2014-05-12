@@ -73,7 +73,6 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 	 * @param comparator	Comparator that defines when condition to wait for is met.
 	 * 						The first argument of the comparator is the value of the channel, the second the expected value.
 	 * 						The Comparator need to return 0 if condition is met.
-	 * @param latch			Latch to signal other thread that condition was met
 	 * @throws ChannelException 
 	 */
 	@SuppressWarnings("unchecked")

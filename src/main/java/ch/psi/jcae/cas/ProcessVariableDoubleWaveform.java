@@ -106,7 +106,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 
 	/**
 	 * Get value of this process variable
-	 * @return
+	 * @return	Value
 	 */
 	public double[] getValue() {
 		return value;
@@ -116,7 +116,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	 * Set value of this process variable.
 	 * While setting value all registered monitors will be fired.
 	 * 
-	 * @param value
+	 * @param value	Value
 	 */
 	public void setValue(double[] value) {
 		this.value = value;

@@ -27,31 +27,34 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to annotate a ChannelBean
- * @author ebner
- *
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CaChannel {
 	/**
 	 * Data type of ChannelBean value
+	 * @return Type of channel
 	 */
 	Class<?> type();
+	
 	/**
-	 * Name of channel
+	 * Name of channel(s)
+	 * @return Name of channel(s)
 	 */
 	String[] name();
 	/**
 	 * Flag whether to monitor the channel or not (default: false)
 	 * If using monitor=true the ChannelBean type must match the type of the Channel Access channel. 
-	 * i.e. you must not set a ChannelBean&lt;Double> on monitor when it is bound to a Channel Access channel
+	 * i.e. you must not set a ChannelBean&lt;Double&gt; on monitor when it is bound to a Channel Access channel
 	 * of type String.
+	 * 
+	 * @return Set channel to monitor
 	 */
 	boolean monitor() default false;
 	
 	/**
 	 * Size of the array channel. 0 take default size of the channel
-	 * @return
+	 * @return	Size of channel
 	 */
 	int size() default 0;
 }

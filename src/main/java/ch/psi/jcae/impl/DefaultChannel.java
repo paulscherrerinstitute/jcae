@@ -78,14 +78,15 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	/**
 	 * Constructor - Create a ChannelBean for the specified Channel. A Monitor is attached
 	 * to the Channel if the <code>monitored</code> parameter is true.
-	 * @param type
-	 * @param channel
-	 * @param size		Retries for set/get operations if something fails during an operation
+	 * @param type			Type of channel
+	 * @param channel		Channel object
+	 * @param size			Retries for set/get operations if something fails during an operation
 	 * @param monitored		Attach a Monitor to the Channel
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * 
+	 * @throws InterruptedException Interrupted
+	 * @throws ChannelException 	Could not establish channel
+	 * @throws TimeoutException 	Timeout occurred
+	 * @throws ExecutionException	-
 	 */
 	public DefaultChannel(Class<E> type, Channel channel, Integer size, boolean monitored) throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		
@@ -125,10 +126,10 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	/**
 	 * Get current value of the channel. 
 	 * @return			Value of the channel in the type of the ChannelBean
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * @throws InterruptedException Interrupted
+	 * @throws ChannelException 	Could not get value
+	 * @throws TimeoutException 	Timeout
+	 * @throws ExecutionException 	Could not get value
 	 */
 	@Override
 	public E getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
@@ -140,10 +141,10 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * Get current value of the channel and force the API to directly fetch it from the network.
 	 * @param force		Force the library to get the value via the network
 	 * @return			Value of the channel in the type of the ChannelBean
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * @throws InterruptedException Interrupted
+	 * @throws ChannelException 	Could not get vlaue
+	 * @throws TimeoutException 	Timeout
+	 * @throws ExecutionException 	Could not get value
 	 */
 	@Override
 	public E getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException{
@@ -152,9 +153,9 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Get value asynchronously
-	 * @return
-	 * @throws IllegalStateException
-	 * @throws ChannelException
+	 * @return	Future to retrieve value
+	 * @throws IllegalStateException	Channel is in illegal state
+	 * @throws ChannelException			Could not get value
 	 */
 	@Override
 	public Future<E> getValueAsync() throws IllegalStateException, ChannelException {
@@ -163,10 +164,10 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Get value in an asynchronous way
-	 * @param force
-	 * @return
-	 * @throws IllegalStateException
-	 * @throws ChannelException
+	 * @param force		If true get value always over the network
+	 * @return			Future to retrieve channel value once returned
+	 * @throws IllegalStateException	Channel in illegal state
+	 * @throws ChannelException			Could not get value handle
 	 */
 	@Override
 	public Future<E> getValueAsync(boolean force) throws IllegalStateException, ChannelException {
@@ -189,10 +190,11 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Set value synchronously
-	 * @param value
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws ChannelException
+	 * @param value		Value to set
+	 * 
+	 * @throws InterruptedException	Interrupted
+	 * @throws ExecutionException	Could not set value
+	 * @throws ChannelException		Could not set value
 	 */
 	@Override
 	public void setValue(E value) throws InterruptedException, ExecutionException, ChannelException {
@@ -213,9 +215,9 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	/**
 	 * Set value asynchronously
 	 * 
-	 * @param value
+	 * @param value	Value to set
 	 * @return Future to determine when set is done ...
-	 * @throws ChannelException
+	 * @throws ChannelException	Could not set value
 	 */
 	@Override
 	public Future<E> setValueAsync(E value) throws ChannelException {
@@ -234,7 +236,9 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	/**
 	 * Wait until channel has reached the specified value.
 	 * @param rvalue	Value the channel should reach
-	 * @throws ChannelException 
+	 * 
+	 * @return Handle to wait for value
+	 * @throws ChannelException 	Could not wait for value
 	 */
 	public Future<E> waitForValueAsync(E rvalue) throws ChannelException {
 		
@@ -253,10 +257,10 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Wait until channel has reached the specified value. Re-establish the monitor after the specified waitRetryPeriod
-	 * @param rvalue
-	 * @param waitRetryPeriod
-	 * @return
-	 * @throws ChannelException
+	 * @param rvalue	Value to wait for
+	 * @param waitRetryPeriod	retry period
+	 * @return	Handle to wait for value synchronously
+	 * @throws ChannelException	Could not wait for value
 	 */
 	public Future<E> waitForValueAsync(E rvalue, long waitRetryPeriod) throws ChannelException {
 		// Default comparator checking for equality
@@ -274,11 +278,11 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Wait for channel to meet condition specified by the comparator
-	 * @param rvalue
+	 * @param rvalue		Value to wait for
 	 * @param comparator	Implementation of the Comparator interface that defines when a value is reached. The Comparator
 	 * 						need to return 0 if the condition is met.
 	 * 						The first argument of the comparator is the value of the channel, the second the expected value.
-	 * @throws ChannelException 
+	 * @throws ChannelException Could not wait for value
 	 */
 	public Future<E> waitForValueAsync(E rvalue, Comparator<E> comparator) throws ChannelException {
 		return new WaitFuture<E>(channel, elementCount, rvalue, comparator);
@@ -286,11 +290,11 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Wait until channel has reached the specified value. Re-establish the monitor after the specified waitRetryPeriod
-	 * @param rvalue
-	 * @param comparator
-	 * @param waitRetryPeriod
-	 * @return
-	 * @throws ChannelException
+	 * @param rvalue		Value to wait for
+	 * @param comparator	Comparator to use
+	 * @param waitRetryPeriod	Retry period
+	 * @return	Handle to wait for value synchronously
+	 * @throws ChannelException	Could not wait for value
 	 */
 	public Future<E> waitForValueAsync(E rvalue, Comparator<E> comparator, long waitRetryPeriod) throws ChannelException {
 		return new WaitRetryFuture<E>(channel, elementCount, rvalue, comparator, waitRetryPeriod);
@@ -377,8 +381,8 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	 * underlying channel. If the channel is set to be not monitored but was monitored before this function will remove the monitors added
 	 * to the underlying channel.
 	 * 
-	 * @param monitored the monitored to set
-	 * @throws ChannelException 
+	 * @param monitored 			Attach of remove monitor
+	 * @throws ChannelException 	Could not set channel to monitored
 	 */
 	@Override
 	public void setMonitored(boolean monitored) throws ChannelException {
@@ -402,7 +406,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 
 	/**
 	 * Attach connection listener to channel for this bean
-	 * @throws ChannelException
+	 * @throws ChannelException		Could not attach connection listener
 	 */
 	private void attachConnectionListener() throws ChannelException{
 		try{
@@ -421,7 +425,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Remove connection listener
-	 * @throws ChannelException
+	 * @throws ChannelException		Could not remove connection listener
 	 */
 	private void removeConnectionListener() throws ChannelException{
 		try{
@@ -435,7 +439,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Attach a monitor to the channel of the bean
-	 * @throws ChannelException 
+	 * @throws ChannelException 	Could not attach monitor
 	 */
 	private void attachMonitor() throws ChannelException {
 		
@@ -478,7 +482,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	
 	/**
 	 * Remove monitor of channel
-	 * @throws ChannelException
+	 * @throws ChannelException	Could not remove monitor
 	 */
 	private void removeMonitor() throws ChannelException {
 		try{
@@ -500,7 +504,8 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	/**
 	 * Destroy channel bean. Method will detach a possible monitor of this bean for the channel and 
 	 * destroy the channel of the bean.
-	 * @throws ChannelException 
+	 * 
+	 * @throws ChannelException		Could not destroy channel 
 	 */
 	@Override
 	public void destroy() throws ChannelException{

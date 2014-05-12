@@ -84,7 +84,7 @@ public class CaServer {
 	
 	/**
 	 * Start Channel Access Server (method)
-	 * @throws CAException
+	 * @throws CAException	Could not start server
 	 */
 	public void start() throws CAException{
 		logger.info("Start Channel Access Server");
@@ -111,8 +111,8 @@ public class CaServer {
 	
 	/**
 	 * Stop Channel Access server
-	 * @throws IllegalStateException
-	 * @throws CAException
+	 * @throws IllegalStateException	Illegal state
+	 * @throws CAException				Could not stop server
 	 */
 	public void stop() throws IllegalStateException, CAException{
 		logger.fine("Stop Channel Access Server");

@@ -37,7 +37,7 @@ public class ConnectListener implements ConnectionListener {
 	
 	/**
 	 * Constructor
-	 * @param latch
+	 * @param latch	Latch
 	 */
 	public ConnectListener(CountDownLatch latch){
 		this.latch = latch;
