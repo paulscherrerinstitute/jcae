@@ -26,7 +26,7 @@ public interface ChannelService {
 	/**
 	 * Get (global) macros used by this service.
 	 * This function can be used to change macros used for creating channels
-	 * @return
+	 * @return Map of macros
 	 */
 	public Map<String,String> getMacros();
 	

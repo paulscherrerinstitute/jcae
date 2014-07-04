@@ -115,7 +115,7 @@ public class ProcessVariableDouble extends NumericProcessVariable{
 
 	/**
 	 * Get value of this process variable
-	 * @return
+	 * @return	Value of process variable
 	 */
 	public double getValue() {
 		return value;
@@ -124,9 +124,8 @@ public class ProcessVariableDouble extends NumericProcessVariable{
 	/**
 	 * Set value of this process variable.
 	 * While setting value all registered monitors will be fired.
-	 * 
-	 * @param value
-	 * @param timestamp
+	 * @param value 	Value to set
+	 * @param timestamp	Timestamp
 	 */
 	public void setValue(double value, TimeStamp timestamp) {
 		this.value = value;

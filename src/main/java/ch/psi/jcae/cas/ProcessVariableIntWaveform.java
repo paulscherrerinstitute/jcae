@@ -118,7 +118,7 @@ public class ProcessVariableIntWaveform extends NumericProcessVariable{
 
 	/**
 	 * Get value of this process variable
-	 * @return
+	 * @return	Value of process variable
 	 */
 	public int[] getValue() {
 		return value;
@@ -128,7 +128,7 @@ public class ProcessVariableIntWaveform extends NumericProcessVariable{
 	 * Set value of this process variable.
 	 * While setting value all registered monitors will be fired.
 	 * 
-	 * @param value
+	 * @param value	Value to set
 	 */
 	public void setValue(int[] value) {
 		this.value = value;

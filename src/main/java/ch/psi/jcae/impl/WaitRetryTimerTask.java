@@ -41,7 +41,6 @@ import ch.psi.jcae.impl.handler.Handlers;
  */
 public class WaitRetryTimerTask<E> extends TimerTask {
 	
-	// Get Logger
 	private static final Logger logger = Logger.getLogger(WaitRetryTimerTask.class.getName());
 
 	private final Comparator<E> comparator;
@@ -56,10 +55,6 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 	
 	private E value;
 	
-	/**
-	 * Constructor
-	 * @param latch		Latch used for indicating that a value has been reached.
-	 */
 	public WaitRetryTimerTask(Channel channel, int size, E rvalue, Comparator<E> comparator, CountDownLatch latch){
 		this.channel = channel;
 		this.size = size;
@@ -69,9 +64,6 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 		this.type = rvalue.getClass();
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.util.TimerTask#run()
-	 */
 	@Override
 	public synchronized void run() {
 		logger.info("Create/Replace wait monitor");
@@ -135,23 +127,14 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 		}
 	}
 	
-	/**
-	 * Terminate the currently active monitor
-	 * @throws CAException
-	 */
 	public synchronized void terminateCurrentMonitor() throws CAException{
 		monitor.clear();
 		channel.getContext().flushIO();
 	}
 	
-
-	/**
-	 * @return the exception
-	 */
 	public Exception getException() {
 		return exception;
 	}
-	
 	
 	public E getValue(){
 		return value;

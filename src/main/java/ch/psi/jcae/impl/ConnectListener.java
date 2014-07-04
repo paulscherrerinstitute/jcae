@@ -26,7 +26,6 @@ import gov.aps.jca.event.ConnectionListener;
 
 /**
  * Listener to decrement the passed latch if a connection was established 
- * @author ebner
  */
 public class ConnectListener implements ConnectionListener {
 
@@ -35,17 +34,10 @@ public class ConnectListener implements ConnectionListener {
 	 */
 	private final CountDownLatch latch;
 	
-	/**
-	 * Constructor
-	 * @param latch
-	 */
 	public ConnectListener(CountDownLatch latch){
 		this.latch = latch;
 	}
 
-	/* (non-Javadoc)
-	 * @see gov.aps.jca.event.ConnectionListener#connectionChanged(gov.aps.jca.event.ConnectionEvent)
-	 */
 	@Override
 	public void connectionChanged(ConnectionEvent event) {
 		if(event.isConnected()){

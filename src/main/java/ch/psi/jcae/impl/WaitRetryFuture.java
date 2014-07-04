@@ -44,11 +44,11 @@ public class WaitRetryFuture<T> implements Future<T>{
 	 * By this behavior the scenario mentioned before is not possible any more.
 	 * 
 	 * 
-	 * @param channel
-	 * @param size
-	 * @param value
-	 * @param comparator
-	 * @param waitRetryPeriod
+	 * @param channel -
+	 * @param size -
+	 * @param value	-
+	 * @param comparator -
+	 * @param waitRetryPeriod -
 	 */
 	public WaitRetryFuture(Channel channel, int size, T value, Comparator<T> comparator, long waitRetryPeriod){
 		this.channel = channel;
@@ -64,33 +64,21 @@ public class WaitRetryFuture<T> implements Future<T>{
 
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#cancel(boolean)
-	 */
 	@Override
 	public boolean cancel(boolean mayInterruptIfRunning) {
 		throw new UnsupportedOperationException();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#isCancelled()
-	 */
 	@Override
 	public boolean isCancelled() {
 		throw new UnsupportedOperationException();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#isDone()
-	 */
 	@Override
 	public boolean isDone() {
 		return latch.getCount()==0;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#get()
-	 */
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
 		try {
@@ -114,9 +102,6 @@ public class WaitRetryFuture<T> implements Future<T>{
 
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#get(long, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		try {

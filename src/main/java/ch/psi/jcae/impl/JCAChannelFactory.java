@@ -34,11 +34,9 @@ import gov.aps.jca.Channel.ConnectionState;
 /**
  * Factory class for creating and connecting Channel objects (more easily).
  * The factory establishes channels asynchronously.
- * @author ebner
- *
  */
 public class JCAChannelFactory {
-	// Get Logger
+
 	private static final Logger logger = Logger.getLogger(JCAChannelFactory.class.getName());
 	
 	private Context context;
@@ -49,7 +47,7 @@ public class JCAChannelFactory {
 	 * an instance of the ContextFactory created with the default constructor (no arguments).
 	 * If the file <code>jca.properties</code> is present in the classpath default properties
 	 * are overwritten if specified in the file.
-	 * @throws CAException
+	 * @throws CAException -
 	 */
 	public JCAChannelFactory() throws CAException{
 		context = JCAContextFactory.getInstance().createContext();	
@@ -57,7 +55,7 @@ public class JCAChannelFactory {
 	
 	/**
 	 * Constructor - Create ChannelFactory object using the passed context.
-	 * @param context
+	 * @param context	JCA context
 	 */
 	public JCAChannelFactory(Context context){
 		this.context = context;
@@ -80,10 +78,10 @@ public class JCAChannelFactory {
 	
 	/**
 	 * Create specified channel
-	 * @param channelName
+	 * @param channelName Name of the channel
 	 * @return	Channel object for the specified channel name
-	 * @throws CAException 
-	 * @throws InterruptedException 
+	 * @throws CAException 				Unable to create channel
+	 * @throws InterruptedException 	Interrupted while creating channel
 	 */
 	public Channel createChannel(String channelName) throws CAException, InterruptedException{
 		
@@ -128,9 +126,11 @@ public class JCAChannelFactory {
 	 * if multiple channels need to be connected at once instead of creating each channel
 	 * individually via the <code>createChannel()</code>.
 	 * @param channelNames		Names of channels to create
+	 * 
 	 * @return	List of Channel object for the specified channel names
-	 * @throws CAException
-	 * @throws InterruptedException 
+	 * 
+	 * @throws CAException 				Unable to create channel
+	 * @throws InterruptedException 	Interrupted while creating channel 
 	 */
 	public List<Channel> createChannels(List<String> channelNames) throws CAException, InterruptedException{
 		
@@ -183,8 +183,8 @@ public class JCAChannelFactory {
 	
 	/**
 	 * Destroy CA context of the factory
-	 * @throws IllegalStateException
-	 * @throws CAException
+	 * @throws IllegalStateException	Cannot destroy context
+	 * @throws CAException				Cannot destroy context
 	 */
 	public void destroyContext() throws IllegalStateException, CAException{
 		if(context!=null){

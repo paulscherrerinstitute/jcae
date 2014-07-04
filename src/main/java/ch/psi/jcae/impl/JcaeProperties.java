@@ -37,15 +37,11 @@ import java.util.logging.Logger;
 /**
  * Properties singleton object for the jca configuration.
  * By default this class uses a jca.properties file that resides in the classpath.
- * 
- * @author ebner
- *
  */
 public class JcaeProperties {
 	
 	public final static String JCAE_CONFIG_FILE_ARGUMENT = "ch.psi.jcae.config.file";
 	
-	// Get Logger
 	private static final Logger logger = Logger.getLogger(JcaeProperties.class.getName());
 	
 	/**
@@ -111,9 +107,6 @@ public class JcaeProperties {
 		loadProperties();
 	}
 
-	/**
-	 * @return Properties object
-	 */
 	public static JcaeProperties getInstance(){
 		return(instance);
 	}
@@ -139,9 +132,9 @@ public class JcaeProperties {
 	
 	/**
 	 * Load properties from specified file
-	 * @param file
-	 * @throws FileNotFoundException
-	 * @throws IOException
+	 * @param file	File to load properties from
+	 * @throws FileNotFoundException	File not found
+	 * @throws IOException				Unable to read file
 	 */
 	public void loadProperties(File file) throws FileNotFoundException, IOException{
 		loadProperties(new FileInputStream(file));
@@ -149,8 +142,8 @@ public class JcaeProperties {
 	
 	/**
 	 * Load properties from specified InputStream
-	 * @param stream
-	 * @throws IOException
+	 * @param stream		Input stream to read properties from
+	 * @throws IOException	Unable to read input stream
 	 */
 	public void loadProperties(InputStream stream) throws IOException {
 
@@ -322,188 +315,107 @@ public class JcaeProperties {
 		
 	}
 	
-	/**
-	 * @return the addressList
-	 */
 	public String getAddressList() {
 		return addressList;
 	}
-
-	/**
-	 * @param addressList the addressList to set
-	 */
 	public void setAddressList(String addressList) {
 		this.addressList = addressList;
 	}
-
-	/**
-	 * @return the autoAddressList
-	 */
 	public boolean isAutoAddressList() {
 		return autoAddressList;
 	}
 
-	/**
-	 * @param autoAddressList the autoAddressList to set
-	 */
 	public void setAutoAddressList(boolean autoAddressList) {
 		this.autoAddressList = autoAddressList;
 	}
 
-	/**
-	 * @return the useShellVariables
-	 */
 	public boolean isUseShellVariables() {
 		return useShellVariables;
 	}
 
-	/**
-	 * @param useShellVariables the useShellVariables to set
-	 */
 	public void setUseShellVariables(boolean useShellVariables) {
 		this.useShellVariables = useShellVariables;
 	}
 
-	/**
-	 * @return the addLocalBroadcastInterfaces
-	 */
 	public boolean isAddLocalBroadcastInterfaces() {
 		return addLocalBroadcastInterfaces;
 	}
 
-	/**
-	 * @param addLocalBroadcastInterfaces the addLocalBroadcastInterfaces to set
-	 */
 	public void setAddLocalBroadcastInterfaces(boolean addLocalBroadcastInterfaces) {
 		this.addLocalBroadcastInterfaces = addLocalBroadcastInterfaces;
 	}
 
-	/**
-	 * @return the queuedEventDispatcher
-	 */
 	public boolean isQueuedEventDispatcher() {
 		return queuedEventDispatcher;
 	}
 
-	/**
-	 * @param queuedEventDispatcher the queuedEventDispatcher to set
-	 */
 	public void setQueuedEventDispatcher(boolean queuedEventDispatcher) {
 		this.queuedEventDispatcher = queuedEventDispatcher;
 	}
 
-	/**
-	 * @return the maxArrayBytes
-	 */
 	public String getMaxArrayBytes() {
 		return maxArrayBytes;
 	}
 
-	/**
-	 * @param maxArrayBytes the maxArrayBytes to set
-	 */
 	public void setMaxArrayBytes(String maxArrayBytes) {
 		this.maxArrayBytes = maxArrayBytes;
 	}
 
-	/**
-	 * @return the timeout
-	 */
 	public long getChannelTimeout() {
 		return channelTimeout;
 	}
 
-	/**
-	 * @param timeout the timeout to set
-	 */
 	public void setChannelTimeout(long timeout) {
 		this.channelTimeout = timeout;
 	}
 
-	/**
-	 * @return the requestTimeout
-	 */
 	public long getRequestTimeout() {
 		return requestTimeout;
 	}
 
-	/**
-	 * @param requestTimeout the requestTimeout to set
-	 */
 	public void setRequestTimeout(long requestTimeout) {
 		this.requestTimeout = requestTimeout;
 	}
 
-	/**
-	 * @return the waitTimeout
-	 */
 	public Long getWaitTimeout() {
 		return waitTimeout;
 	}
 
-	/**
-	 * @param waitTimeout the waitTimeout to set
-	 */
 	public void setWaitTimeout(Long waitTimeout) {
 		this.waitTimeout = waitTimeout;
 	}
 
-	/**
-	 * @return the retries
-	 */
 	public int getRetries() {
 		return retries;
 	}
 
-	/**
-	 * @param retries the retries to set
-	 */
 	public void setRetries(int retries) {
 		this.retries = retries;
 	}
 
-	/**
-	 * @return the serverPort
-	 */
 	public String getServerPort() {
 		return serverPort;
 	}
 
-	/**
-	 * @param serverPort the serverPort to set
-	 */
 	public void setServerPort(String serverPort) {
 		this.serverPort = serverPort;
 	}
 
-	/**
-	 * @return the connectionRetries
-	 */
 	public int getConnectionRetries() {
 		return connectionRetries;
 	}
 
-	/**
-	 * @param connectionRetries the connectionRetries to set
-	 */
 	public void setConnectionRetries(int connectionRetries) {
 		this.connectionRetries = connectionRetries;
 	}
 
-	/**
-	 * @return the waitRetryPeriod
-	 */
 	public Long getWaitRetryPeriod() {
 		return waitRetryPeriod;
 	}
 
-	/**
-	 * @param waitRetryPeriod the waitRetryPeriod to set
-	 */
 	public void setWaitRetryPeriod(Long waitRetryPeriod) {
 		this.waitRetryPeriod = waitRetryPeriod;
 	}
-	
 	
 	
 	/**

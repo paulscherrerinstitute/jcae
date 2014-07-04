@@ -50,8 +50,9 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	
 	/**
 	 * Constructor - Create Process Variable
-	 * @param name
-	 * @param eventCallback
+	 * @param name	Name of the process variable
+	 * @param eventCallback	Callback for the process variable
+	 * @param size -
 	 */
 	public ProcessVariableDoubleWaveform(String name, ProcessVariableEventCallback eventCallback, int size) {
 		super(name, eventCallback);
@@ -113,7 +114,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 
 	/**
 	 * Get value of this process variable
-	 * @return
+	 * @return Value of process variable
 	 */
 	public double[] getValue() {
 		return value;
@@ -123,7 +124,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	 * Set value of this process variable.
 	 * While setting value all registered monitors will be fired.
 	 * 
-	 * @param value
+	 * @param value New value to set
 	 */
 	public void setValue(double[] value) {
 		this.value = value;

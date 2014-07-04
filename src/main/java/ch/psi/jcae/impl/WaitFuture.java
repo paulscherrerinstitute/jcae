@@ -73,8 +73,9 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 	 * @param comparator	Comparator that defines when condition to wait for is met.
 	 * 						The first argument of the comparator is the value of the channel, the second the expected value.
 	 * 						The Comparator need to return 0 if condition is met.
-	 * @param latch			Latch to signal other thread that condition was met
-	 * @throws ChannelException 
+	 * @param channel		Channel to wait for
+	 * @param size			-
+	 * @throws ChannelException Unable to create future
 	 */
 	@SuppressWarnings("unchecked")
 	public WaitFuture(Channel channel, int size, E value, Comparator<E> comparator) throws ChannelException{
@@ -93,9 +94,6 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 		}
 	}
 	
-	/**
-	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void monitorChanged(MonitorEvent event) {
@@ -119,18 +117,11 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 		}
 	}
 
-	
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#cancel(boolean)
-	 */
 	@Override
 	public boolean cancel(boolean cancel) {
 		throw new UnsupportedOperationException("Cannot be canceled");
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#get()
-	 */
 	@Override
 	public E get() throws InterruptedException, ExecutionException {
 		try{
@@ -149,9 +140,6 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 		return value;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#get(long, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public E get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		try{
@@ -173,17 +161,11 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 		return value;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#isCancelled()
-	 */
 	@Override
 	public boolean isCancelled() {
 		throw new UnsupportedOperationException("Cannot be canceled");
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Future#isDone()
-	 */
 	@Override
 	public boolean isDone() {
 		return latch.getCount()==0;

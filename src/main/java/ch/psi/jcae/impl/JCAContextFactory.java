@@ -27,8 +27,6 @@ import gov.aps.jca.event.QueuedEventDispatcher;
 
 /**
  * Factory class for the creation of Channel Access Context objects.
- * @author ebner
- *
  */
 public class JCAContextFactory {
 	
@@ -89,8 +87,7 @@ public class JCAContextFactory {
 	}
 	
 	/**
-	 * Get the factory instance
-	 * @return
+	 * @return JCAEContextFactory singleton instance
 	 */
 	public static JCAContextFactory getInstance(){
 		return instance;

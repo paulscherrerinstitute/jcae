@@ -69,8 +69,7 @@ public class DefaultChannelService implements ChannelService {
 	 * default ChannelFactory factory and read the <code>jca.properties</code> file to 
 	 * determine the default timeout for channel put and get methods. If no timeout is set
 	 * the default timeout of 10000ms will take effect.
-	 * 
-	 * @throws CAException
+	 * @param dryrun -
 	 */
 	public DefaultChannelService(boolean dryrun){
 		this.dryrun = dryrun;
@@ -88,16 +87,14 @@ public class DefaultChannelService implements ChannelService {
 	 * for each new bean (even if the channel theoretically already exists)
 	 * The created channel will be automatically destroyed if the ChannelBeans destroy() or finalize() method
 	 * is called.
-	 * @param <T>
-	 * @param type
-	 * @param channelName
-	 * @param monitor
+	 * @param <T> -
+	 * @param descriptor -
+	 * 
 	 * @return		Typed ChannelBean object
-	 * @throws CAException
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * 
+	 * @throws InterruptedException  -
+	 * @throws ChannelException  -
+	 * @throws TimeoutException  -
 	 */
 	@Override
 	public <T> Channel<T> createChannel(Descriptor<T> descriptor) throws ChannelException, InterruptedException, TimeoutException {
@@ -145,16 +142,13 @@ public class DefaultChannelService implements ChannelService {
 	 * performance advantage compared to calling <code>createChannelBean</code> for each ChannelBean
 	 * because all channels will be created in parallel.
 	 * 
-	 * @param <T>
-	 * @param type
-	 * @param channelNames
-	 * @param monitor
+	 * @param list List of descriptors
+	 * 
 	 * @return		List of typed ChannelBean objects
-	 * @throws CAException
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * 
+	 * @throws InterruptedException  -
+	 * @throws ChannelException  -
+	 * @throws TimeoutException  -
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -220,12 +214,11 @@ public class DefaultChannelService implements ChannelService {
 	 * Create all ChannelBeans that are annotated of the passed object
 	 * Also register all annotated functions as monitors for the specified ChannelBean.
 	 *  
-	 * @param object			Object to manage
-	 * @throws CAException		Something went wrong while bringing the object under management
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * @param object	Object with annotations
+	 * @param dryrun	Dryrun mode
+	 * @throws InterruptedException  -
+	 * @throws ChannelException  -
+	 * @throws TimeoutException  -
 	 */
 	@Override
 	public void createAnnotatedChannels(Object object, boolean dryrun) throws ChannelException, InterruptedException, TimeoutException {
@@ -238,12 +231,12 @@ public class DefaultChannelService implements ChannelService {
 	 * Also register all annotated functions as monitors for the specified channel.
 	 *  
 	 * @param object		Object to manage
-	 * @param baseName		String that gets added (before) to the annotated name of the channel (before the name)
-	 * @throws CAException	Something went wrong while bringing the object under management
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
+	 * @param macros		Macros to be used to replace macros within the name string
+	 * @param dryrun		Dryrun yes/no
+	 * 
+	 * @throws InterruptedException  -
+	 * @throws ChannelException  -
+	 * @throws TimeoutException  -
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -364,11 +357,9 @@ public class DefaultChannelService implements ChannelService {
 	}
 	
 	/**
-	 * Destroy all annotated channel beans in the passed object
-	 * @param object
-	 * @throws CAException
-	 * @throws InterruptedException
-	 * @throws ChannelException 
+	 * Destroy all annotated channels in the passed object
+	 * @param object -
+	 * @throws ChannelException  -
 	 */
 	@Override
 	public void destroyAnnotatedChannels(Object object) throws ChannelException {
@@ -451,9 +442,6 @@ public class DefaultChannelService implements ChannelService {
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#finalize()
-	 */
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();

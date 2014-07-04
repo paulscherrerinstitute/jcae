@@ -99,7 +99,7 @@ public class ProcessVariableString extends StringProcessVariable{
 
 	/**
 	 * Get the value of this process variable.
-	 * @return
+	 * @return	Value of process variable
 	 */
 	public String getValue() {
 		return value;
@@ -109,7 +109,7 @@ public class ProcessVariableString extends StringProcessVariable{
 	 * Set the value of this process variable.
 	 * This function will trigger all registered monitors
 	 * 
-	 * @param value
+	 * @param value	Value to set
 	 */
 	public void setValue(String value) {
 		this.value = value;
