@@ -1,6 +1,6 @@
 
 file {
-	name="/afs/psi.ch/user/e/ebner/workspace/workspace-backup/ch.psi.jca.annotations/test/ioc/X/MTEST-PC-JCAE/App/config/medm/jcaeTest.adl"
+	name="jcaeTest.adl"
 	version=030104
 }
 display {

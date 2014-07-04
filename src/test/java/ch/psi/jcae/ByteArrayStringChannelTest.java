@@ -37,43 +37,24 @@ import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.impl.type.ByteArrayString;
 
-/**
- * @author ebner
- *
- */
 public class ByteArrayStringChannelTest {
 	
-	// Get Logger
 	private static Logger logger = Logger.getLogger(ByteArrayStringChannelTest.class.getName());
 	
 	private DefaultChannelService cservice;
 	private Channel<ByteArrayString> b;
 	
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		cservice = new DefaultChannelService();
 		b = cservice.createChannel(new ChannelDescriptor<ByteArrayString>(ByteArrayString.class, TestChannels.CHARACTER_WAVEFORM));
 	}
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@After
 	public void tearDown() throws Exception {
 		cservice.destroy();
 	}
 
-	/**
-	 * Test method for {@link ch.psi.jcae.converter.AbstractConverterBean#getValue()}.
-	 * @throws CAException 
-	 * @throws InterruptedException 
-	 * @throws ChannelException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
-	 */
 	@Test
 	public void testGetSetValue() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		

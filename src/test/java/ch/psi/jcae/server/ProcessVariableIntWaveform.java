@@ -1,8 +1,3 @@
-/*
- * $Source: /cvs/X/XASEC/ch.psi.sls.xasec.caserver/src/ch/psi/sls/xasec/caserver/ProcessVariableIntWaveform.java,v $
- * $Author: ebner $
- * $Revision: 1.1 $   $Date: 2010/03/31 08:21:13 $
- */
 package ch.psi.jcae.server;
 
 import java.util.logging.Logger;

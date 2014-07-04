@@ -22,8 +22,7 @@ import ch.psi.jcae.impl.type.StringArrayTimestamp;
 import ch.psi.jcae.impl.type.StringTimestamp;
 
 /**
- * @author ebner
- * 
+ * Registry for all handlers
  */
 public class Handlers {
 

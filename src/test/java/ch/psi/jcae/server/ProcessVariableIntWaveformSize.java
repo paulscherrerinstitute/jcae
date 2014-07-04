@@ -1,8 +1,3 @@
-/*
- * $Source: /cvs/X/XASEC/ch.psi.sls.xasec.caserver/src/ch/psi/sls/xasec/caserver/ProcessVariableInt.java,v $
- * $Author: ebner $
- * $Revision: 1.2 $   $Date: 2010/06/10 13:38:11 $
- */
 package ch.psi.jcae.server;
 
 import java.util.logging.Logger;

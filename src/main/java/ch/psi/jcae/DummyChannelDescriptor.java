@@ -4,10 +4,6 @@
 
 package ch.psi.jcae;
 
-/**
- * @author ebner
- *
- */
 public class DummyChannelDescriptor<T> extends Descriptor<T> {
 
 	private String name;

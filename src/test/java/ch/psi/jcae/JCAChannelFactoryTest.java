@@ -36,8 +36,6 @@ import ch.psi.jcae.impl.JCAChannelFactory;
 
 /**
  * JUnit test class for testing the <code>ChannelFactory</code> class
- * @author ebner
- *
  */
 public class JCAChannelFactoryTest {
 	

@@ -32,8 +32,6 @@ import org.junit.Test;
  * Tests waveform size changes
  * Waveform size changes require that all the channels in the context for the waveform are closed
  * and that then a new channel is created.
- * 
- * @author ebner
  */
 public class WaveformTest {
 

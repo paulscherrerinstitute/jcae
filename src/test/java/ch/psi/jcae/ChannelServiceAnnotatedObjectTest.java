@@ -42,13 +42,8 @@ import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
 import ch.psi.jcae.impl.DefaultChannelService;
 
-/**
- * @author ebner
- *
- */
 public class ChannelServiceAnnotatedObjectTest {
 	
-	// Get Logger
 	private static final Logger logger = Logger.getLogger(ChannelServiceAnnotatedObjectTest.class.getName());
 	
 	private ChannelService cservice;
@@ -56,9 +51,6 @@ public class ChannelServiceAnnotatedObjectTest {
 	private HashMap<String, Long> timestamps = new HashMap<String,Long>();
 	private boolean errorInSequence = false;
 	
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		// Get default factory
@@ -67,21 +59,11 @@ public class ChannelServiceAnnotatedObjectTest {
 		cservice = s;
 	}
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@After
 	public void tearDown() throws Exception {
 		cservice.destroy();
 	}
 
-	/**
-	 * Test method
-	 * @throws CAException 
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 * @throws ExecutionException 
-	 */
 	@Test
 	public void testConnectChannelBeans() throws CAException, ChannelException, InterruptedException, TimeoutException, ExecutionException {
 		TestObject object = new TestObject();

@@ -31,9 +31,6 @@ import java.lang.annotation.Target;
  * annotated with this annotation there is no guarantee in which order the methods are
  * called.
  * The annotated function must not have parameters.
- * 
- * @author ebner
- *
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

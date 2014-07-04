@@ -1,8 +1,3 @@
-/*
- * $Source: /cvs/X/XASEC/ch.psi.sls.xasec.caserver/src/ch/psi/sls/xasec/caserver/ProcessStreamProcessor.java,v $
- * $Author: ebner $
- * $Revision: 1.1 $   $Date: 2010/03/30 09:41:54 $
- */
 package ch.psi.jcae.server;
 
 import java.io.*;

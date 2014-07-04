@@ -1,8 +1,3 @@
-/*
- * $Source: /cvs/X/XASEC/ch.psi.sls.xasec.caserver/src/ch/psi/sls/xasec/caserver/ProcessVariableExecute.java,v $
- * $Author: ebner $
- * $Revision: 1.2 $   $Date: 2010/03/31 08:21:14 $
- */
 package ch.psi.jcae.server;
 
 import java.util.logging.Level;

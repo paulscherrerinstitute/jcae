@@ -23,17 +23,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-/**
- * JCAE Test suite
- * @author ebner
- *
- */
 @RunWith(Suite.class)
 @SuiteClasses( { 	ChannelServiceAnnotatedObjectTest.class, 
 					ChannelServiceTest.class, 
 					ChannelTest.class, 
 					JCAChannelFactoryTest.class,
 					JcaePropertiesTest.class })
-public class AllTests {
 
+public class AllTests {
 }

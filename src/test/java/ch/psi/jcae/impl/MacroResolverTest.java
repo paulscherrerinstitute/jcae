@@ -14,10 +14,6 @@ import org.junit.Test;
 
 import ch.psi.jcae.impl.MacroResolver;
 
-/**
- * @author ebner
- * 
- */
 public class MacroResolverTest {
 
 	private static final Logger logger = Logger.getLogger(MacroResolverTest.class.getName());

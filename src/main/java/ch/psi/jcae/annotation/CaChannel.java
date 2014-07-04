@@ -26,9 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to annotate a ChannelBean
- * @author ebner
- *
+ * Annotation to annotate channels
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

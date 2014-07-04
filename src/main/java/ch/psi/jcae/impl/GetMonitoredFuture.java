@@ -26,9 +26,6 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Utility class for asynchronous get operation on a Channel Access channel
- * 
- * @author ebner
- * 
  */
 public class GetMonitoredFuture<T> implements Future<T> {
 	

@@ -4,10 +4,6 @@
 
 package ch.psi.jcae;
 
-/**
- * @author ebner
- *
- */
 public class ChannelDescriptor<T> extends Descriptor<T> {
 
 	private String name;

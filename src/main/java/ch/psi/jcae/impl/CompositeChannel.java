@@ -14,7 +14,6 @@ import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
 
 /**
- * @author ebner
  * Consists of set and readback value channel.
  * 
  * Name of the composite channel is the name of the set channel. The size, source, etc. is taken from the readback channel.

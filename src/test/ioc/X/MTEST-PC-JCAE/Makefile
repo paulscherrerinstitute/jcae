@@ -1,5 +1,3 @@
-# $Header: /cvs/X/XASEC/ch.psi.jca.annotations/iocproject/X/MTEST-PC-JCAE/Makefile,v 1.1 2010/08/04 14:58:19 ebner Exp $
-
 MODULE = MTEST-PC-JCAE
 export MODULE
 

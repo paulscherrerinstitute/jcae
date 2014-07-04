@@ -18,10 +18,6 @@
  */
 package ch.psi.jcae;
 
-/**
- * @author ebner
- *
- */
 public class TestChannels {
 	public static final String PREFIX = "MTEST-PC-JCAE:";
 	

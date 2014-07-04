@@ -48,9 +48,6 @@ import ch.psi.jcae.util.ComparatorDouble;
  * IMPORTANT NOTE:
  * The JCAE library is capable in setting channels faster that the "camon" command can handle. Therefor don't be confused
  * that camon is not showing a value change. To have camon catching up you have to insert <code>Thread.sleep()</code> statements
- * 
- * @author ebner
- *
  */
 public class ChannelTest {
 	

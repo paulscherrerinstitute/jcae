@@ -23,8 +23,6 @@ import java.util.logging.Logger;
 
 /**
  * Runnable to read out data from an input stream
- * @author ebner
- *
  */
 public class ProcessStreamProcessor implements Runnable {
 	

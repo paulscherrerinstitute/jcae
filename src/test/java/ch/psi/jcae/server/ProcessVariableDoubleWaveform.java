@@ -1,8 +1,3 @@
-/*
- * $Source: /cvs/X/XASEC/ch.psi.sls.xasec.caserver/src/ch/psi/sls/xasec/caserver/ProcessVariableDoubleWaveform.java,v $
- * $Author: ebner $
- * $Revision: 1.1 $   $Date: 2010/04/30 09:00:00 $
- */
 package ch.psi.jcae.server;
 
 import java.util.logging.Logger;

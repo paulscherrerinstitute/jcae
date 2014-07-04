@@ -4,10 +4,6 @@
 
 package ch.psi.jcae;
 
-/**
- * @author ebner
- *
- */
 public class NumberChannelDescriptor<T> extends ChannelDescriptor<T> {
 	private Integer precision;
 

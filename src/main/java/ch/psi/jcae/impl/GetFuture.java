@@ -35,8 +35,6 @@ import gov.aps.jca.event.GetListener;
 
 /**
  * Utility class for asynchronous get operation on a Channel Access channel
- * @author ebner
- *
  */
 public class GetFuture<T> implements GetListener, Future<T>
 {

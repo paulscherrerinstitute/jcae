@@ -37,13 +37,8 @@ import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.annotation.CaCompositeChannel;
 import ch.psi.jcae.impl.DefaultChannelService;
 
-/**
- * @author ebner
- *
- */
 public class ChannelServiceTest {
 	
-	// Get Logger
 	private static Logger logger = Logger.getLogger(ChannelServiceTest.class.getName());
 	
 	private ChannelService factory;
@@ -267,8 +262,6 @@ public class ChannelServiceTest {
 	
 	/**
 	 * Test class containing ChannelBean attributes with annotations. 
-	 * @author ebner
-	 *
 	 */
 	private class TestObject {
 		

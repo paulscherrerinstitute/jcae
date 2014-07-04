@@ -4,10 +4,6 @@
 
 package ch.psi.jcae;
 
-/**
- * @author ebner
- *
- */
 public abstract class Descriptor<T> {
 	
 	protected Class<T> type;
