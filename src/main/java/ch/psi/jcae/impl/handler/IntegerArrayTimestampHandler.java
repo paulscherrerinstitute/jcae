@@ -12,30 +12,27 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.event.PutListener;
 
-import java.util.Date;
-
-import ch.psi.jcae.impl.type.DoubleTimestamp;
 import ch.psi.jcae.impl.type.IntegerArrayTimestamp;
 
 /**
- * DoubleTimestamp specific handler
+ * IntegerArrayTimestamp specific handler
  */
 public class IntegerArrayTimestampHandler implements Handler<IntegerArrayTimestamp> {
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((DoubleTimestamp) value).getValue());
+		channel.put(((IntegerArrayTimestamp) value).getValue());
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((DoubleTimestamp) value).getValue(), listener);
+		channel.put(((IntegerArrayTimestamp) value).getValue(), listener);
 	}
 
 	@Override
 	public IntegerArrayTimestamp getValue(DBR dbr) throws CAStatusException {
 		IntegerArrayTimestamp t = new IntegerArrayTimestamp();
-		DBR_TIME_Int v = ((DBR_TIME_Int) dbr.convert(DBR_TIME_Int.TYPE));
+		DBR_TIME_Int v = ((DBR_TIME_Int) dbr.convert(this.getDBRType()));
 		t.setValue(v.getIntValue());
 		t.setTime(v.getTimeStamp());
 		return t;
@@ -43,7 +40,6 @@ public class IntegerArrayTimestampHandler implements Handler<IntegerArrayTimesta
 
 	@Override
 	public DBRType getDBRType() {
-		return DBRType.TIME_INT;
+		return DBR_TIME_Int.TYPE;
 	}
-
 }

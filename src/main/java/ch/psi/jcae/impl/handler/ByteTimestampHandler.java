@@ -10,32 +10,35 @@ import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Byte;
+import gov.aps.jca.dbr.DBR_TIME_Byte;
 import gov.aps.jca.event.PutListener;
 
 /**
- * Byte specific handler
+ * ByteTimestamp specific handler
  */
 public class ByteTimestampHandler implements Handler<ByteTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((byte[]) value));
-	}
-	
-	@Override
-	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((byte[]) value), listener);
+		channel.put((new byte[] { (Byte) value }));
 	}
 
 	@Override
-	public Byte getValue(DBR dbr) throws CAStatusException {
-		return ((Byte)((DBR_Byte) dbr.convert(DBR_Byte.TYPE)).getByteValue()[0]);
+	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
+		channel.put((new byte[] { (Byte) value }), listener);
+	}
+
+	@Override
+	public ByteTimestamp getValue(DBR dbr) throws CAStatusException {
+		ByteTimestamp t = new ByteTimestamp();
+		DBR_TIME_Byte v = ((DBR_TIME_Byte) dbr.convert(this.getDBRType()));
+		t.setValue(v.getByteValue()[0]);
+		t.setTime(v.getTimeStamp());
+		return t;
 	}
 
 	@Override
 	public DBRType getDBRType() {
-		return DBR_Byte.TYPE;
+		return DBR_TIME_Byte.TYPE;
 	}
-
 }

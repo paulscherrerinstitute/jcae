@@ -29,12 +29,11 @@ public class ShortArrayHandler implements Handler<short[]> {
 
 	@Override
 	public short[] getValue(DBR dbr) throws CAStatusException {
-		return ((DBR_Short) dbr.convert(DBR_Short.TYPE)).getShortValue();
+		return ((DBR_Short) dbr.convert(this.getDBRType())).getShortValue();
 	}
 
 	@Override
 	public DBRType getDBRType() {
 		return DBR_Short.TYPE;
 	}
-
 }

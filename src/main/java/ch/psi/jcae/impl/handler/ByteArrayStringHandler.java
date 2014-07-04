@@ -16,13 +16,13 @@ import gov.aps.jca.event.PutListener;
 /**
  * ByteArrayString specific handler
  */
-public class ByteArrayStringHandler implements Handler<ByteArrayString>{
+public class ByteArrayStringHandler implements Handler<ByteArrayString> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((ByteArrayString) value).getValue().getBytes());
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((ByteArrayString) value).getValue().getBytes(), listener);
@@ -30,19 +30,20 @@ public class ByteArrayStringHandler implements Handler<ByteArrayString>{
 
 	@Override
 	public ByteArrayString getValue(DBR dbr) throws CAStatusException {
-		
-		byte[] value = ((DBR_Byte) dbr.convert(DBR_Byte.TYPE)).getByteValue();
-		ByteArrayString v = new ByteArrayString();
-		int x=0;
-        for(x=0;x<value.length;x++){
-            if(value[x] == 0){	// Check for the null character / termination of the string
-                break;
-            }
-        }
 
-        String a = new String(value);
-        v.setValue(a.substring(0,x));
-		
+		byte[] value = ((DBR_Byte) dbr.convert(this.getDBRType())).getByteValue();
+		ByteArrayString v = new ByteArrayString();
+		int x = 0;
+		for (x = 0; x < value.length; x++) {
+			if (value[x] == 0) { // Check for the null character / termination
+									// of the string
+				break;
+			}
+		}
+
+		String a = new String(value);
+		v.setValue(a.substring(0, x));
+
 		return v;
 	}
 
@@ -50,5 +51,4 @@ public class ByteArrayStringHandler implements Handler<ByteArrayString>{
 	public DBRType getDBRType() {
 		return DBR_Byte.TYPE;
 	}
-
 }

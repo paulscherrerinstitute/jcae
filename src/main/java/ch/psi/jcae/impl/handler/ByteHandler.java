@@ -19,22 +19,21 @@ public class ByteHandler implements Handler<Byte> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put((new byte[]{(Byte) value}));
+		channel.put((new byte[] { (Byte) value }));
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put((new byte[]{(Byte) value}), listener);
+		channel.put((new byte[] { (Byte) value }), listener);
 	}
 
 	@Override
 	public Byte getValue(DBR dbr) throws CAStatusException {
-		return ((Byte)((DBR_Byte) dbr.convert(DBR_Byte.TYPE)).getByteValue()[0]);
+		return ((Byte) ((DBR_Byte) dbr.convert(this.getDBRType())).getByteValue()[0]);
 	}
 
 	@Override
 	public DBRType getDBRType() {
 		return DBR_Byte.TYPE;
 	}
-
 }

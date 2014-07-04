@@ -10,12 +10,11 @@ import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.event.PutListener;
 
 /**
- * boolean[] specific handler
+ * BooleanArrayTimestamp specific handler
  */
 public class BooleanArrayTimestampHandler implements Handler<BooleanArrayTimestamp> {
 
@@ -42,7 +41,7 @@ public class BooleanArrayTimestampHandler implements Handler<BooleanArrayTimesta
 	@Override
 	public BooleanArrayTimestamp getValue(DBR dbr) throws CAStatusException {
 		BooleanArrayTimestamp bt = new BooleanArrayTimestamp();
-		DBR_TIME_Int vt = ((DBR_TIME_Int) dbr.convert(DBR_TIME_Int.TYPE));
+		DBR_TIME_Int vt = ((DBR_TIME_Int) dbr.convert(this.getDBRType()));
 		int[] v = vt.getIntValue();
 		boolean[] value = new boolean[v.length];
 		for (int i = 0; i < v.length; i++) {
@@ -55,7 +54,6 @@ public class BooleanArrayTimestampHandler implements Handler<BooleanArrayTimesta
 
 	@Override
 	public DBRType getDBRType() {
-		return DBR_Int.TYPE;
+		return DBR_TIME_Int.TYPE;
 	}
-
 }

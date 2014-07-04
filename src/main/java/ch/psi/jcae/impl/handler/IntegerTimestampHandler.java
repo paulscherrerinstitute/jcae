@@ -12,20 +12,18 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.event.PutListener;
 
-import java.util.Date;
-
 import ch.psi.jcae.impl.type.IntegerTimestamp;
 
 /**
- * DoubleTimestamp specific handler
+ * IntegerTimestamp specific handler
  */
 public class IntegerTimestampHandler implements Handler<IntegerTimestamp> {
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((IntegerTimestamp) value).getValue());
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((IntegerTimestamp) value).getValue(), listener);
@@ -34,7 +32,7 @@ public class IntegerTimestampHandler implements Handler<IntegerTimestamp> {
 	@Override
 	public IntegerTimestamp getValue(DBR dbr) throws CAStatusException {
 		IntegerTimestamp t = new IntegerTimestamp();
-		DBR_TIME_Int v = ((DBR_TIME_Int) dbr.convert(DBR_TIME_Int.TYPE));
+		DBR_TIME_Int v = ((DBR_TIME_Int) dbr.convert(this.getDBRType()));
 		t.setValue(v.getIntValue()[0]);
 		t.setTime(v.getTimeStamp());
 		return t;
@@ -42,7 +40,6 @@ public class IntegerTimestampHandler implements Handler<IntegerTimestamp> {
 
 	@Override
 	public DBRType getDBRType() {
-		return DBRType.TIME_INT;
+		return DBR_TIME_Int.TYPE;
 	}
-
 }

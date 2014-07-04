@@ -14,7 +14,7 @@ import gov.aps.jca.event.PutListener;
 
 /**
  * Double specific handler
- *
+ * 
  */
 public class DoubleHandler implements Handler<Double> {
 
@@ -22,7 +22,7 @@ public class DoubleHandler implements Handler<Double> {
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((Double) value));
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((Double) value), listener);
@@ -30,12 +30,11 @@ public class DoubleHandler implements Handler<Double> {
 
 	@Override
 	public Double getValue(DBR dbr) throws CAStatusException {
-		return ((Double)((DBR_Double) dbr.convert(DBR_Double.TYPE)).getDoubleValue()[0]);
+		return ((Double) ((DBR_Double) dbr.convert(this.getDBRType())).getDoubleValue()[0]);
 	}
 
 	@Override
 	public DBRType getDBRType() {
-		return DBRType.DOUBLE;
+		return DBR_Double.TYPE;
 	}
-
 }

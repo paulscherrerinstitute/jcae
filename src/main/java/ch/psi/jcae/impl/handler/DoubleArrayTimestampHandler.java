@@ -16,15 +16,15 @@ import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 
 /**
- * DoubleTimestamp specific handler
+ * DoubleArrayTimestamp specific handler
  */
 public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp> {
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((DoubleTimestamp) value).getValue());
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((DoubleTimestamp) value).getValue(), listener);
@@ -33,7 +33,7 @@ public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp
 	@Override
 	public DoubleArrayTimestamp getValue(DBR dbr) throws CAStatusException {
 		DoubleArrayTimestamp t = new DoubleArrayTimestamp();
-		DBR_TIME_Double v = ((DBR_TIME_Double) dbr.convert(DBR_TIME_Double.TYPE));
+		DBR_TIME_Double v = ((DBR_TIME_Double) dbr.convert(this.getDBRType()));
 		t.setValue(v.getDoubleValue());
 		t.setTime(v.getTimeStamp());
 		return t;
@@ -41,7 +41,6 @@ public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp
 
 	@Override
 	public DBRType getDBRType() {
-		return DBRType.TIME_DOUBLE;
+		return DBR_TIME_Double.TYPE;
 	}
-
 }

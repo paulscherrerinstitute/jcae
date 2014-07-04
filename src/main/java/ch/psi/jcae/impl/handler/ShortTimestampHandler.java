@@ -4,41 +4,41 @@
 
 package ch.psi.jcae.impl.handler;
 
-import ch.psi.jcae.impl.type.StringTimestamp;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_TIME_String;
+import gov.aps.jca.dbr.DBR_TIME_Short;
 import gov.aps.jca.event.PutListener;
+import ch.psi.jcae.impl.type.ShortTimestamp;
 
 /**
- * StringTimestamp specific handler
+ * ShortTimestamp specific handler
  */
-public class StringTimestampHandler implements Handler<StringTimestamp> {
+public class ShortTimestampHandler implements Handler<ShortTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((StringTimestamp) value).getValue());
+		channel.put(((ShortTimestamp) value).getValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((StringTimestamp) value).getValue(), listener);
+		channel.put(((ShortTimestamp) value).getValue(), listener);
 	}
 
 	@Override
-	public StringTimestamp getValue(DBR dbr) throws CAStatusException {
-		StringTimestamp t = new StringTimestamp();
-		DBR_TIME_String v = ((DBR_TIME_String) dbr.convert(this.getDBRType()));
-		t.setValue(v.getStringValue()[0]);
+	public ShortTimestamp getValue(DBR dbr) throws CAStatusException {
+		ShortTimestamp t = new ShortTimestamp();
+		DBR_TIME_Short v = ((DBR_TIME_Short) dbr.convert(this.getDBRType()));
+		t.setValue(v.getShortValue()[0]);
 		t.setTime(v.getTimeStamp());
 		return t;
 	}
 
 	@Override
 	public DBRType getDBRType() {
-		return DBRType.TIME_STRING;
+		return DBR_TIME_Short.TYPE;
 	}
 }

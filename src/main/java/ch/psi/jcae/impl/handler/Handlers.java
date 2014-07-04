@@ -10,10 +10,15 @@ import java.util.Map;
 import ch.psi.jcae.impl.type.BooleanArrayTimestamp;
 import ch.psi.jcae.impl.type.BooleanTimestamp;
 import ch.psi.jcae.impl.type.ByteArrayString;
+import ch.psi.jcae.impl.type.ByteArrayTimestamp;
+import ch.psi.jcae.impl.type.ByteTimestamp;
 import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 import ch.psi.jcae.impl.type.IntegerArrayTimestamp;
 import ch.psi.jcae.impl.type.IntegerTimestamp;
+import ch.psi.jcae.impl.type.ShortArrayTimestamp;
+import ch.psi.jcae.impl.type.ShortTimestamp;
+import ch.psi.jcae.impl.type.StringArrayTimestamp;
 import ch.psi.jcae.impl.type.StringTimestamp;
 
 /**
@@ -40,12 +45,17 @@ public class Handlers {
 		HANDLERS.put(String.class, new StringHandler());
 
 		// Complex types
-		HANDLERS.put(BooleanTimestamp.class, new BooleanTimestampHandler());
 		HANDLERS.put(BooleanArrayTimestamp.class, new BooleanArrayTimestampHandler());
-		HANDLERS.put(DoubleTimestamp.class, new DoubleTimestampHandler());
+		HANDLERS.put(BooleanTimestamp.class, new BooleanTimestampHandler());
+		HANDLERS.put(ByteArrayTimestamp.class, new ByteArrayTimestampHandler());
+		HANDLERS.put(ByteTimestamp.class, new ByteTimestampHandler());
 		HANDLERS.put(DoubleArrayTimestamp.class, new DoubleArrayTimestampHandler());
-		HANDLERS.put(IntegerTimestamp.class, new IntegerTimestampHandler());
+		HANDLERS.put(DoubleTimestamp.class, new DoubleTimestampHandler());
 		HANDLERS.put(IntegerArrayTimestamp.class, new IntegerArrayTimestampHandler());
+		HANDLERS.put(IntegerTimestamp.class, new IntegerTimestampHandler());
+		HANDLERS.put(ShortArrayTimestamp.class, new ShortArrayTimestampHandler());
+		HANDLERS.put(ShortTimestamp.class, new ShortTimestampHandler());
+		HANDLERS.put(StringArrayTimestamp.class, new StringArrayTimestampHandler());
 		HANDLERS.put(StringTimestamp.class, new StringTimestampHandler());
 		HANDLERS.put(ByteArrayString.class, new ByteArrayStringHandler());
 	}

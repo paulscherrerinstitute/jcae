@@ -15,13 +15,13 @@ import gov.aps.jca.event.PutListener;
 /**
  * byte[] specific handler
  */
-public class ByteArrayHandler implements Handler<byte[]>{
+public class ByteArrayHandler implements Handler<byte[]> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((byte[]) value));
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((byte[]) value), listener);
@@ -29,12 +29,11 @@ public class ByteArrayHandler implements Handler<byte[]>{
 
 	@Override
 	public byte[] getValue(DBR dbr) throws CAStatusException {
-		return ((DBR_Byte) dbr.convert(DBR_Byte.TYPE)).getByteValue();
+		return ((DBR_Byte) dbr.convert(this.getDBRType())).getByteValue();
 	}
 
 	@Override
 	public DBRType getDBRType() {
 		return DBR_Byte.TYPE;
 	}
-
 }

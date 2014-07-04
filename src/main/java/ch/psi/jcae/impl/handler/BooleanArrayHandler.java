@@ -15,7 +15,7 @@ import gov.aps.jca.event.PutListener;
 /**
  * boolean[] specific handler
  */
-public class BooleanArrayHandler implements Handler<boolean[]>{
+public class BooleanArrayHandler implements Handler<boolean[]> {
 
 	@Override
 	public void setValue(Channel channel, Object value) throws CAException {
@@ -26,7 +26,7 @@ public class BooleanArrayHandler implements Handler<boolean[]>{
 		}
 		channel.put(((int[]) v));
 	}
-	
+
 	@Override
 	public void setValue(Channel channel, Object value, PutListener listener) throws CAException {
 		boolean[] values = (boolean[]) value;
@@ -39,10 +39,10 @@ public class BooleanArrayHandler implements Handler<boolean[]>{
 
 	@Override
 	public boolean[] getValue(DBR dbr) throws CAStatusException {
-		int[] v = ((DBR_Int) dbr.convert(DBR_Int.TYPE)).getIntValue();
+		int[] v = ((DBR_Int) dbr.convert(this.getDBRType())).getIntValue();
 		boolean[] b = new boolean[v.length];
-		for(int i=0;i<v.length;i++){
-			b[i] = (v[i]>0);
+		for (int i = 0; i < v.length; i++) {
+			b[i] = (v[i] > 0);
 		}
 		return b;
 	}
@@ -51,5 +51,4 @@ public class BooleanArrayHandler implements Handler<boolean[]>{
 	public DBRType getDBRType() {
 		return DBR_Int.TYPE;
 	}
-
 }

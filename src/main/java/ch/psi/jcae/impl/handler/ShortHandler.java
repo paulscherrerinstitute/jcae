@@ -21,7 +21,7 @@ public class ShortHandler implements Handler<Short> {
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((Short) value));
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((Short) value), listener);
@@ -29,12 +29,11 @@ public class ShortHandler implements Handler<Short> {
 
 	@Override
 	public Short getValue(DBR dbr) throws CAStatusException {
-		return ((Short)((DBR_Short) dbr.convert(DBR_Short.TYPE)).getShortValue()[0]);
+		return ((Short) ((DBR_Short) dbr.convert(this.getDBRType())).getShortValue()[0]);
 	}
 
 	@Override
 	public DBRType getDBRType() {
 		return DBR_Short.TYPE;
 	}
-
 }

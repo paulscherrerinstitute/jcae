@@ -4,7 +4,7 @@
 
 package ch.psi.jcae.impl.handler;
 
-import ch.psi.jcae.impl.type.StringTimestamp;
+import ch.psi.jcae.impl.type.StringArrayTimestamp;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
@@ -14,25 +14,25 @@ import gov.aps.jca.dbr.DBR_TIME_String;
 import gov.aps.jca.event.PutListener;
 
 /**
- * StringTimestamp specific handler
+ * StringArrayTimestamp specific handler
  */
-public class StringTimestampHandler implements Handler<StringTimestamp> {
+public class StringArrayTimestampHandler implements Handler<StringArrayTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((StringTimestamp) value).getValue());
+		channel.put(((StringArrayTimestamp) value).getValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((StringTimestamp) value).getValue(), listener);
+		channel.put(((StringArrayTimestamp) value).getValue(), listener);
 	}
 
 	@Override
-	public StringTimestamp getValue(DBR dbr) throws CAStatusException {
-		StringTimestamp t = new StringTimestamp();
+	public StringArrayTimestamp getValue(DBR dbr) throws CAStatusException {
+		StringArrayTimestamp t = new StringArrayTimestamp();
 		DBR_TIME_String v = ((DBR_TIME_String) dbr.convert(this.getDBRType()));
-		t.setValue(v.getStringValue()[0]);
+		t.setValue(v.getStringValue());
 		t.setTime(v.getTimeStamp());
 		return t;
 	}
