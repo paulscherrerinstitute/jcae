@@ -4,41 +4,41 @@
 
 package ch.psi.jcae.impl.handler;
 
-import ch.psi.jcae.impl.type.StringTimestamp;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_TIME_String;
+import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.event.PutListener;
+import ch.psi.jcae.impl.type.BooleanTimestamp;
 
 /**
- * StringTimestamp specific handler
+ * BooleanTimestamp specific handler
  */
-public class StringTimestampHandler implements Handler<StringTimestamp> {
+public class BooleanTimestampHandler implements Handler<BooleanTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((StringTimestamp) value).getValue());
+		channel.put(((BooleanTimestamp) value).getValue() ? 1 : 0);
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((StringTimestamp) value).getValue(), listener);
+		channel.put(((BooleanTimestamp) value).getValue() ? 1 : 0, listener);
 	}
 
 	@Override
-	public StringTimestamp getValue(DBR dbr) throws CAStatusException {
-		StringTimestamp t = new StringTimestamp();
-		DBR_TIME_String v = ((DBR_TIME_String) dbr.convert(this.getDBRType()));
-		t.setValue(v.getStringValue()[0]);
+	public BooleanTimestamp getValue(DBR dbr) throws CAStatusException {
+		BooleanTimestamp t = new BooleanTimestamp();
+		DBR_TIME_Int v = ((DBR_TIME_Int) dbr.convert(this.getDBRType()));
+		t.setValue(v.getIntValue()[0] > 0);
 		t.setTime(v.getTimeStamp());
 		return t;
 	}
 
 	@Override
 	public DBRType getDBRType() {
-		return DBRType.TIME_STRING;
+		return DBR_TIME_Int.TYPE;
 	}
 }

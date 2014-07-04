@@ -4,14 +4,14 @@
 
 package ch.psi.jcae.impl.type;
 
-public class DoubleTimestamp extends TimestampValue {
+public class ShortTimestamp extends TimestampValue {
 
-	private Double value;
+	private Short value;
 
 	/**
 	 * @return the value
 	 */
-	public Double getValue() {
+	public Short getValue() {
 		return value;
 	}
 
@@ -19,7 +19,7 @@ public class DoubleTimestamp extends TimestampValue {
 	 * @param value
 	 *            the value to set
 	 */
-	public void setValue(Double value) {
+	public void setValue(Short value) {
 		this.value = value;
 	}
 }

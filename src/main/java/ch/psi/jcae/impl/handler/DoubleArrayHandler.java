@@ -15,13 +15,13 @@ import gov.aps.jca.event.PutListener;
 /**
  * double[] specific handler
  */
-public class DoubleArrayHandler implements Handler<double[]>{
+public class DoubleArrayHandler implements Handler<double[]> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((double[]) value));
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((double[]) value), listener);
@@ -29,12 +29,11 @@ public class DoubleArrayHandler implements Handler<double[]>{
 
 	@Override
 	public double[] getValue(DBR dbr) throws CAStatusException {
-		return ((DBR_Double) dbr.convert(DBR_Double.TYPE)).getDoubleValue();
+		return ((DBR_Double) dbr.convert(this.getDBRType())).getDoubleValue();
 	}
 
 	@Override
 	public DBRType getDBRType() {
 		return DBR_Double.TYPE;
 	}
-
 }

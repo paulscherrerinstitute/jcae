@@ -15,13 +15,13 @@ import gov.aps.jca.event.PutListener;
 /**
  * int[] specific handler
  */
-public class IntegerArrayHandler implements Handler<int[]>{
+public class IntegerArrayHandler implements Handler<int[]> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
 		channel.put(((int[]) value));
 	}
-	
+
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
 		channel.put(((int[]) value), listener);
@@ -29,12 +29,11 @@ public class IntegerArrayHandler implements Handler<int[]>{
 
 	@Override
 	public int[] getValue(DBR dbr) throws CAStatusException {
-		return ((DBR_Int) dbr.convert(DBR_Int.TYPE)).getIntValue();
+		return ((DBR_Int) dbr.convert(this.getDBRType())).getIntValue();
 	}
 
 	@Override
 	public DBRType getDBRType() {
 		return DBR_Int.TYPE;
 	}
-
 }

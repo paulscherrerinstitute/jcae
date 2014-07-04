@@ -4,7 +4,6 @@
 
 package ch.psi.jcae.impl.handler;
 
-import ch.psi.jcae.impl.type.DoubleTimestamp;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
@@ -13,10 +12,13 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_TIME_Double;
 import gov.aps.jca.event.PutListener;
 
+import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
+import ch.psi.jcae.impl.type.DoubleTimestamp;
+
 /**
- * DoubleTimestamp specific handler
+ * DoubleArrayTimestamp specific handler
  */
-public class DoubleTimestampHandler implements Handler<DoubleTimestamp> {
+public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
@@ -29,10 +31,10 @@ public class DoubleTimestampHandler implements Handler<DoubleTimestamp> {
 	}
 
 	@Override
-	public DoubleTimestamp getValue(DBR dbr) throws CAStatusException {
-		DoubleTimestamp t = new DoubleTimestamp();
+	public DoubleArrayTimestamp getValue(DBR dbr) throws CAStatusException {
+		DoubleArrayTimestamp t = new DoubleArrayTimestamp();
 		DBR_TIME_Double v = ((DBR_TIME_Double) dbr.convert(this.getDBRType()));
-		t.setValue(v.getDoubleValue()[0]);
+		t.setValue(v.getDoubleValue());
 		t.setTime(v.getTimeStamp());
 		return t;
 	}

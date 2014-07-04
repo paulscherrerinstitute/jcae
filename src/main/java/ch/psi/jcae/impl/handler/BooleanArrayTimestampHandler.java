@@ -4,22 +4,23 @@
 
 package ch.psi.jcae.impl.handler;
 
+import ch.psi.jcae.impl.type.BooleanArrayTimestamp;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.event.PutListener;
 
 /**
- * boolean[] specific handler
+ * BooleanArrayTimestamp specific handler
  */
-public class BooleanArrayHandler implements Handler<boolean[]> {
+public class BooleanArrayTimestampHandler implements Handler<BooleanArrayTimestamp> {
 
 	@Override
 	public void setValue(Channel channel, Object value) throws CAException {
-		boolean[] values = (boolean[]) value;
+		boolean[] values = ((BooleanArrayTimestamp) value).getValue();
 		int[] v = new int[values.length];
 		for (int i = 0; i < values.length; i++) {
 			v[i] = values[i] ? 1 : 0;
@@ -29,7 +30,7 @@ public class BooleanArrayHandler implements Handler<boolean[]> {
 
 	@Override
 	public void setValue(Channel channel, Object value, PutListener listener) throws CAException {
-		boolean[] values = (boolean[]) value;
+		boolean[] values = ((BooleanArrayTimestamp) value).getValue();
 		int[] v = new int[values.length];
 		for (int i = 0; i < values.length; i++) {
 			v[i] = values[i] ? 1 : 0;
@@ -38,17 +39,21 @@ public class BooleanArrayHandler implements Handler<boolean[]> {
 	}
 
 	@Override
-	public boolean[] getValue(DBR dbr) throws CAStatusException {
-		int[] v = ((DBR_Int) dbr.convert(this.getDBRType())).getIntValue();
-		boolean[] b = new boolean[v.length];
+	public BooleanArrayTimestamp getValue(DBR dbr) throws CAStatusException {
+		BooleanArrayTimestamp bt = new BooleanArrayTimestamp();
+		DBR_TIME_Int vt = ((DBR_TIME_Int) dbr.convert(this.getDBRType()));
+		int[] v = vt.getIntValue();
+		boolean[] value = new boolean[v.length];
 		for (int i = 0; i < v.length; i++) {
-			b[i] = (v[i] > 0);
+			value[i] = (v[i] > 0);
 		}
-		return b;
+		bt.setValue(value);
+		bt.setTime(vt.getTimeStamp());
+		return bt;
 	}
 
 	@Override
 	public DBRType getDBRType() {
-		return DBR_Int.TYPE;
+		return DBR_TIME_Int.TYPE;
 	}
 }
