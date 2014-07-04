@@ -4,6 +4,7 @@
 
 package ch.psi.jcae.impl.handler;
 
+import ch.psi.jcae.impl.type.ByteTimestamp;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
@@ -15,16 +16,16 @@ import gov.aps.jca.event.PutListener;
 /**
  * Byte specific handler
  */
-public class ByteHandler implements Handler<Byte> {
+public class ByteTimestampHandler implements Handler<ByteTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put((new byte[]{(Byte) value}));
+		channel.put(((byte[]) value));
 	}
 	
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put((new byte[]{(Byte) value}), listener);
+		channel.put(((byte[]) value), listener);
 	}
 
 	@Override

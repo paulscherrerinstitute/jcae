@@ -35,10 +35,7 @@ public class StringTimestampHandler implements Handler<StringTimestamp> {
 		StringTimestamp t = new StringTimestamp();
 		DBR_TIME_String v = ((DBR_TIME_String) dbr.convert(DBR_TIME_String.TYPE));
 		t.setValue(v.getStringValue()[0]);
-		long seconds = v.getTimeStamp().secPastEpoch();
-		long nanosecondsOffset = v.getTimeStamp().nsec();
-		t.setTimestamp(new Date((seconds+631152000L)*1000+nanosecondsOffset/1000000));
-		t.setNanosecondOffset(nanosecondsOffset%1000000);
+		t.setTime(v.getTimeStamp());
 		return t;
 	}
 

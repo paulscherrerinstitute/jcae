@@ -210,6 +210,18 @@ public class ChannelTest {
 		Thread.sleep(1000);
 	}
 
+	@Test
+	public void testGetValueWAVE() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+//		// Test if array and getValue(int size) is called
+//		Channel<double[]> bean = cservice.createChannel(new ChannelDescriptor<double[]>(double[].class, "TRFCB-RLLE-RIOC:MASTER-MSICNT"));
+//		System.out.println("Value: " + bean.getValue()); // Get first value of the array
+//		System.out.println("Value: " + bean.getValue().length); // Get first value of the array
+//		System.out.println("Value: " + bean.getValue()[0]); // Get first value of the array
+		
+		// Test if array and getValue(int size) is called
+		Channel<Integer> bean = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, "TRFCB-RLLE-RIOC:MASTER-MSICNT"));
+		System.out.println("Value: " + bean.getValue()); // Get first value of the array
+	}
 	
 	/**
 	 * Test the various versions of the getValue function
