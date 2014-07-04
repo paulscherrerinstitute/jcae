@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl.handler;
 
 import ch.psi.jcae.impl.type.ByteTimestamp;
@@ -13,9 +9,6 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_TIME_Byte;
 import gov.aps.jca.event.PutListener;
 
-/**
- * ByteTimestamp specific handler
- */
 public class ByteTimestampHandler implements Handler<ByteTimestamp> {
 
 	@Override

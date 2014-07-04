@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl.handler;
 
 import gov.aps.jca.CAException;
@@ -14,9 +10,6 @@ import gov.aps.jca.event.PutListener;
 
 import ch.psi.jcae.impl.type.IntegerTimestamp;
 
-/**
- * IntegerTimestamp specific handler
- */
 public class IntegerTimestampHandler implements Handler<IntegerTimestamp> {
 
 	@Override

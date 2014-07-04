@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl.handler;
 
 import gov.aps.jca.CAException;
@@ -13,9 +9,6 @@ import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.event.PutListener;
 import ch.psi.jcae.impl.type.BooleanTimestamp;
 
-/**
- * BooleanTimestamp specific handler
- */
 public class BooleanTimestampHandler implements Handler<BooleanTimestamp> {
 
 	@Override

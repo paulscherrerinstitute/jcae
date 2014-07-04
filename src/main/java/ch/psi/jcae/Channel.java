@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae;
 
 import java.beans.PropertyChangeListener;

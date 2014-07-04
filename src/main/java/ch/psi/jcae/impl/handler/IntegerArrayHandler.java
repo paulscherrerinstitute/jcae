@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl.handler;
 
 import gov.aps.jca.CAException;
@@ -12,9 +8,6 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.PutListener;
 
-/**
- * int[] specific handler
- */
 public class IntegerArrayHandler implements Handler<int[]> {
 
 	@Override

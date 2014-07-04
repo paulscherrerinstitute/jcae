@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl.handler;
 
 import ch.psi.jcae.impl.type.DoubleTimestamp;
@@ -13,9 +9,6 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_TIME_Double;
 import gov.aps.jca.event.PutListener;
 
-/**
- * DoubleTimestamp specific handler
- */
 public class DoubleTimestampHandler implements Handler<DoubleTimestamp> {
 
 	@Override

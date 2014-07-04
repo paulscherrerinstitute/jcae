@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl;
 
 import java.beans.PropertyChangeListener;
@@ -14,10 +10,9 @@ import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
 
 /**
- * Consists of set and readback value channel.
- * 
- * Name of the composite channel is the name of the set channel. The size, source, etc. is taken from the readback channel.
- * 
+ * Composit channel consisting of set and an readback value channel
+ * Name of the composite channel is the name of the set channel. 
+ * The size, source, etc. is taken from the readback channel.
  */
 public class CompositeChannel<T> implements Channel<T>{
 

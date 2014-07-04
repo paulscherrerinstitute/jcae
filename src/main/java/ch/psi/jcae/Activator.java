@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae;
 
 import java.util.Dictionary;
@@ -13,8 +9,6 @@ import org.osgi.framework.BundleContext;
 
 import ch.psi.jcae.impl.DefaultChannelService;
 
-//import ch.psi.jcae.impl.DefaultChannelService;
-
 public class Activator implements BundleActivator {
 
 	private static final Logger logger = Logger.getLogger(Activator.class.getName());
@@ -23,7 +17,6 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		logger.info("Start ChannelService");
 		Hashtable<String, String> properties = new Hashtable<String,String>();
-//		properties.put("id", "blablub");
 		service = new DefaultChannelService();
 		context.registerService(ChannelService.class.getName(), service, (Dictionary<String,String>) properties);
 	}

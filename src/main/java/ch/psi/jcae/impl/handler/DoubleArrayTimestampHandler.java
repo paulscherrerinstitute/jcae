@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl.handler;
 
 import gov.aps.jca.CAException;
@@ -15,9 +11,6 @@ import gov.aps.jca.event.PutListener;
 import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 
-/**
- * DoubleArrayTimestamp specific handler
- */
 public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp> {
 
 	@Override

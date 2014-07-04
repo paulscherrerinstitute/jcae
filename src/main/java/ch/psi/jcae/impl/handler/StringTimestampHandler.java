@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae.impl.handler;
 
 import ch.psi.jcae.impl.type.StringTimestamp;
@@ -13,9 +9,6 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_TIME_String;
 import gov.aps.jca.event.PutListener;
 
-/**
- * StringTimestamp specific handler
- */
 public class StringTimestampHandler implements Handler<StringTimestamp> {
 
 	@Override

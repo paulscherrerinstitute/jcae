@@ -1,13 +1,8 @@
-/**
- * Copyright (c) 2012 Paul Scherrer Institute. All rights reserved.
- */
-
 package ch.psi.jcae;
 
 public class ChannelDescriptor<T> extends Descriptor<T> {
 
 	private String name;
-	
 	
 	public ChannelDescriptor(){
 	}
@@ -29,18 +24,11 @@ public class ChannelDescriptor<T> extends Descriptor<T> {
 		this.monitored = monitored;
 		this.size = size;
 	}
-	
-	/**
-	 * @return the name
-	 */
+
 	public String getName() {
 		return name;
 	}
-	/**
-	 * @param name the name to set
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 }
