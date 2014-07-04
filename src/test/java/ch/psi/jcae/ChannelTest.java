@@ -219,8 +219,8 @@ public class ChannelTest {
 //		System.out.println("Value: " + bean.getValue()[0]); // Get first value of the array
 		
 		// Test if array and getValue(int size) is called
-		Channel<Integer> bean = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, "TRFCB-RLLE-RIOC:MASTER-MSICNT"));
-		System.out.println("Value: " + bean.getValue()); // Get first value of the array
+//		Channel<Integer> bean = cservice.createChannel(new ChannelDescriptor<Integer>(Integer.class, "TRFCB-RLLE-RIOC:MASTER-MSICNT"));
+//		System.out.println("Value: " + bean.getValue()); // Get first value of the array
 	}
 	
 	/**
