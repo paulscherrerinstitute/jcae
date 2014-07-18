@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.impl.handler.Handlers;
-import ch.psi.jcae.impl.type.ByteArrayString;
+import ch.psi.jcae.impl.type.ArrayValueHolder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -88,7 +88,8 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 			}
 		}
 		else{
-			if(type.isArray() || type.isAssignableFrom(ByteArrayString.class)){ // TODO FIXME Remove this hardcoded thing!
+			// instead of using a marker interface one could also query type's getValue method for its return value and check if it is an array (in this case the check for ByteArrayString.class.isAssignableFrom(type) is still necessary)
+			if(type.isArray() || ArrayValueHolder.class.isAssignableFrom(type)){ 
 				this.elementCount = csize; // the size of the array may vary over time (always take the actual size of the channel)
 			}
 			else{
