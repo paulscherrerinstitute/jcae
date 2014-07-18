@@ -25,21 +25,21 @@ public class DummyChannel<T> implements Channel<T> {
 	private T value = null;
 
 	@SuppressWarnings("unchecked")
-	public DummyChannel(Class<T> type, String name, Integer size, boolean monitored){
+	public DummyChannel(Class<T> type, String name, Integer size, boolean monitored) {
 		this.name = name;
 		this.size = size;
 		this.monitored = monitored;
-		if(Double.class.equals(type)){
+		if (Double.class.equals(type)) {
 			value = (T) new Double(0);
 		}
-		else if(Integer.class.equals(type)){
+		else if (Integer.class.equals(type)) {
 			value = (T) new Integer(0);
 		}
-		else if(String.class.equals(type)){
+		else if (String.class.equals(type)) {
 			value = (T) new String();
 		}
 	}
-	
+
 	@Override
 	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		return value;
@@ -90,7 +90,7 @@ public class DummyChannel<T> implements Channel<T> {
 	public void setValue(T value) throws InterruptedException, ExecutionException, ChannelException {
 		propertyChangeSupport.firePropertyChange("value", this.value, this.value = value);
 	}
-	
+
 	@Override
 	public void setValueNoWait(T value) throws InterruptedException, ExecutionException, ChannelException {
 		propertyChangeSupport.firePropertyChange("value", this.value, this.value = value);
@@ -179,7 +179,7 @@ public class DummyChannel<T> implements Channel<T> {
 
 			@Override
 			public T get() throws InterruptedException, ExecutionException {
-				if(value!=null && comparator.compare(value, rvalue)==0){
+				if (value != null && comparator.compare(value, rvalue) == 0) {
 					return rvalue;
 				}
 				throw new IllegalStateException();
@@ -187,10 +187,10 @@ public class DummyChannel<T> implements Channel<T> {
 
 			@Override
 			public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-				if(value!=null && comparator.compare(value, rvalue)==0){
+				if (value != null && comparator.compare(value, rvalue) == 0) {
 					return rvalue;
 				}
-				else{
+				else {
 					throw new TimeoutException("Value not reached in time");
 				}
 			}
@@ -218,7 +218,7 @@ public class DummyChannel<T> implements Channel<T> {
 
 			@Override
 			public T get() throws InterruptedException, ExecutionException {
-				if(value!=null && comparator.compare(value, rvalue)==0){
+				if (value != null && comparator.compare(value, rvalue) == 0) {
 					return rvalue;
 				}
 				throw new IllegalStateException();
@@ -226,10 +226,10 @@ public class DummyChannel<T> implements Channel<T> {
 
 			@Override
 			public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-				if(value!=null && comparator.compare(value, rvalue)==0){
+				if (value != null && comparator.compare(value, rvalue) == 0) {
 					return rvalue;
 				}
-				else{
+				else {
 					throw new TimeoutException("Value not reached in time");
 				}
 			}
@@ -253,9 +253,9 @@ public class DummyChannel<T> implements Channel<T> {
 
 	@Override
 	public T waitForValue(final T rvalue, final Comparator<T> comparator, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
-		return waitForValueAsync(rvalue, comparator,waitRetryPeriod).get();
+		return waitForValueAsync(rvalue, comparator, waitRetryPeriod).get();
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
@@ -268,7 +268,7 @@ public class DummyChannel<T> implements Channel<T> {
 
 	@Override
 	public Integer getSize() {
-		if(size==null){
+		if (size == null) {
 			return 1; // Default size
 		}
 		return size;
@@ -301,9 +301,9 @@ public class DummyChannel<T> implements Channel<T> {
 		}
 		propertyChangeSupport.addPropertyChangeListener(l);
 	}
-	
+
 	@Override
-	public void addPropertyChangeListener( String name, PropertyChangeListener l ){
+	public void addPropertyChangeListener(String name, PropertyChangeListener l) {
 		if (!monitored) {
 			this.monitored = true;
 		}
@@ -315,4 +315,8 @@ public class DummyChannel<T> implements Channel<T> {
 		propertyChangeSupport.removePropertyChangeListener(l);
 	}
 
+	@Override
+	public Class<?> getFieldType() {
+		return this.value != null ? this.value.getClass() : Object.class;
+	}
 }

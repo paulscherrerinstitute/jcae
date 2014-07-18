@@ -150,4 +150,8 @@ public class CompositeChannel<T> implements Channel<T>{
 		channel.setValueAsync(value);
 	}
 
+	@Override
+	public Class<?> getFieldType() {
+		return this.readback.getFieldType();
+	}
 }
