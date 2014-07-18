@@ -12,6 +12,8 @@ import ch.psi.jcae.impl.type.ByteArrayTimestamp;
 import ch.psi.jcae.impl.type.ByteTimestamp;
 import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
+import ch.psi.jcae.impl.type.FloatArrayTimestamp;
+import ch.psi.jcae.impl.type.FloatTimestamp;
 import ch.psi.jcae.impl.type.IntegerArrayTimestamp;
 import ch.psi.jcae.impl.type.IntegerTimestamp;
 import ch.psi.jcae.impl.type.ShortArrayTimestamp;
@@ -34,7 +36,8 @@ public class Handlers {
 		HANDLERS.put(Boolean.class, new BooleanHandler());
 
 		HANDLERS.put(byte[].class, new ByteArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped somewhere)
+		// always return time-stamped values (they seem to get time-stamped
+		// somewhere)
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.BYTE, ByteArrayTimestamp.class);
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_BYTE, ByteArrayTimestamp.class);
 		HANDLERS.put(Byte.class, new ByteHandler());
@@ -42,15 +45,26 @@ public class Handlers {
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_BYTE, ByteTimestamp.class);
 
 		HANDLERS.put(double[].class, new DoubleArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped somewhere)
+		// always return time-stamped values (they seem to get time-stamped
+		// somewhere)
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.DOUBLE, DoubleArrayTimestamp.class);
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_DOUBLE, DoubleArrayTimestamp.class);
 		HANDLERS.put(Double.class, new DoubleHandler());
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.DOUBLE, DoubleTimestamp.class);
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_DOUBLE, DoubleTimestamp.class);
 
+		HANDLERS.put(float[].class, new FloatArrayHandler());
+		// always return time-stamped values (they seem to get time-stamped
+		// somewhere)
+		DBR_TYPE_MAPPER_ARRAY.put(DBRType.FLOAT, FloatArrayTimestamp.class);
+		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_FLOAT, FloatArrayTimestamp.class);
+		HANDLERS.put(Float.class, new FloatHandler());
+		DBR_TYPE_MAPPER_SCALAR.put(DBRType.FLOAT, FloatTimestamp.class);
+		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_FLOAT, FloatTimestamp.class);
+
 		HANDLERS.put(int[].class, new IntegerArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped somewhere)
+		// always return time-stamped values (they seem to get time-stamped
+		// somewhere)
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.INT, IntegerArrayTimestamp.class);
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_INT, IntegerArrayTimestamp.class);
 		HANDLERS.put(Integer.class, new IntegerHandler());
@@ -58,7 +72,8 @@ public class Handlers {
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_INT, IntegerTimestamp.class);
 
 		HANDLERS.put(short[].class, new ShortArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped somewhere)
+		// always return time-stamped values (they seem to get time-stamped
+		// somewhere)
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.SHORT, ShortArrayTimestamp.class);
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_SHORT, ShortArrayTimestamp.class);
 		HANDLERS.put(Short.class, new ShortHandler());
@@ -66,7 +81,8 @@ public class Handlers {
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_SHORT, ShortTimestamp.class);
 
 		HANDLERS.put(String[].class, new StringArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped somewhere)
+		// always return time-stamped values (they seem to get time-stamped
+		// somewhere)
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STRING, StringArrayTimestamp.class);
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_STRING, StringArrayTimestamp.class);
 		HANDLERS.put(String.class, new StringHandler());
@@ -97,6 +113,15 @@ public class Handlers {
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_DOUBLE, DoubleTimestamp.class);
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_DOUBLE, DoubleTimestamp.class);
 		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_DOUBLE, DoubleTimestamp.class);
+
+		HANDLERS.put(FloatArrayTimestamp.class, new FloatArrayTimestampHandler());
+		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_FLOAT, FloatArrayTimestamp.class);
+		DBR_TYPE_MAPPER_ARRAY.put(DBRType.CTRL_FLOAT, FloatArrayTimestamp.class);
+		DBR_TYPE_MAPPER_ARRAY.put(DBRType.GR_FLOAT, FloatArrayTimestamp.class);
+		HANDLERS.put(FloatTimestamp.class, new FloatTimestampHandler());
+		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_FLOAT, FloatTimestamp.class);
+		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_FLOAT, FloatTimestamp.class);
+		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_FLOAT, FloatTimestamp.class);
 
 		HANDLERS.put(IntegerArrayTimestamp.class, new IntegerArrayTimestampHandler());
 		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_INT, IntegerArrayTimestamp.class);
