@@ -125,12 +125,12 @@
 		<snapshotRepository>
 			<id>i.snapshots</id>
 			<name>Artifactory Snapshots</name>
-			<url>http://yoke/artifactory/libs-snapshots-local</url>
+			<url>http://yoke.psi.ch/artifactory/libs-snapshots-local</url>
 		</snapshotRepository>
 		<repository>
 			<id>i.releases</id>
 			<name>Atrifactory Releases</name>
-			<url>http://yoke/artifactory/libs-releases-local</url>
+			<url>http://yoke.psi.ch/artifactory/libs-releases-local</url>
 		</repository>
 	</distributionManagement>
 </project>
