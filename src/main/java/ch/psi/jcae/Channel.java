@@ -42,6 +42,13 @@ public interface Channel<T> {
 	public boolean isConnected();
 	public Integer getSize();
 	public String getSource();
+	
+	/**
+	 * Determines the JAVA class belonging to the channel's DBRType
+	 * 
+	 * @return Class<?> The JAVA class.
+	 */
+	public Class<?> getFieldType();
 
 	public boolean isMonitored();
 	public void setMonitored(boolean monitored) throws ChannelException;

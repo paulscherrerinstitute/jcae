@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.psi.jcae.impl.DefaultChannelService;
+import ch.psi.jcae.impl.type.ByteArrayString;
+import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
 import ch.psi.jcae.util.ComparatorDouble;
 
@@ -740,7 +742,17 @@ public class ChannelTest {
 			Assert.fail("The PropertyChangeListener has not return the correct value");
 		}
 	}
-
+	
+	@Test
+	public void testArrayTimestampSize() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+		Channel<DoubleArrayTimestamp> bean1 = cservice.createChannel(new ChannelDescriptor<DoubleArrayTimestamp>(DoubleArrayTimestamp.class, TestChannels.DOUBLE_WAVEFORM, true));
+		assertTrue(bean1.getSize() > 1);
+		bean1.destroy();
+		
+		Channel<ByteArrayString> bean2 = cservice.createChannel(new ChannelDescriptor<ByteArrayString>(ByteArrayString.class, TestChannels.CHARACTER_WAVEFORM));
+		assertTrue(bean2.getSize() > 1);
+		bean2.destroy();
+	}
 
 	private int mcount = 0;
 	@Test
