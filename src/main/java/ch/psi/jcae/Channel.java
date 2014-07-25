@@ -46,7 +46,7 @@ public interface Channel<T> {
 	/**
 	 * Determines the JAVA class belonging to the channel's DBRType
 	 * 
-	 * @return Class<?> The JAVA class.
+	 * @return Class The JAVA class.
 	 */
 	public Class<?> getFieldType();
 
