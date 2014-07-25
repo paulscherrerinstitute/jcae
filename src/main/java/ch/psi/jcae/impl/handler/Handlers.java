@@ -2,9 +2,16 @@ package ch.psi.jcae.impl.handler;
 
 import gov.aps.jca.dbr.DBRType;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
+import ch.psi.jcae.impl.type.ArrayValueHolder;
 import ch.psi.jcae.impl.type.BooleanArrayTimestamp;
 import ch.psi.jcae.impl.type.BooleanTimestamp;
 import ch.psi.jcae.impl.type.ByteArrayString;
@@ -25,144 +32,159 @@ import ch.psi.jcae.impl.type.StringTimestamp;
  * Registry for all handlers
  */
 public class Handlers {
+	private static Logger logger = Logger.getLogger(Handlers.class.getName());
 
-	public static final Map<Class<?>, Handler<?>> HANDLERS = new HashMap<Class<?>, Handler<?>>();
-	public static final Map<DBRType, Class<?>> DBR_TYPE_MAPPER_ARRAY = new HashMap<DBRType, Class<?>>();
-	public static final Map<DBRType, Class<?>> DBR_TYPE_MAPPER_SCALAR = new HashMap<DBRType, Class<?>>();
+	public static final Map<Class<?>, Handler<?>> HANDLERS = new LinkedHashMap<Class<?>, Handler<?>>();
+	private static Map<DBRType, List<Class<?>>> DBR_TYPE_MAPPER_ARRAY = null;
+	private static Map<DBRType, List<Class<?>>> DBR_TYPE_MAPPER_SCALAR = null;
 
 	// Static initializer
 	static {
-		HANDLERS.put(boolean[].class, new BooleanArrayHandler());
-		HANDLERS.put(Boolean.class, new BooleanHandler());
+		// The insertion order is important since the mapping between DBRType
+		// and JAVA class is not unique (e.g. DBR_Int is used to represent
+		// boolean and int). The insertion order (therefore it is important to
+		// use a LinkedHashMap) specifies the importance and thus also how to
+		// resolve clashes (elements added earlier are more important, thus
+		// Boolean, boolean[], BooleanTimestamp, BooleanArrayTimestamp and
+		// ByteArrayString are overwritten)
 
 		HANDLERS.put(byte[].class, new ByteArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped
-		// somewhere)
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.BYTE, ByteArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_BYTE, ByteArrayTimestamp.class);
 		HANDLERS.put(Byte.class, new ByteHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.BYTE, ByteTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_BYTE, ByteTimestamp.class);
 
 		HANDLERS.put(double[].class, new DoubleArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped
-		// somewhere)
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.DOUBLE, DoubleArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_DOUBLE, DoubleArrayTimestamp.class);
 		HANDLERS.put(Double.class, new DoubleHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.DOUBLE, DoubleTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_DOUBLE, DoubleTimestamp.class);
 
 		HANDLERS.put(float[].class, new FloatArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped
-		// somewhere)
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.FLOAT, FloatArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_FLOAT, FloatArrayTimestamp.class);
 		HANDLERS.put(Float.class, new FloatHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.FLOAT, FloatTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_FLOAT, FloatTimestamp.class);
 
 		HANDLERS.put(int[].class, new IntegerArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped
-		// somewhere)
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.INT, IntegerArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_INT, IntegerArrayTimestamp.class);
 		HANDLERS.put(Integer.class, new IntegerHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.INT, IntegerTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_INT, IntegerTimestamp.class);
 
 		HANDLERS.put(short[].class, new ShortArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped
-		// somewhere)
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.SHORT, ShortArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_SHORT, ShortArrayTimestamp.class);
 		HANDLERS.put(Short.class, new ShortHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.SHORT, ShortTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_SHORT, ShortTimestamp.class);
 
 		HANDLERS.put(String[].class, new StringArrayHandler());
-		// always return time-stamped values (they seem to get time-stamped
-		// somewhere)
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STRING, StringArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.STS_STRING, StringArrayTimestamp.class);
 		HANDLERS.put(String.class, new StringHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STRING, StringTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.STS_STRING, StringTimestamp.class);
+
+		HANDLERS.put(boolean[].class, new BooleanArrayHandler());
+		HANDLERS.put(Boolean.class, new BooleanHandler());
 
 		// #############
 		// Complex types
 		// #############
+		HANDLERS.put(ByteArrayTimestamp.class, new ByteArrayTimestampHandler());
+		HANDLERS.put(ByteTimestamp.class, new ByteTimestampHandler());
+
+		HANDLERS.put(DoubleArrayTimestamp.class, new DoubleArrayTimestampHandler());
+		HANDLERS.put(DoubleTimestamp.class, new DoubleTimestampHandler());
+
+		HANDLERS.put(FloatArrayTimestamp.class, new FloatArrayTimestampHandler());
+		HANDLERS.put(FloatTimestamp.class, new FloatTimestampHandler());
+
+		HANDLERS.put(IntegerArrayTimestamp.class, new IntegerArrayTimestampHandler());
+		HANDLERS.put(IntegerTimestamp.class, new IntegerTimestampHandler());
+
+		HANDLERS.put(ShortArrayTimestamp.class, new ShortArrayTimestampHandler());
+		HANDLERS.put(ShortTimestamp.class, new ShortTimestampHandler());
+
+		HANDLERS.put(StringArrayTimestamp.class, new StringArrayTimestampHandler());
+		HANDLERS.put(StringTimestamp.class, new StringTimestampHandler());
+
 		HANDLERS.put(BooleanArrayTimestamp.class, new BooleanArrayTimestampHandler());
 		HANDLERS.put(BooleanTimestamp.class, new BooleanTimestampHandler());
 		HANDLERS.put(ByteArrayString.class, new ByteArrayStringHandler());
+	}
 
-		HANDLERS.put(ByteArrayTimestamp.class, new ByteArrayTimestampHandler());
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_BYTE, ByteArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.CTRL_BYTE, ByteArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.GR_BYTE, ByteArrayTimestamp.class);
-		HANDLERS.put(ByteTimestamp.class, new ByteTimestampHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_BYTE, ByteTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_BYTE, ByteTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_BYTE, ByteTimestamp.class);
+	private static void loadDBRTypeMapping() {
+		DBR_TYPE_MAPPER_ARRAY = new HashMap<DBRType, List<Class<?>>>();
+		DBR_TYPE_MAPPER_SCALAR = new HashMap<DBRType, List<Class<?>>>();
 
-		HANDLERS.put(DoubleArrayTimestamp.class, new DoubleArrayTimestampHandler());
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_DOUBLE, DoubleArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.CTRL_DOUBLE, DoubleArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.GR_DOUBLE, DoubleArrayTimestamp.class);
-		HANDLERS.put(DoubleTimestamp.class, new DoubleTimestampHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_DOUBLE, DoubleTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_DOUBLE, DoubleTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_DOUBLE, DoubleTimestamp.class);
-
-		HANDLERS.put(FloatArrayTimestamp.class, new FloatArrayTimestampHandler());
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_FLOAT, FloatArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.CTRL_FLOAT, FloatArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.GR_FLOAT, FloatArrayTimestamp.class);
-		HANDLERS.put(FloatTimestamp.class, new FloatTimestampHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_FLOAT, FloatTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_FLOAT, FloatTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_FLOAT, FloatTimestamp.class);
-
-		HANDLERS.put(IntegerArrayTimestamp.class, new IntegerArrayTimestampHandler());
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_INT, IntegerArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.CTRL_INT, IntegerArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.GR_INT, IntegerArrayTimestamp.class);
-		HANDLERS.put(IntegerTimestamp.class, new IntegerTimestampHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_INT, IntegerTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_INT, IntegerTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_INT, IntegerTimestamp.class);
-
-		HANDLERS.put(ShortArrayTimestamp.class, new ShortArrayTimestampHandler());
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_SHORT, ShortArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.CTRL_SHORT, ShortArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.GR_SHORT, ShortArrayTimestamp.class);
-		HANDLERS.put(ShortTimestamp.class, new ShortTimestampHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_SHORT, ShortTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_SHORT, ShortTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_SHORT, ShortTimestamp.class);
-
-		HANDLERS.put(StringArrayTimestamp.class, new StringArrayTimestampHandler());
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.TIME_STRING, StringArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.CTRL_STRING, StringArrayTimestamp.class);
-		DBR_TYPE_MAPPER_ARRAY.put(DBRType.GR_STRING, StringArrayTimestamp.class);
-		HANDLERS.put(StringTimestamp.class, new StringTimestampHandler());
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.TIME_STRING, StringTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.CTRL_STRING, StringTimestamp.class);
-		DBR_TYPE_MAPPER_SCALAR.put(DBRType.GR_STRING, StringTimestamp.class);
+		Class<?> javaDBRClazz;
+		DBRType dbrType;
+		List<Class<?>> containedClazzes;
+		for (Map.Entry<Class<?>, Handler<?>> entry : HANDLERS.entrySet()) {
+			javaDBRClazz = entry.getKey();
+			dbrType = entry.getValue().getDBRType();
+			if (javaDBRClazz.isArray() || ArrayValueHolder.class.isAssignableFrom(javaDBRClazz)) {
+				containedClazzes = DBR_TYPE_MAPPER_ARRAY.get(dbrType);
+				if (containedClazzes == null) {
+					containedClazzes = new ArrayList<Class<?>>(1);
+					DBR_TYPE_MAPPER_ARRAY.put(dbrType, containedClazzes);
+				}
+				else {
+					logger.warning(String.format(
+							"The DBRType '%s' represents '%s' and '%s'.",
+							dbrType.getName(), toString(containedClazzes, "[", "]"), javaDBRClazz.getName()));
+				}
+				containedClazzes.add(javaDBRClazz);
+			} else {
+				containedClazzes = DBR_TYPE_MAPPER_SCALAR.get(dbrType);
+				if (containedClazzes == null) {
+					containedClazzes = new ArrayList<Class<?>>(1);
+					DBR_TYPE_MAPPER_SCALAR.put(dbrType, containedClazzes);
+				}
+				else {
+					logger.warning(String.format(
+							"The DBRType '%s' represents '%s' and '%s'.",
+							dbrType.getName(), toString(containedClazzes, "[", "]"), javaDBRClazz.getName()));
+				}
+				containedClazzes.add(javaDBRClazz);
+			}
+		}
 	}
 
 	public static Class<?> getFieldType(DBRType dbrType, boolean isArray) {
+		List<Class<?>> clazzList;
 		Class<?> ret = null;
 		if (isArray) {
-			ret = DBR_TYPE_MAPPER_ARRAY.get(dbrType);
+			if (DBR_TYPE_MAPPER_ARRAY == null) {
+				synchronized (Handlers.class) {
+					if (DBR_TYPE_MAPPER_ARRAY == null) {
+						Handlers.loadDBRTypeMapping();
+					}
+				}
+			}
+
+			clazzList = DBR_TYPE_MAPPER_ARRAY.get(dbrType);
 		} else {
-			ret = DBR_TYPE_MAPPER_SCALAR.get(dbrType);
+			if (DBR_TYPE_MAPPER_SCALAR == null) {
+				synchronized (Handlers.class) {
+					if (DBR_TYPE_MAPPER_SCALAR == null) {
+						Handlers.loadDBRTypeMapping();
+					}
+				}
+			}
+
+			clazzList = DBR_TYPE_MAPPER_SCALAR.get(dbrType);
 		}
 
-		if (ret == null) {
+		if (clazzList == null || clazzList.isEmpty()) {
 			throw new IllegalArgumentException("Type " + dbrType.getName() + " not supported");
 		}
+		
+		ret = clazzList.get(0);
+		if(clazzList.size() > 1){
+			logger.info(String.format(
+					"The DBRType '%s' represents '%s'. The mapping for '%s' is uniquely set to '%s'.",
+					dbrType.getName(), toString(clazzList, "[", "]"), dbrType.getName(), ret.getName()));
+		}
+		
+		
 		return ret;
 	}
 
+	private static String toString(Collection<Class<?>> clazzes, String prefix, String suffix) {
+		StringBuilder buf = new StringBuilder();
+		buf.append(prefix);
+		Iterator<Class<?>> iter = clazzes.iterator();
+		while (iter.hasNext()) {
+			buf.append(iter.next().getName());
+
+			if (iter.hasNext()) {
+				buf.append(", ");
+			}
+		}
+		buf.append(suffix);
+		return buf.toString();
+	}
 }
