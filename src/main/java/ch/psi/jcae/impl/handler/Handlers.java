@@ -137,8 +137,11 @@ public class Handlers {
 		List<Class<?>> clazzList;
 		Class<?> ret = null;
 		if (isArray) {
+			// first check without lock
 			if (DBR_TYPE_MAPPER_ARRAY == null) {
+				// in case when not yet loaded acquire lock
 				synchronized (Handlers.class) {
+					// second check, this time with lock
 					if (DBR_TYPE_MAPPER_ARRAY == null) {
 						Handlers.loadDBRTypeMapping();
 					}
@@ -147,8 +150,11 @@ public class Handlers {
 
 			clazzList = DBR_TYPE_MAPPER_ARRAY.get(dbrType);
 		} else {
+			// first check without lock
 			if (DBR_TYPE_MAPPER_SCALAR == null) {
+				// in case when not yet loaded acquire lock
 				synchronized (Handlers.class) {
+					// second check, this time with lock
 					if (DBR_TYPE_MAPPER_SCALAR == null) {
 						Handlers.loadDBRTypeMapping();
 					}
@@ -161,15 +167,14 @@ public class Handlers {
 		if (clazzList == null || clazzList.isEmpty()) {
 			throw new IllegalArgumentException("Type " + dbrType.getName() + " not supported");
 		}
-		
+
 		ret = clazzList.get(0);
-		if(clazzList.size() > 1){
+		if (clazzList.size() > 1) {
 			logger.info(String.format(
 					"The DBRType '%s' represents '%s'. The mapping for '%s' is uniquely set to '%s'.",
 					dbrType.getName(), toString(clazzList, "[", "]"), dbrType.getName(), ret.getName()));
 		}
-		
-		
+
 		return ret;
 	}
 
