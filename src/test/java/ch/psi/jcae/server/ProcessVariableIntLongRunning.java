@@ -1,4 +1,4 @@
-package ch.psi.jcae.cas;
+package ch.psi.jcae.server;
 
 import java.util.logging.Logger;
 
