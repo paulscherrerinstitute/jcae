@@ -19,15 +19,16 @@ import gov.aps.jca.dbr.TIME;
 import gov.aps.jca.dbr.TimeStamp;
 
 import com.cosylab.epics.caj.cas.handlers.AbstractCASResponseHandler;
-import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
+import com.cosylab.epics.caj.cas.util.FloatingDecimalProcessVariable;
 
-public class ProcessVariableDouble extends NumericProcessVariable {
+public class ProcessVariableDouble extends FloatingDecimalProcessVariable {
 
 	private static Logger logger = Logger.getLogger(ProcessVariableDouble.class.getName());
+
+	private String units = "";
 	private double value = 0;
 	private TimeStamp timestamp = new TimeStamp();
-	private String units = "";
-	private int precision = -1;
+	private short precision = -1;
 
 	public ProcessVariableDouble(String name, ProcessVariableEventCallback eventCallback) {
 		super(name, eventCallback);
@@ -35,7 +36,7 @@ public class ProcessVariableDouble extends NumericProcessVariable {
 
 	@Override
 	protected CAStatus readValue(DBR dbr, ProcessVariableReadCallback processvariablereadcallback) throws CAException {
-		logger.finest("readValue() called");
+		logger.fine(String.format("Read value from process variable - %s.", dbr.getType().getName()));
 
 		((double[]) dbr.getValue())[0] = this.value;
 
@@ -45,8 +46,8 @@ public class ProcessVariableDouble extends NumericProcessVariable {
 			u.setStatus(Status.NO_ALARM);
 			u.setSeverity(Severity.NO_ALARM);
 			u.setTimeStamp(this.timestamp);
-			u.setPrecision((short) precision);
-			u.setUnits(units);
+			u.setPrecision(this.precision);
+			u.setUnits(this.units);
 		}
 		else {
 			DBR_TIME_Double u = (DBR_TIME_Double) dbr;
@@ -60,14 +61,12 @@ public class ProcessVariableDouble extends NumericProcessVariable {
 
 	@Override
 	protected CAStatus writeValue(DBR dbr, ProcessVariableWriteCallback processvariablewritecallback) throws CAException {
+		logger.fine(String.format("Set value to process variable - %s.", dbr.getType().getName()));
 
-		this.timestamp = new TimeStamp();
-		this.value = ((DBR_Double) dbr.convert(DBRType.DOUBLE)).getDoubleValue()[0];
-		logger.finest("Set channel value to : " + value);
+		this.value = ((DBR_Double) dbr.convert(this.getType())).getDoubleValue()[0];
 
-		// post event if there is an interest
-		if (interest)
-		{
+		// Post event if there is an interest
+		if (interest) {
 			// set event mask
 			int mask = Monitor.VALUE | Monitor.LOG;
 
@@ -88,17 +87,45 @@ public class ProcessVariableDouble extends NumericProcessVariable {
 
 	@Override
 	public DBRType getType() {
-		logger.finest("getType() called");
 		return DBRType.DOUBLE;
 	}
 
+	/**
+	 * Returns the milliseconds (JAVA style).
+	 * 
+	 * @return long The milliseconds
+	 */
+	public long getTimeMillis() {
+		return TimeHelper.getTimeMillis(this.timestamp);
+	}
+
+	/**
+	 * Returns the nanosecond offset.
+	 * 
+	 * @return long The nanosecond
+	 */
+	public long getTimeNanoOffset() {
+		return TimeHelper.getTimeNanoOffset(this.timestamp);
+	}
+	
 	/**
 	 * Get value of this process variable
 	 * 
 	 * @return Value of process variable
 	 */
 	public double getValue() {
-		return value;
+		return this.value;
+	}
+
+	/**
+	 * Set value of this process variable using the current time as timestamp.
+	 * While setting value all registered monitors will be fired.
+	 * 
+	 * @param value
+	 *            Value to set
+	 */
+	public void setValue(double value) {
+		this.setValue(value, new TimeStamp());
 	}
 
 	/**
@@ -108,11 +135,12 @@ public class ProcessVariableDouble extends NumericProcessVariable {
 	 * @param value
 	 *            Value to set
 	 * @param timestamp
-	 *            Timestamp
+	 *            The Timestamp
 	 */
 	public void setValue(double value, TimeStamp timestamp) {
 		this.value = value;
-		this.timestamp = new TimeStamp();
+		this.timestamp = timestamp;
+		
 		// post event if there is an interest
 		if (interest)
 		{
@@ -132,24 +160,21 @@ public class ProcessVariableDouble extends NumericProcessVariable {
 		}
 	}
 
-	public void setValue(double value) {
-		setValue(value, new TimeStamp());
-	}
-
-	public String getUnits() {
-		return units;
-	}
-
 	public void setUnits(String units) {
 		this.units = units;
 	}
 
-	public void setPrecision(int precision) {
+	@Override
+	public String getUnits() {
+		return units;
+	}
+
+	public void setPrecision(short precision) {
 		this.precision = precision;
 	}
 
-	public int getPrecision() {
+	@Override
+	public short getPrecision() {
 		return precision;
 	}
-
 }

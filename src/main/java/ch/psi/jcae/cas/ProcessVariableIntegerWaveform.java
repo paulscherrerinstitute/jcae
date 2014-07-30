@@ -1,7 +1,5 @@
 package ch.psi.jcae.cas;
 
-import java.util.logging.Logger;
-
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Monitor;
@@ -10,42 +8,30 @@ import gov.aps.jca.cas.ProcessVariableReadCallback;
 import gov.aps.jca.cas.ProcessVariableWriteCallback;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_CTRL_Double;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_TIME_Double;
+import gov.aps.jca.dbr.DBR_CTRL_Int;
+import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.dbr.Severity;
 import gov.aps.jca.dbr.Status;
 import gov.aps.jca.dbr.TIME;
 import gov.aps.jca.dbr.TimeStamp;
 
+import java.util.logging.Logger;
+
 import com.cosylab.epics.caj.cas.handlers.AbstractCASResponseHandler;
-import com.cosylab.epics.caj.cas.util.FloatingDecimalProcessVariable;
+import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
 
-/**
- * Implementation of a Channel Access Channel of the type double[]
- */
-public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariable {
-
-	private static Logger logger = Logger.getLogger(ProcessVariableDoubleWaveform.class.getName());
+public class ProcessVariableIntegerWaveform extends NumericProcessVariable {
+	private static Logger logger = Logger.getLogger(ProcessVariableIntegerWaveform.class.getName());
 
 	private String units = "";
-	private double[] value;
+	private int[] value;
 	private TimeStamp timestamp = new TimeStamp();
-	private short precision = 10;
 
-	/**
-	 * Constructor - Create Process Variable
-	 * 
-	 * @param name
-	 *            Name of the process variable
-	 * @param eventCallback
-	 *            Callback for the process variable
-	 * @param size
-	 *            The array length
-	 */
-	public ProcessVariableDoubleWaveform(String name, ProcessVariableEventCallback eventCallback, int size) {
+	public ProcessVariableIntegerWaveform(String name, ProcessVariableEventCallback eventCallback, int size) {
 		super(name, eventCallback);
-		this.value = new double[size];
+
+		this.value = new int[size];
 	}
 
 	@Override
@@ -57,16 +43,15 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 		System.arraycopy(this.value, 0, dbr.getValue(), 0, Math.min(value.length, dbr.getCount()));
 
 		// Set timestamp and other flags
-		if (dbr instanceof DBR_CTRL_Double) {
-			DBR_CTRL_Double u = (DBR_CTRL_Double) dbr;
+		if (dbr instanceof DBR_CTRL_Int) {
+			DBR_CTRL_Int u = (DBR_CTRL_Int) dbr;
 			u.setStatus(Status.NO_ALARM);
 			u.setSeverity(Severity.NO_ALARM);
 			u.setTimeStamp(this.timestamp);
-			u.setPrecision(this.precision);
 			u.setUnits(this.units);
 		}
 		else {
-			DBR_TIME_Double u = (DBR_TIME_Double) dbr;
+			DBR_TIME_Int u = (DBR_TIME_Int) dbr;
 			u.setStatus(Status.NO_ALARM);
 			u.setSeverity(Severity.NO_ALARM);
 			u.setTimeStamp(this.timestamp);
@@ -79,7 +64,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	protected CAStatus writeValue(DBR dbr, ProcessVariableWriteCallback processvariablewritecallback) throws CAException {
 		logger.fine(String.format("Set value to process variable - %s.", dbr.getType().getName()));
 
-		this.value = ((DBR_Double) dbr.convert(this.getType())).getDoubleValue();
+		this.value = ((DBR_Int) dbr.convert(this.getType())).getIntValue();
 
 		// Post event if there is an interest
 		if (interest) {
@@ -103,7 +88,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 
 	@Override
 	public DBRType getType() {
-		return DBRType.DOUBLE;
+		return DBRType.INT;
 	}
 
 	/**
@@ -116,21 +101,12 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	}
 
 	/**
-	 * Returns the nanosecond offset.
-	 * 
-	 * @return long The nanosecond
-	 */
-	public long getTimeNanoOffset() {
-		return TimeHelper.getTimeNanoOffset(this.timestamp);
-	}
-
-	/**
 	 * Get value of this process variable
 	 * 
 	 * @return Value of process variable
 	 */
-	public double[] getValue() {
-		return this.value;
+	public int[] getValue() {
+		return value;
 	}
 
 	/**
@@ -140,7 +116,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	 * @param value
 	 *            Value to set
 	 */
-	public void setValue(double[] value) {
+	public void setValue(int[] value) {
 		this.setValue(value, new TimeStamp());
 	}
 
@@ -153,7 +129,7 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	 * @param timestamp
 	 *            The Timestamp
 	 */
-	public void setValue(double[] value, TimeStamp timestamp) {
+	public void setValue(int[] value, TimeStamp timestamp) {
 		this.value = value;
 		this.timestamp = timestamp;
 
@@ -193,14 +169,5 @@ public class ProcessVariableDoubleWaveform extends FloatingDecimalProcessVariabl
 	@Override
 	public String getUnits() {
 		return units;
-	}
-
-	public void setPrecision(short precision) {
-		this.precision = precision;
-	}
-
-	@Override
-	public short getPrecision() {
-		return precision;
 	}
 }

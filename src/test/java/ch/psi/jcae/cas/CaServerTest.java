@@ -19,7 +19,7 @@ import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.cas.CaServer;
-import ch.psi.jcae.cas.ProcessVariableInt;
+import ch.psi.jcae.cas.ProcessVariableInteger;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 public class CaServerTest {
@@ -31,7 +31,7 @@ public class CaServerTest {
 		try{
 			// Start Channel Access Server
 			List<ProcessVariable> processVariables = new ArrayList<ProcessVariable>();
-			ProcessVariableInt statusPV = new ProcessVariableInt("CH-PSI-CAS:TEST", null);
+			ProcessVariableInteger statusPV = new ProcessVariableInteger("CH-PSI-CAS:TEST", null);
 			
 			processVariables.add(statusPV);
 			// Create server
@@ -64,7 +64,7 @@ public class CaServerTest {
 	public void testCaClient() throws InterruptedException, ChannelException, TimeoutException, ExecutionException, IllegalStateException, CAException{
 		
 		List<ProcessVariable> processVariables = new ArrayList<ProcessVariable>();
-		ProcessVariableInt statusPV = new ProcessVariableInt("CH-PSI-CAS:TEST", null);
+		ProcessVariableInteger statusPV = new ProcessVariableInteger("CH-PSI-CAS:TEST", null);
 		
 		processVariables.add(statusPV);
 		// Create server

@@ -4,6 +4,8 @@ import gov.aps.jca.dbr.TimeStamp;
 
 import java.util.Date;
 
+import ch.psi.jcae.cas.TimeHelper;
+
 public class TimestampValue {
 
 	private Date timestamp;
@@ -12,13 +14,12 @@ public class TimestampValue {
 	/**
 	 * Converts the TimeStamp into java date and time
 	 * 
-	 * @param timestamp The timestamp
+	 * @param timestamp
+	 *            The timestamp
 	 */
 	public void setTime(TimeStamp timestamp) {
-		long seconds = timestamp.secPastEpoch();
-		long nanosecondsOffset = timestamp.nsec();
-		this.setTimestamp(new Date((seconds + 631152000L) * 1000 + nanosecondsOffset / 1000000));
-		this.setNanosecondOffset(nanosecondsOffset % 1000000);
+		this.setTimestamp(new Date(TimeHelper.getTimeMillis(timestamp)));
+		this.setNanosecondOffset(TimeHelper.getTimeNanoOffset(timestamp));
 	}
 
 	/**
