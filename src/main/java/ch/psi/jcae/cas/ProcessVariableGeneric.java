@@ -19,15 +19,27 @@ import gov.aps.jca.dbr.TimeStamp;
 import java.lang.reflect.Array;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang3.ClassUtils;
+import ch.psi.jcae.impl.handler.Handlers;
+import ch.psi.jcae.util.ClassUtils;
 
 import com.cosylab.epics.caj.cas.handlers.AbstractCASResponseHandler;
 import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
 
 /**
- * Implementation of a Channel Access Channel of the type double[]
+ * Implementation of a generic Channel Access Channel
  */
-public class ProcessVariableGeneric extends NumericProcessVariable {
+public class ProcessVariableGeneric<T> extends NumericProcessVariable {
+
+	static {
+		// This is needed because otherwise the DBRType do not seem to be
+		// loaded correctly. It happens that the super call in the constructor
+		// results in a NullPointerException because DBRType.forValue() returns
+		// null.
+		// When setting a breakpoint before the super call, all seems to work
+		// correctly (threading problem? - see also comments in
+		// DBRType.initialize())
+		DBRType.initialize();
+	}
 
 	private static Logger logger = Logger.getLogger(ProcessVariableGeneric.class.getName());
 
@@ -36,7 +48,7 @@ public class ProcessVariableGeneric extends NumericProcessVariable {
 	private TimeStamp timestamp = new TimeStamp();
 	private short precision = 10;
 	private DBRType dbrType;
-	private Class<?> valueClazz;
+	private Class<T> valueClazz;
 	private Class<?> arrayPrimitiveClazz;
 
 	/**
@@ -46,12 +58,15 @@ public class ProcessVariableGeneric extends NumericProcessVariable {
 	 *            Name of the process variable
 	 * @param eventCallback
 	 *            Callback for the process variable
+	 * @param valueClazz
+	 *            The Class of the value (e.g., Double.class or double[].class)
 	 * @param size
 	 *            The array length
 	 */
-	public ProcessVariableGeneric(String name, ProcessVariableEventCallback eventCallback, DBRType dbrType, Class<?> valueClazz, int size) {
+	public ProcessVariableGeneric(String name, ProcessVariableEventCallback eventCallback, Class<T> valueClazz, int size) {
 		super(name, eventCallback);
-		this.dbrType = dbrType;
+		this.dbrType = Handlers.getDBRType(valueClazz);
+
 		this.valueClazz = valueClazz;
 		this.arrayPrimitiveClazz = ProcessVariableGeneric.extractPrimitiveClass(this.valueClazz);
 
@@ -166,11 +181,11 @@ public class ProcessVariableGeneric extends NumericProcessVariable {
 	 * 
 	 * @return Object The value
 	 */
-	protected Object getGenericValue() {
+	public T getGenericValue() {
 		if (Array.getLength(this.value) <= 1) {
-			return Array.get(this.value, 0);
+			return (T) Array.get(this.value, 0);
 		} else {
-			return this.value;
+			return (T) this.value;
 		}
 	}
 
@@ -180,11 +195,10 @@ public class ProcessVariableGeneric extends NumericProcessVariable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @param timestamp
-	 *            The Timestamp
 	 */
-	protected void setGenericValue(Object value) {
-		this.setGenericValue(value, new TimeStamp());
+	public void setGenericValue(T value) {
+		TimeStamp time = new TimeStamp();
+		this.setGenericValue(value, TimeHelper.getTimeMillis(time), TimeHelper.getTimeNanoOffset(time));
 	}
 
 	/**
@@ -193,11 +207,13 @@ public class ProcessVariableGeneric extends NumericProcessVariable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @param timestamp
-	 *            The Timestamp
+	 * @param millis
+	 *            The milliseconds (JAVA style)
+	 * @param nanoOffset
+	 *            The nanosecond offset
 	 */
-	protected void setGenericValue(Object value, TimeStamp timestamp) {
-		if (this.valueClazz.equals(value.getClass())) {
+	public void setGenericValue(T value, long millis, long nanoOffset) {
+		if (!this.valueClazz.equals(value.getClass())) {
 			String message = String.format("The class types do not match. Expect '%s' but was '%s'.", this.valueClazz, value.getClass());
 			throw new RuntimeException(message);
 		}
@@ -210,7 +226,7 @@ public class ProcessVariableGeneric extends NumericProcessVariable {
 			this.value = value;
 		}
 
-		this.timestamp = timestamp;
+		this.timestamp = TimeHelper.convert(millis, nanoOffset);
 
 		// post event if there is an interest
 		this.postEvent();

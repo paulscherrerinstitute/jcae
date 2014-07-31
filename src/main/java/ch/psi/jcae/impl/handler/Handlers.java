@@ -133,6 +133,15 @@ public class Handlers {
 		}
 	}
 
+	/**
+	 * Maps DBRTypes to their JAVA Class counterparts.
+	 * 
+	 * @param dbrType
+	 *            The DBRType
+	 * @param isArray
+	 *            Defines if the JAVA array type is required
+	 * @return Class The JAVA Class
+	 */
 	public static Class<?> getFieldType(DBRType dbrType, boolean isArray) {
 		List<Class<?>> clazzList;
 		Class<?> ret = null;
@@ -176,6 +185,22 @@ public class Handlers {
 		}
 
 		return ret;
+	}
+
+	/**
+	 * Mapper from JAVA Class to DBRType
+	 * 
+	 * @param valueClazz
+	 *            The JAVA class
+	 * @return DBRType The DBRType
+	 */
+	public static DBRType getDBRType(Class<?> valueClazz) {
+		Handler<?> handler = HANDLERS.get(valueClazz);
+		if (handler != null) {
+			return handler.getDBRType();
+		} else {
+			throw new IllegalArgumentException("Type " + valueClazz.getName() + " not supported");
+		}
 	}
 
 	private static String toString(Collection<Class<?>> clazzes, String prefix, String suffix) {

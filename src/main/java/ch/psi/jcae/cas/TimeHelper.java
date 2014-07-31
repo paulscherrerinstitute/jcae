@@ -24,7 +24,7 @@ public class TimeHelper {
 	 * @return long The nanosecond offset
 	 */
 	public static long getTimeNanoOffset(TimeStamp timestamp) {
-		return timestamp.nsec() % 1000000;
+		return timestamp.nsec() % 1000000L;
 	}
 
 	/**
@@ -38,6 +38,12 @@ public class TimeHelper {
 	 * @return TimeStamp The TimeStamp
 	 */
 	public static TimeStamp convert(long millis, long nanoOffset) {
-		return new TimeStamp(millis / 1000L - TS_EPOCH_SEC_PAST_1970, nanoOffset);
+		long secPastEpoch = millis / 1000L - TS_EPOCH_SEC_PAST_1970;
+		// nano offset part from millis (got lost due to second conversion)
+		long nsec = (millis % 1000L) * 1000000L;
+		// add the provided nano offset
+		nsec += nanoOffset;
+
+		return new TimeStamp(secPastEpoch, nsec);
 	}
 }
