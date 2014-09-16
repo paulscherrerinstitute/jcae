@@ -8,8 +8,8 @@ import ch.psi.jcae.cas.TimeHelper;
 
 public class TimestampValue {
 
-	private Date timestamp;
-	private Long nanosecondOffset;
+	private long timestamp;
+	private long nanosecondOffset;
 
 	/**
 	 * Converts the TimeStamp into java date and time
@@ -18,7 +18,7 @@ public class TimestampValue {
 	 *            The timestamp
 	 */
 	public void setTime(TimeStamp timestamp) {
-		this.setTimestamp(new Date(TimeHelper.getTimeMillis(timestamp)));
+		this.setTimestampPrimitive(TimeHelper.getTimeMillis(timestamp));
 		this.setNanosecondOffset(TimeHelper.getTimeNanoOffset(timestamp));
 	}
 
@@ -26,7 +26,7 @@ public class TimestampValue {
 	 * @return the timestamp
 	 */
 	public Date getTimestamp() {
-		return timestamp;
+		return new Date(timestamp);
 	}
 
 	/**
@@ -34,13 +34,28 @@ public class TimestampValue {
 	 *            the timestamp to set
 	 */
 	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp.getTime();
+	}
+
+	/**
+	 * @return the timestamp
+	 */
+	public long getTimestampPrimitive() {
+		return timestamp;
+	}
+
+	/**
+	 * @param timestamp
+	 *            the timestamp to set
+	 */
+	public void setTimestampPrimitive(long timestamp) {
 		this.timestamp = timestamp;
 	}
 
 	/**
 	 * @return the nanosecondOffset
 	 */
-	public Long getNanosecondOffset() {
+	public long getNanosecondOffset() {
 		return nanosecondOffset;
 	}
 
@@ -48,7 +63,7 @@ public class TimestampValue {
 	 * @param nanosecondOffset
 	 *            the nanosecondOffset to set
 	 */
-	public void setNanosecondOffset(Long nanosecondOffset) {
+	public void setNanosecondOffset(long nanosecondOffset) {
 		this.nanosecondOffset = nanosecondOffset;
 	}
 }

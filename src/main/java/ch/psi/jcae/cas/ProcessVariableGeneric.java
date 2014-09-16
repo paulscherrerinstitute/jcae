@@ -50,6 +50,20 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	private DBRType dbrType;
 	private Class<T> valueClazz;
 	private Class<?> arrayPrimitiveClazz;
+	
+	/**
+	 * Constructor - Create Process Variable
+	 * 
+	 * @param name
+	 *            Name of the process variable
+	 * @param eventCallback
+	 *            Callback for the process variable
+	 * @param valueClazz
+	 *            The Class of the value (e.g., Double.class)
+	 */
+	public ProcessVariableGeneric(String name, ProcessVariableEventCallback eventCallback, Class<T> valueClazz) {
+		this(name, eventCallback, valueClazz, 1);
+	}
 
 	/**
 	 * Constructor - Create Process Variable
@@ -59,7 +73,7 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	 * @param eventCallback
 	 *            Callback for the process variable
 	 * @param valueClazz
-	 *            The Class of the value (e.g., Double.class or double[].class)
+	 *            The Class of the value (e.g., double[].class)
 	 * @param size
 	 *            The array length
 	 */
@@ -181,7 +195,7 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	 * 
 	 * @return Object The value
 	 */
-	public T getGenericValue() {
+	public T getValue() {
 		if (Array.getLength(this.value) <= 1) {
 			return (T) Array.get(this.value, 0);
 		} else {
@@ -196,9 +210,9 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	 * @param value
 	 *            Value to set
 	 */
-	public void setGenericValue(T value) {
+	public void setValue(T value) {
 		TimeStamp time = new TimeStamp();
-		this.setGenericValue(value, TimeHelper.getTimeMillis(time), TimeHelper.getTimeNanoOffset(time));
+		this.setValue(value, TimeHelper.getTimeMillis(time), TimeHelper.getTimeNanoOffset(time));
 	}
 
 	/**
@@ -212,7 +226,7 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	 * @param nanoOffset
 	 *            The nanosecond offset
 	 */
-	public void setGenericValue(T value, long millis, long nanoOffset) {
+	public void setValue(T value, long millis, long nanoOffset) {
 		if (!this.valueClazz.equals(value.getClass())) {
 			String message = String.format("The class types do not match. Expect '%s' but was '%s'.", this.valueClazz, value.getClass());
 			throw new RuntimeException(message);
