@@ -103,7 +103,12 @@ public class JcaeProperties {
 				loadProperties(s);
 			}
 			else{
-				loadProperties(new File(property));
+				InputStream s = this.getClass().getResourceAsStream(property);
+				if (s != null){
+					loadProperties(s);
+				} else{
+					loadProperties(new File(property));
+				}
 			}			
 		} catch (Exception e) {
 			// We will silently ignore the fact that there is no jca.properties file as in some cases this file is not required 
