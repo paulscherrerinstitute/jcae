@@ -83,11 +83,14 @@ public class JCAChannelFactory {
 				boolean t;
 				t = latch.await(properties.getChannelTimeout(), TimeUnit.MILLISECONDS);
 				
-				if(t==false){
+				if(!t){
 					throw new CAException("Timout ["+properties.getChannelTimeout()+"] occured while creating channel "+channelName);
 				}
 				
 				return(channel);
+			}
+			catch(InterruptedException e){
+				throw e;
 			}
 			catch(Exception e){
 				if(cnt<=properties.getConnectionRetries()){
@@ -142,7 +145,7 @@ public class JCAChannelFactory {
 		t = latch.await(properties.getChannelTimeout(), TimeUnit.MILLISECONDS);
 		
 		// Check whether a timeout has occured
-		if(t==false){
+		if(!t){
 			// Timeout occurred
 			
 			// Cleanup all established channels
