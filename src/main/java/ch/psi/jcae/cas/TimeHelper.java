@@ -13,7 +13,20 @@ public class TimeHelper {
 	 * @return long The milliseconds
 	 */
 	public static long getTimeMillis(TimeStamp timestamp) {
-		return (timestamp.secPastEpoch() + TS_EPOCH_SEC_PAST_1970) * 1000L + timestamp.nsec() / 1000000L;
+		return getTimeMillis(timestamp.secPastEpoch(), timestamp.nsec());
+	}
+
+	/**
+	 * Extracts the milliseconds (JAVA style)
+	 * 
+	 * @param secPastEpoch
+	 *            The seconds past epoch of a {@link TimeStamp}
+	 * @param nsec
+	 *            The nano seconds of a {@link TimeStamp}
+	 * @return long The milliseconds
+	 */
+	public static long getTimeMillis(long secPastEpoch, long nsec) {
+		return (secPastEpoch + TS_EPOCH_SEC_PAST_1970) * 1000L + nsec / 1000000L;
 	}
 
 	/**
@@ -24,7 +37,18 @@ public class TimeHelper {
 	 * @return long The nanosecond offset
 	 */
 	public static long getTimeNanoOffset(TimeStamp timestamp) {
-		return timestamp.nsec() % 1000000L;
+		return getTimeNanoOffset(timestamp.nsec());
+	}
+
+	/**
+	 * Extracts the nanosecond offset
+	 * 
+	 * @param nsec
+	 *            The nano seconds of a {@link TimeStamp}
+	 * @return long The nanosecond offset
+	 */
+	public static long getTimeNanoOffset(long nsec) {
+		return nsec % 1000000L;
 	}
 
 	/**
