@@ -52,6 +52,35 @@ public class TimeHelper {
 	}
 
 	/**
+	 * Converts milliseconds (JAVA style) into epics seconds past epics epoch.
+	 * 
+	 * @param millis
+	 *            The milliseconds (JAVA style)
+	 * @return long The epics seconds
+	 */
+	public static long getEpicsSec(long millis) {
+		return millis / 1000L - TS_EPOCH_SEC_PAST_1970;
+	}
+
+	/**
+	 * Converts milliseconds (JAVA style) and nano offset into epics nano
+	 * seconds.
+	 * 
+	 * @param millis
+	 *            The milliseconds (JAVA style)
+	 * @param nanoOffset
+	 *            The nano offset
+	 * @return long The epics nano seconds
+	 */
+	public static long getEpicsNanoSec(long millis, long nanoOffset) {
+		// nano offset part from millis (got lost due to second conversion)
+		long nsec = (millis % 1000L) * 1000000L;
+		// add the provided nano offset
+		nsec += nanoOffset;
+		return nsec;
+	}
+
+	/**
 	 * Converts milliseconds (JAVA style) and nanosecond offset into a
 	 * {@link TimeStamp}
 	 * 
@@ -62,12 +91,6 @@ public class TimeHelper {
 	 * @return TimeStamp The TimeStamp
 	 */
 	public static TimeStamp convert(long millis, long nanoOffset) {
-		long secPastEpoch = millis / 1000L - TS_EPOCH_SEC_PAST_1970;
-		// nano offset part from millis (got lost due to second conversion)
-		long nsec = (millis % 1000L) * 1000000L;
-		// add the provided nano offset
-		nsec += nanoOffset;
-
-		return new TimeStamp(secPastEpoch, nsec);
+		return new TimeStamp(getEpicsSec(millis), getEpicsNanoSec(millis, nanoOffset));
 	}
 }
