@@ -2,6 +2,7 @@ package ch.psi.jcae.impl.handler;
 
 import gov.aps.jca.dbr.DBRType;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.psi.jcae.impl.type.ArrayValueHolder;
@@ -27,6 +29,8 @@ import ch.psi.jcae.impl.type.ShortArrayTimestamp;
 import ch.psi.jcae.impl.type.ShortTimestamp;
 import ch.psi.jcae.impl.type.StringArrayTimestamp;
 import ch.psi.jcae.impl.type.StringTimestamp;
+import ch.psi.jcae.impl.type.TimestampValue;
+import ch.psi.jcae.util.ClassUtils;
 
 /**
  * Registry for all handlers
@@ -34,6 +38,7 @@ import ch.psi.jcae.impl.type.StringTimestamp;
 public class Handlers {
 	private static Logger logger = Logger.getLogger(Handlers.class.getName());
 
+	private static final Class<?> NO_PARAMS[] = {};
 	public static final Map<Class<?>, Handler<?>> HANDLERS = new LinkedHashMap<Class<?>, Handler<?>>();
 	private static Map<DBRType, List<Class<?>>> DBR_TYPE_MAPPER_ARRAY = null;
 	private static Map<DBRType, List<Class<?>>> DBR_TYPE_MAPPER_SCALAR = null;
@@ -201,6 +206,48 @@ public class Handlers {
 		} else {
 			throw new IllegalArgumentException("Type " + valueClazz.getName() + " not supported");
 		}
+	}
+	
+	/**
+	 * Extracts the class needed for the value Object
+	 * 
+	 * @param valueClazz
+	 *            The initial Class
+	 * @return Class The Class of the value Object
+	 */
+	public static Class<?> extractPrimitiveClass(Class<?> valueClazz) {
+		if (valueClazz.isArray()) {
+			valueClazz = valueClazz.getComponentType();
+		}
+
+		Class<?> ret = ClassUtils.wrapperToPrimitive(valueClazz);
+		if (ret == null) {
+			ret = valueClazz;
+		}
+		return ret;
+	}
+
+	/**
+	 * Extracts the underlying Java class that is behind a TimestampValue class
+	 * or a ArrayValueHolder class
+	 * 
+	 * @param valueClazz
+	 *            The initial Class
+	 * @return Class The Class of the value Object behind a TimestampValue
+	 */
+	public static Class<?> extractValueClassOfTimestampValue(Class<?> valueClazz) {
+		if (TimestampValue.class.isAssignableFrom(valueClazz) || ArrayValueHolder.class.isAssignableFrom(valueClazz)) {
+			try {
+				Method getValueMethod = valueClazz.getMethod("getValue", NO_PARAMS);
+				if (getValueMethod != null) {
+					valueClazz = getValueMethod.getReturnType();
+				}
+			} catch (NoSuchMethodException e) {
+				logger.log(Level.WARNING, String.format("Could not access 'getValue' method for class '%s'", valueClazz.getName()), e);
+			}
+		}
+
+		return valueClazz;
 	}
 
 	private static String toString(Collection<Class<?>> clazzes, String prefix, String suffix) {

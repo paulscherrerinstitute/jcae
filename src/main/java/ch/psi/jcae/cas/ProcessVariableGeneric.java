@@ -20,7 +20,6 @@ import java.lang.reflect.Array;
 import java.util.logging.Logger;
 
 import ch.psi.jcae.impl.handler.Handlers;
-import ch.psi.jcae.util.ClassUtils;
 
 import com.cosylab.epics.caj.cas.handlers.AbstractCASResponseHandler;
 import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
@@ -50,7 +49,7 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	private DBRType dbrType;
 	private Class<T> valueClazz;
 	private Class<?> arrayPrimitiveClazz;
-	
+
 	/**
 	 * Constructor - Create Process Variable
 	 * 
@@ -82,7 +81,7 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 		this.dbrType = Handlers.getDBRType(valueClazz);
 
 		this.valueClazz = valueClazz;
-		this.arrayPrimitiveClazz = ProcessVariableGeneric.extractPrimitiveClass(this.valueClazz);
+		this.arrayPrimitiveClazz = ProcessVariableGeneric.extractPrimitiveClass(valueClazz);
 
 		this.value = Array.newInstance(this.arrayPrimitiveClazz, size);
 	}
@@ -254,15 +253,19 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	 * @return Class The Class of the value Object
 	 */
 	public static Class<?> extractPrimitiveClass(Class<?> valueClazz) {
-		if (valueClazz.isArray()) {
-			valueClazz = valueClazz.getComponentType();
-		}
+		return Handlers.extractPrimitiveClass(valueClazz);
+	}
 
-		Class<?> ret = ClassUtils.wrapperToPrimitive(valueClazz);
-		if (ret == null) {
-			ret = valueClazz;
-		}
-		return ret;
+	/**
+	 * Extracts the underlying Java class that is behind a TimestampValue class
+	 * or a ArrayValueHolder class
+	 * 
+	 * @param valueClazz
+	 *            The initial Class
+	 * @return Class The Class of the value Object behind a TimestampValue
+	 */
+	public static Class<?> extractValueClassOfTimestampValue(Class<?> valueClazz) {
+		return Handlers.extractValueClassOfTimestampValue(valueClazz);
 	}
 
 	@Override
