@@ -47,7 +47,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	private Monitor monitor;
 	private ConnectionListener listener;
 	private Channel channel;
-	private final Integer elementCount;
+	private Integer elementCount;
 
 	private final AtomicReference<E> value = new AtomicReference<E>();
 
@@ -89,30 +89,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		this.connected = channel.getConnectionState().isEqualTo(ConnectionState.CONNECTED);
 
 		// Set channel size
-		int csize = channel.getElementCount();
-		if (size != null && size > 0) {
-			if (size > 0 && size <= csize) {
-				this.elementCount = size;
-			}
-			else {
-				throw new IllegalArgumentException("Specified channel size [" + size + "]  is not applicable. Maximum size is " + csize);
-			}
-		}
-		else {
-			// instead of using a marker interface one could also query type's
-			// getValue method for its return value and check if it is an array
-			// (in this case the check for
-			// ByteArrayString.class.isAssignableFrom(type) is still necessary)
-			if (type.isArray() || ArrayValueHolder.class.isAssignableFrom(type)) {
-				this.elementCount = csize; // the size of the array may vary
-											// over time (always take the actual
-											// size of the channel)
-			}
-			else {
-				this.elementCount = 1; // if it is not an array type size is
-										// always 1
-			}
-		}
+		updateSize(size);
 
 		attachConnectionListener();
 
@@ -387,6 +364,45 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		return elementCount;
 	}
 
+    @Override
+    public void setSize(Integer size) throws ChannelException {
+        if(size == null | size != elementCount) {
+            updateSize(size);
+
+            if (monitor != null) {
+                attachMonitor();
+            }
+        }
+    }
+
+    private void updateSize(Integer size){
+        int csize = channel.getElementCount();
+        if (size != null && size > 0) {
+            if (size > 0 && size <= csize) {
+                this.elementCount = size;
+            }
+            else {
+                throw new IllegalArgumentException("Specified channel size [" + size + "]  is not applicable. Maximum size is " + csize);
+            }
+        }
+        else {
+            // instead of using a marker interface one could also query type's
+            // getValue method for its return value and check if it is an array
+            // (in this case the check for
+            // ByteArrayString.class.isAssignableFrom(type) is still necessary)
+            if (type.isArray() || ArrayValueHolder.class.isAssignableFrom(type)) {
+                this.elementCount = csize; // the size of the array may vary
+                // over time (always take the actual
+                // size of the channel)
+            }
+            else {
+                this.elementCount = 1; // if it is not an array type size is
+                // always 1
+            }
+        }
+
+    }
+
 	/**
 	 * Get Hostname of the IOC the channel is served
 	 * 
@@ -587,3 +603,4 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 		return Handlers.getFieldType(this.channel.getFieldType(), this.elementCount > 1);
 	}
 }
+

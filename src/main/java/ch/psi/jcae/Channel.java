@@ -41,6 +41,7 @@ public interface Channel<T> {
 	public String getName();
 	public boolean isConnected();
 	public Integer getSize();
+        public void setSize(Integer size) throws ChannelException;
 	public String getSource();
 	
 	/**
