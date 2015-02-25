@@ -108,6 +108,11 @@ public class CompositeChannel<T> implements Channel<T>{
 	public Integer getSize() {
 		return readback.getSize();
 	}
+        
+        @Override
+        public void setSize(Integer size) throws ChannelException {
+            readback.setSize(size);
+        }        
 
 	@Override
 	public String getSource() {
@@ -154,4 +159,5 @@ public class CompositeChannel<T> implements Channel<T>{
 	public Class<?> getFieldType() {
 		return this.readback.getFieldType();
 	}
+
 }

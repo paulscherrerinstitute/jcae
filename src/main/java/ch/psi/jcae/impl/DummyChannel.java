@@ -273,6 +273,12 @@ public class DummyChannel<T> implements Channel<T> {
 		}
 		return size;
 	}
+        
+
+        @Override
+        public void setSize(Integer size) throws ChannelException {
+            this.size=size;
+        }        
 
 	@Override
 	public String getSource() {
