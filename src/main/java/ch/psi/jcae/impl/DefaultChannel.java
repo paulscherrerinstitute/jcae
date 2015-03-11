@@ -497,9 +497,11 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 						}
 					} else {
 						if (!((Channel) event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)) {
-							logger.severe("Monitor fired but CAStatus is not NORMAL - CAStatus: " + event.getStatus() + " - Channel: " + event.getSource().toString());
+                                                    if (event.getStatus() !=null){
+							logger.log(Level.WARNING, "Monitor fired but CAStatus is {0} - Channl: {1}", 
+                                                                    new Object[]{event.getStatus(), event.getSource()});
+                                                    }
 						}
-						logger.severe("Monitor fired but there is something else");
 					}
 
 				}
