@@ -10,7 +10,9 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Channel.ConnectionState;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ch.psi.jcae.impl.JCAChannelFactory;
@@ -23,6 +25,19 @@ public class JCAChannelFactoryTest {
 	private static Logger logger = Logger.getLogger(JCAChannelFactoryTest.class.getName());
 
 	private JCAChannelFactory factory;
+	
+	private static TestChannels testChannels;
+	
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		testChannels = new TestChannels();
+		testChannels.start();
+	}
+	
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		testChannels.stop();
+	}
 	
 	@Before
 	public void setUp() throws Exception {

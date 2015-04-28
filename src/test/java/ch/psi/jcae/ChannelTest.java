@@ -15,7 +15,9 @@ import java.util.logging.Logger;
 import gov.aps.jca.CAException;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ch.psi.jcae.impl.DefaultChannelService;
@@ -37,6 +39,18 @@ public class ChannelTest {
 	
 	private static String iocname = "psi-softioc-2.psi.ch";
 	private ChannelService cservice;
+	private static TestChannels testChannels;
+	
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		testChannels = new TestChannels();
+		testChannels.start();
+	}
+	
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		testChannels.stop();
+	}
 	
 	@Before
 	public void setUp() throws Exception {
@@ -223,10 +237,6 @@ public class ChannelTest {
 		// Test how ChannelBean does behave is Scaler attached to waveform
 		Channel<Double> beandd = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.DOUBLE_WAVEFORM));
 		beandd.getValue();
-
-		// Test get on a MBBI record
-		Channel<String> beans = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.MBBI, true));
-		beans.getValue();
 	}
 	
 	/**
@@ -328,7 +338,6 @@ public class ChannelTest {
 	
 	@Test
 	public void testSetValueString() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		
 		Channel<String> channel1 = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1));
 		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
 		Channel<String> channel2 = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1));
