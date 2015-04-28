@@ -2,3 +2,8 @@
 /target
 .idea
 ch.psi.jcae.iml
+/bin/
+.project
+.settings
+.classpath
+.gradle
