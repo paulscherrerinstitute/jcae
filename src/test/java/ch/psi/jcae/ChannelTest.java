@@ -18,6 +18,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.psi.jcae.impl.DefaultChannelService;
@@ -37,7 +38,6 @@ public class ChannelTest {
 	
 	private static Logger logger = Logger.getLogger(ChannelTest.class.getName());
 	
-	private static String iocname = "psi-softioc-2.psi.ch";
 	private ChannelService cservice;
 	private static TestChannels testChannels;
 	
@@ -167,13 +167,17 @@ public class ChannelTest {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
+	@Ignore
 	@Test
 	public void testGetHostname() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		Channel<String> bean = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.BINARY_IN));
 		logger.fine("Size of the Channel: "+bean.getSource());
-		if(! bean.getSource().equals(iocname)){
-			fail("Ioc name returned does not match the expected ioc name");
-		}
+		
+		// TODO determine localhosts hostname, e.g. apple.psi.ch
+		assertEquals("localhost", bean.getSource());
+//		if(! .equals("localhost")){
+//			fail("Ioc name returned does not match the expected ioc name");
+//		}
 	}
 	
 	
@@ -302,38 +306,38 @@ public class ChannelTest {
 		System.out.println("done");
 	}
 	
-	@Test
-	public void testT() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
-		Channel<Double> ch = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
-		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
-		for(double i=0;i<=5.0; i=i+1){
-			System.out.println("SET "+i);
-			ch.setValueNoWait(i);
-			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
-			System.out.println("VALUE "+ch2.getValue());
-			System.out.println("NEW "+f.get());
-//			System.out.println("done");
-		}
-	}
-	
-	@Test
-	public void testT2() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
-		Channel<Double> ch1 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
-		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT2", false));
-		Channel<Double> ch1r = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
-		for(double i=0;i<=5.0; i=i+1){
-			System.out.println("SET[1] "+i);
-			Future<Double> f = ch1.setValueAsync(i);
-			System.out.println("SET[2] "+i);
-			ch2.setValueAsync(i);
-//			ch.setValueAsync(i);
+//	@Test
+//	public void testT() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
+//		Channel<Double> ch = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
+//		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
+//		for(double i=0;i<=5.0; i=i+1){
+//			System.out.println("SET "+i);
+//			ch.setValueNoWait(i);
 //			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
-			System.out.println("VALUE "+ch1r.getValue());
+//			System.out.println("VALUE "+ch2.getValue());
 //			System.out.println("NEW "+f.get());
-			f.get();
-//			System.out.println("done");
-		}
-	}
+////			System.out.println("done");
+//		}
+//	}
+	
+//	@Test
+//	public void testT2() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
+//		Channel<Double> ch1 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
+//		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT2", false));
+//		Channel<Double> ch1r = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
+//		for(double i=0;i<=5.0; i=i+1){
+//			System.out.println("SET[1] "+i);
+//			Future<Double> f = ch1.setValueAsync(i);
+//			System.out.println("SET[2] "+i);
+//			ch2.setValueAsync(i);
+////			ch.setValueAsync(i);
+////			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
+//			System.out.println("VALUE "+ch1r.getValue());
+////			System.out.println("NEW "+f.get());
+//			f.get();
+////			System.out.println("done");
+//		}
+//	}
 	
 	
 	@Test
