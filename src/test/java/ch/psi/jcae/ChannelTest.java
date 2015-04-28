@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
-import junit.framework.Assert;
 import gov.aps.jca.CAException;
 
 import org.junit.After;
@@ -123,14 +122,14 @@ public class ChannelTest {
 		
 		// Check whether the size of the value matches the maximum size of elements ()
 		if(size != valueSize){
-			Assert.fail("getValue() does not return all the waveform elements");
+			fail("getValue() does not return all the waveform elements");
 		}
 
 		// Check whether converted String value is the same than the one that was set 
 		String svalue = new String(value);
 		svalue = svalue.trim();
 		if(! setvalue.equals(svalue)){
-			Assert.fail("The returned channel value does not match to the one set");
+			fail("The returned channel value does not match to the one set");
 		}
 		logger.fine("String returned: "+svalue+" Size: "+svalue.length());
 		
@@ -140,7 +139,7 @@ public class ChannelTest {
 		svalue = new String(value);
 		svalue = svalue.trim();
 		if(! "some".equals(svalue)){
-			Assert.fail("The returned sub channel value does not match to the one set");
+			fail("The returned sub channel value does not match to the one set");
 		}
 		logger.fine("String returned: "+svalue+" Size: "+svalue.length());
 	}
@@ -159,7 +158,7 @@ public class ChannelTest {
 		Channel<String> bean = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.BINARY_IN));
 		logger.fine("Size of the Channel: "+bean.getSource());
 		if(! bean.getSource().equals(iocname)){
-			Assert.fail("Ioc name returned does not match the expected ioc name");
+			fail("Ioc name returned does not match the expected ioc name");
 		}
 	}
 	
@@ -739,7 +738,7 @@ public class ChannelTest {
 		Thread.sleep(1000);
 
 		if(valueFromListener==null || valueFromListener[0]!= 5d){
-			Assert.fail("The PropertyChangeListener has not return the correct value");
+			fail("The PropertyChangeListener has not return the correct value");
 		}
 	}
 	
@@ -784,7 +783,7 @@ public class ChannelTest {
 		bean.destroy();
 		
 		if(mcount != 4){ // 5 because while connecting the listener gets fired for the actual value
-			Assert.fail("Not all monitors fired correctly");
+			fail("Not all monitors fired correctly");
 		}
 	}
 	

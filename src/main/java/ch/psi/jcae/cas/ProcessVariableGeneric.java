@@ -194,6 +194,7 @@ public class ProcessVariableGeneric<T> extends NumericProcessVariable {
 	 * 
 	 * @return Object The value
 	 */
+	@SuppressWarnings("unchecked")
 	public T getValue() {
 		if (Array.getLength(this.value) <= 1) {
 			return (T) Array.get(this.value, 0);

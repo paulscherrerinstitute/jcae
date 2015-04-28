@@ -1,10 +1,10 @@
 package ch.psi.jcae;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
-import junit.framework.Assert;
 
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -47,7 +47,7 @@ public class JCAChannelFactoryTest {
 		
 		// Check if channel is connected
 		if(! channel.getConnectionState().equals(ConnectionState.CONNECTED)){
-			Assert.fail("Channel ["+channel.getName()+"] is not CONNECTED but: "+channel.getConnectionState().getName());
+			fail("Channel ["+channel.getName()+"] is not CONNECTED but: "+channel.getConnectionState().getName());
 		}
 	}
 	
@@ -85,7 +85,7 @@ public class JCAChannelFactoryTest {
 		// Check if all channels are connected
 		for(Channel c: channels){
 			if(! c.getConnectionState().equals(ConnectionState.CONNECTED)){
-				Assert.fail("Channel ["+c.getName()+"] is not CONNECTED but: "+c.getConnectionState().getName());
+				fail("Channel ["+c.getName()+"] is not CONNECTED but: "+c.getConnectionState().getName());
 			}
 		}
 	}
@@ -120,13 +120,13 @@ public class JCAChannelFactoryTest {
 		// Check factory behavior if an empty name list is passed
 		List<Channel> channels = factory.createChannels(channelNames);
 		if(channels.size()!=0){
-			Assert.fail("Factory does not return an empty Channel List if an empty name List is passed to the create function");
+			fail("Factory does not return an empty Channel List if an empty name List is passed to the create function");
 		}
 		
 		// Check factory behavior if null is passed
 		channels = factory.createChannels(channelNames);
 		if(channels.size()!=0){
-			Assert.fail("Factory does not return an empty Channel List if an empty name List is passed to the create function");
+			fail("Factory does not return an empty Channel List if an empty name List is passed to the create function");
 		}
 		
 	}

@@ -1,5 +1,7 @@
 package ch.psi.jcae;
 
+import static org.junit.Assert.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import gov.aps.jca.CAException;
-import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +57,7 @@ public class ChannelServiceTest {
 			
 			// Check if channel is connected
 			if(! bean.isConnected()){
-				Assert.fail("Channel ["+bean.getName()+"] is not CONNECTED");
+				fail("Channel ["+bean.getName()+"] is not CONNECTED");
 			}
 			
 			// Print the elapsed time for creating the channel
@@ -93,7 +94,7 @@ public class ChannelServiceTest {
 		// Check to get values
 		Channel<String> tc = one.getType();
 		if(! tc.isConnected()){
-			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+			fail("Channel ["+tc.getName()+"] is not CONNECTED");
 		}
 		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
 		
@@ -104,7 +105,7 @@ public class ChannelServiceTest {
 			Thread.sleep(10);
 			String v = tc.getValue();
 			if(!v.equals(val)){
-				Assert.fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
+				fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
 			}
 		}
 		// Write something else into the test channel to prepare the environment for the next test
@@ -115,10 +116,10 @@ public class ChannelServiceTest {
 		logger.info("[Start] Channel list check");
 		
 		// Check whether all list channels are connected
-		Assert.assertTrue(one.getMylist().size()==4); // Check whether there are 4 channels in the list
+		assertTrue(one.getMylist().size()==4); // Check whether there are 4 channels in the list
 		for (Channel<String> l : one.getMylist()) {
 			if(! l.isConnected()){
-				Assert.fail("Channel ["+l.getName()+"] is not CONNECTED");
+				fail("Channel ["+l.getName()+"] is not CONNECTED");
 			}
 			logger.info(String.format("%s - %s", l.getName(), l.getValue()));
 		}
@@ -142,7 +143,7 @@ public class ChannelServiceTest {
 			
 			// Check if channel is connected
 			if(! bean.isConnected()){
-				Assert.fail("Channel ["+bean.getName()+"] is not CONNECTED");
+				fail("Channel ["+bean.getName()+"] is not CONNECTED");
 			}
 			
 			bean.destroy();
@@ -171,7 +172,7 @@ public class ChannelServiceTest {
 		// Check to get values
 		Channel<String> tc = one.getType();
 		if(! tc.isConnected()){
-			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+			fail("Channel ["+tc.getName()+"] is not CONNECTED");
 		}
 		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
 		
@@ -182,7 +183,7 @@ public class ChannelServiceTest {
 			Thread.sleep(10);
 			String v = tc.getValue();
 			if(!v.equals(val)){
-				Assert.fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
+				fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
 			}
 		}
 		// Write something else into the test channel to prepare the environment for the next test
@@ -192,7 +193,7 @@ public class ChannelServiceTest {
 		// Check to get values
 		tc = one.getTypeTwo();
 		if(! tc.isConnected()){
-			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+			fail("Channel ["+tc.getName()+"] is not CONNECTED");
 		}
 		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
 		
@@ -203,7 +204,7 @@ public class ChannelServiceTest {
 			Thread.sleep(10);
 			String v = tc.getValue();
 			if(!v.equals(val)){
-				Assert.fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
+				fail(String.format("Value set [%s] does not correspond to the value that was retrieved [%s]", val, v));
 			}
 		}
 		// Write something else into the test channel to prepare the environment for the next test
@@ -213,7 +214,7 @@ public class ChannelServiceTest {
 		// Check to get values
 		tc = one.getTypeThree();
 		if(! tc.isConnected()){
-			Assert.fail("Channel ["+tc.getName()+"] is not CONNECTED");
+			fail("Channel ["+tc.getName()+"] is not CONNECTED");
 		}
 		logger.info(String.format("%s - %s", tc.getName(), tc.getValue()));
 		
@@ -223,10 +224,10 @@ public class ChannelServiceTest {
 		logger.info("[Start] Channel list check");
 		
 		// Check whether all list channels are connected
-		Assert.assertTrue(one.getMylist().size()==4); // Check whether there are 4 channels in the list
+		assertTrue(one.getMylist().size()==4); // Check whether there are 4 channels in the list
 		for (Channel<String> l : one.getMylist()) {
 			if(! l.isConnected()){
-				Assert.fail("Channel ["+l.getName()+"] is not CONNECTED");
+				fail("Channel ["+l.getName()+"] is not CONNECTED");
 			}
 			logger.info(String.format("%s - %s", l.getName(), l.getValue()));
 		}
