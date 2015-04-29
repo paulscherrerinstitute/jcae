@@ -1,12 +1,16 @@
 # Overview
 
-The package ch.psi.jcae.cas contains an utility library to easily create an channel access server.
+JCAE is an easy to use ChannelAccess library abstracting the complexity of the JCA and CAJ library and bringing ChannelAccess into the Java domain (i.e. use of Java types).
+
+The package provides an easy to use ChannelAccess client as well as Server API (in package `ch.psi.jcae.cas`). 
 
 # Usage
 
 ## Prerequisites
 ### Dependencies
-The easiest way to get all the jcae dependencies is to use the Maven. Add following dependency to your dependencies section:
+The easiest way to get jcae and all its dependencies is to use Gradle, Maven or some other dependeny management system.
+
+For Maven add following dependency to your dependencies section:
 
 ```xml
 <dependency>
@@ -16,9 +20,15 @@ The easiest way to get all the jcae dependencies is to use the Maven. Add follow
 </dependency>
 ```
 
+For Gradle use:
+
+```groovy
+compile name: 'ch.psi:jcae:<version to use>'
+```
+
 ## Configuration
 The JCA Extension library/classes obtain its configuration from the central `jcae.properties` file. 
-Note: In most cases no `jca.properties` file is needed! The `jcae.properties` file either need to reside inside 
+_Note:_ In most cases no `jca.properties` file is needed! The `jcae.properties` file either need to reside inside 
 the classpath of the application or need to be specified via the VM argument:
 
 ```
@@ -58,7 +68,7 @@ name as prefix.
 | ch.psi.jcae.ChannelBeanFactory.retries | 0 | Retries for set/get operation (will not apply to waitForValue operation) |
 
 ## Destruction Context
-The channel service uses a JCA Context for creating, managing and destructing channels. This context need to be destroyed at the end of every program. If the context is not destroyed, the Java Virtual Machine will not exit. Therefor the ChannelService instance need to be manually destroyed as follows:
+The channel service uses a JCA Context for creating, managing and destructing channels. This context need to be destroyed at the end of every program. If the context is not destroyed, the Java Virtual Machine will not exit. Therefore the ChannelService instance need to be manually destroyed as follows:
 
 ```java
 ChannelService service;
@@ -156,24 +166,22 @@ For a Channel you can register for Channel.PROPERTY_VALUE and Channel.PROPERTY_C
 
 
 ## Annotations
-`jcae` provides a way to annotate Channel declarations within Java classes. While annotating the 
-declarations one does not need to explicitly create/connect the Channel any more. To be able to 
-work with classes containing annotations, the annotated 
-Channels need to be connected via the ChannelService. This is done via the createAnnotatedChannels(...) 
-function. While calling this function of the factory establishes all connections and monitors of the annotated 
+Jcae provides a way to annotate Channel declarations within Java classes. While annotating the declarations one does not need to explicitly create/connect the Channel any more. To be able to work with classes containing annotations, the annotated  Channels need to be connected via the ChannelService. This is done via the createAnnotatedChannels(...) function. While calling this function the factory establishes all connections and monitors of the annotated 
 Channels.
+
+Within annotations macros can be used (see examples section on how to use this). Macros are inserted into the name like this: `${MACRO}`. The replacement values for the macros need to be specified in the second parameter while calling the `createAnnotatedChannels(object, macro)` function.
 
 ### Usage
   * Declaration
 
 ```java
 public class TestClass{
-        @CaChannel(name=".ACQT", type=String.class, monitor=true)
+        @CaChannel(name="CHANNEL-ZERO", type=String.class, monitor=true)
         private Channel<String> type;
-        @CaChannel(name={".ONE", ".TWO", ".THREE"}, type=Double.class, monitor=true)
+        @CaChannel(name={"CHANNEL-ONE", "CHANNEL-TWO", "CHANNEL-THREE"}, type=Double.class, monitor=true)
         private <List<Channel<Double>> values;
 
-        // Getter and setters ...
+        // More code ...
 }
 ```
 
@@ -181,19 +189,13 @@ public class TestClass{
 
 ```java
 TestClass cbean = new TestClass();
-channelService.createAnnotatedChannels(cbean, "PREFIX");
+channelService.createAnnotatedChannels(cbean);
 ```
 
   * Disconnect Bean
 
 ```java
 channelService.destroyAnnotatedChannels(cbean);
-```
-
-  * Usage
-
-```java
-tbean.getType().getValue();
 ```
 
 ### @CaChannel
@@ -347,11 +349,17 @@ public class MonitorExample {
 ### Annotation Example
 
 ```java
+package ch.psi.jcae.examples;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import gov.aps.jca.CAException;
+import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
@@ -360,14 +368,17 @@ import ch.psi.jcae.impl.DefaultChannelService;
 
 public class AnnotationExample {
 
-	public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException {
-		// Get channel factory
+    public static void main(String[] args) throws InterruptedException, TimeoutException, ChannelException, CAException, ExecutionException {
+        // Get channel factory
         ChannelService service = new DefaultChannelService();
 
         ChannelBeanContainer container = new ChannelBeanContainer();
         
         // Connect to channel(s) in the container
-        service.createAnnotatedChannels(container);
+        Map<String,String> macros = new HashMap<>();
+        macros.put("MACRO_1", "ARIDI");
+        macros.put("MACRO_2", "PCT");
+        service.createAnnotatedChannels(container, macros);
         
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
@@ -378,7 +389,7 @@ public class AnnotationExample {
         
         // Destroy context of the factory
         service.destroy();
-	}
+    }
 }
 
 /**
@@ -386,26 +397,21 @@ public class AnnotationExample {
  */
 class ChannelBeanContainer {
 
-	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private DefaultChannel<Double> current;
-	
-	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private DefaultChannel<String> unit;
+    @CaChannel(type=Double.class, name="${MACRO_1}-${MACRO_2}:CURRENT", monitor=true)
+    private Channel<Double> current;
+    
+    @CaChannel(type=String.class, name="${MACRO_1}-${MACRO_2}:CURRENT.EGU", monitor=true)
+    private Channel<String> unit;
 
-	/**
-	 * @return the current
-	 */
-	public DefaultChannel<Double> getCurrent() {
-		return current;
-	}
-	
-	/**
-	 * @return unit of the current
-	 */
-	public DefaultChannel<String> getUnit() {
-		return unit;
-	}
+    public Channel<Double> getCurrent() {
+        return current;
+    }
+
+    public Channel<String> getUnit() {
+        return unit;
+    }
 }
+
 ```
 
 ### Complete Annotation Example
@@ -415,21 +421,23 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import gov.aps.jca.CAException;
+import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
-import ch.psi.jcae.impl.DefaultChannel;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 public class CompleteAnnotationExample {
 
-	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		// Get channel factory
-        DefaultChannelService service = new DefaultChannelService();
+    public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
+        // Get channel factory
+        ChannelService service = new DefaultChannelService();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
@@ -445,90 +453,55 @@ public class CompleteAnnotationExample {
         
         // Destroy context of the factory
         service.destroy();
-	}
+    }
 }
 
 /**
  * Container class
  */
 class ChannelBeanContainerComplete {
+    
+    @CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
+    private Channel<Double> current;
+    
+    @CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
+    private Channel<String> unit;
 
-	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private DefaultChannel<Double> current;
-	
-	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private DefaultChannel<String> unit;
-
-	@CaPreInit
-	public void preInit(){
-		// Code executed before connecting the channels
-	}
-	
-	@CaPostInit
-	public void postInit(){
-		// Code executed after connecting channels
-	}
-	
-	@CaPreDestroy
-	public void preDestroy(){
-		// Code executed before destroying channels
-	}
-	
-	@CaPostDestroy
-	public void postDestroy(){
-		// Code executed after destroying channels
-	}
-	
-	/**
-	 * @return the current
-	 */
-	public DefaultChannel<Double> getCurrent() {
-		return current;
-	}
-	
-	/**
-	 * @return unit of the current
-	 */
-	public DefaultChannel<String> getUnit() {
-		return unit;
-	}
+    @CaPreInit
+    public void preInit(){
+        // Code executed before connecting the channels
+    }
+    
+    @CaPostInit
+    public void postInit(){
+        // Code executed after connecting channels
+    }
+    
+    @CaPreDestroy
+    public void preDestroy(){
+        // Code executed before destroying channels
+    }
+    
+    @CaPostDestroy
+    public void postDestroy(){
+        // Code executed after destroying channels
+    }
+    
+    public Channel<Double> getCurrent() {
+        return current;
+    }
+    
+    public Channel<String> getUnit() {
+        return unit;
+    }
 }
 ```
 
-
-
-
 # Development
-The package is build via Maven.
+To be able to build the package there are no prerequisites other than Java >= 1.7. The package can be build via gradle.
 
-Use `mvn clean install deploy` to create a new version of the package and to upload the (PSI) artifact to artifactory.
-
-
-
-
-# Notes
+ * Use `./gradlew build` to create a new version of the package.
+ * Use `./gradlew uploadArchives` to upload the jar into the PSI artifact repository
 
 ## Channel Access Specification
-
 The specification can be found at: http://epics.cosylab.com/cosyjava/JCA-Common/Documentation/CAproto.html
-
-If you are trying to access channels that are served by gateways (e.g. Machine Gateway) you need to change 
-the default ChannelAccess Server Port from 5064 to 5062!
-
-DBR - data request buffer types
-DBF - database field types
-
-Values can be set in different ways:
-  * normal - wait until channel returns acknowledgement
-  * async - get a handle (i.e. Future) to wait for set operation to finish
-  * noWait - issues a set command while requesting no acknowledgement (fire and forget)
-  
-Ways to Get and Set Values
-  * Set/Put
-    * Fire and forget (different type of CA request send out)
-    * Get acknowledgement (both cases are handled the same)
-      * Wait until acknowledgement is here (synchronous)
-      * Do something and then check if acknowledgement was received (asynchronous)
-  * Get
-    * Wait until value is received
-    * Do something and then check back if value was received

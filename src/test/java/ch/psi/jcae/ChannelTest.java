@@ -7,23 +7,23 @@ import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
-import junit.framework.Assert;
 import gov.aps.jca.CAException;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.impl.type.ByteArrayString;
 import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
-import ch.psi.jcae.util.ComparatorDouble;
 
 /**
  * JUnit test case for testing the functionality of a <code>Channel</code>
@@ -36,8 +36,19 @@ public class ChannelTest {
 	
 	private static Logger logger = Logger.getLogger(ChannelTest.class.getName());
 	
-	private static String iocname = "psi-softioc-2.psi.ch";
 	private ChannelService cservice;
+	private static TestChannels testChannels;
+	
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		testChannels = new TestChannels();
+		testChannels.start();
+	}
+	
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		testChannels.stop();
+	}
 	
 	@Before
 	public void setUp() throws Exception {
@@ -123,14 +134,14 @@ public class ChannelTest {
 		
 		// Check whether the size of the value matches the maximum size of elements ()
 		if(size != valueSize){
-			Assert.fail("getValue() does not return all the waveform elements");
+			fail("getValue() does not return all the waveform elements");
 		}
 
 		// Check whether converted String value is the same than the one that was set 
 		String svalue = new String(value);
 		svalue = svalue.trim();
 		if(! setvalue.equals(svalue)){
-			Assert.fail("The returned channel value does not match to the one set");
+			fail("The returned channel value does not match to the one set");
 		}
 		logger.fine("String returned: "+svalue+" Size: "+svalue.length());
 		
@@ -140,7 +151,7 @@ public class ChannelTest {
 		svalue = new String(value);
 		svalue = svalue.trim();
 		if(! "some".equals(svalue)){
-			Assert.fail("The returned sub channel value does not match to the one set");
+			fail("The returned sub channel value does not match to the one set");
 		}
 		logger.fine("String returned: "+svalue+" Size: "+svalue.length());
 	}
@@ -154,13 +165,17 @@ public class ChannelTest {
 	 * @throws TimeoutException 
 	 * @throws ExecutionException 
 	 */
+	@Ignore
 	@Test
 	public void testGetHostname() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		Channel<String> bean = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.BINARY_IN));
 		logger.fine("Size of the Channel: "+bean.getSource());
-		if(! bean.getSource().equals(iocname)){
-			Assert.fail("Ioc name returned does not match the expected ioc name");
-		}
+		
+		// TODO determine localhosts hostname, e.g. apple.psi.ch
+		assertEquals("localhost", bean.getSource());
+//		if(! .equals("localhost")){
+//			fail("Ioc name returned does not match the expected ioc name");
+//		}
 	}
 	
 	
@@ -224,10 +239,6 @@ public class ChannelTest {
 		// Test how ChannelBean does behave is Scaler attached to waveform
 		Channel<Double> beandd = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, TestChannels.DOUBLE_WAVEFORM));
 		beandd.getValue();
-
-		// Test get on a MBBI record
-		Channel<String> beans = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.MBBI, true));
-		beans.getValue();
 	}
 	
 	/**
@@ -293,43 +304,42 @@ public class ChannelTest {
 		System.out.println("done");
 	}
 	
-	@Test
-	public void testT() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
-		Channel<Double> ch = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
-		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
-		for(double i=0;i<=5.0; i=i+1){
-			System.out.println("SET "+i);
-			ch.setValueNoWait(i);
-			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
-			System.out.println("VALUE "+ch2.getValue());
-			System.out.println("NEW "+f.get());
-//			System.out.println("done");
-		}
-	}
-	
-	@Test
-	public void testT2() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
-		Channel<Double> ch1 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
-		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT2", false));
-		Channel<Double> ch1r = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
-		for(double i=0;i<=5.0; i=i+1){
-			System.out.println("SET[1] "+i);
-			Future<Double> f = ch1.setValueAsync(i);
-			System.out.println("SET[2] "+i);
-			ch2.setValueAsync(i);
-//			ch.setValueAsync(i);
+//	@Test
+//	public void testT() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
+//		Channel<Double> ch = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
+//		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
+//		for(double i=0;i<=5.0; i=i+1){
+//			System.out.println("SET "+i);
+//			ch.setValueNoWait(i);
 //			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
-			System.out.println("VALUE "+ch1r.getValue());
+//			System.out.println("VALUE "+ch2.getValue());
 //			System.out.println("NEW "+f.get());
-			f.get();
-//			System.out.println("done");
-		}
-	}
+////			System.out.println("done");
+//		}
+//	}
+	
+//	@Test
+//	public void testT2() throws ChannelException, InterruptedException, TimeoutException, ExecutionException{
+//		Channel<Double> ch1 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1", false));
+//		Channel<Double> ch2 = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT2", false));
+//		Channel<Double> ch1r = cservice.createChannel(new ChannelDescriptor<Double>(Double.class, "MTEST-HW3:MOT1.RBV", false));
+//		for(double i=0;i<=5.0; i=i+1){
+//			System.out.println("SET[1] "+i);
+//			Future<Double> f = ch1.setValueAsync(i);
+//			System.out.println("SET[2] "+i);
+//			ch2.setValueAsync(i);
+////			ch.setValueAsync(i);
+////			Future<Double> f = ch2.waitForValueAsync(i, new ComparatorDouble(0.01));
+//			System.out.println("VALUE "+ch1r.getValue());
+////			System.out.println("NEW "+f.get());
+//			f.get();
+////			System.out.println("done");
+//		}
+//	}
 	
 	
 	@Test
 	public void testSetValueString() throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
-		
 		Channel<String> channel1 = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1));
 		// Use of a second channel to ensure that the value is not somehow cached in the Channel object itself
 		Channel<String> channel2 = cservice.createChannel(new ChannelDescriptor<String>(String.class, TestChannels.STRING_OUT1));
@@ -410,9 +420,7 @@ public class ChannelTest {
 			Thread.sleep(5);
 			Double v = channel2.getValue();
 			
-			if(!v.equals(value)){
-				fail(String.format("Set value [%s] does not equal retrieved value [%s]", value, v));
-			}
+			assertEquals(value, v);
 		}
 		
 		// Reset value to old value
@@ -739,7 +747,7 @@ public class ChannelTest {
 		Thread.sleep(1000);
 
 		if(valueFromListener==null || valueFromListener[0]!= 5d){
-			Assert.fail("The PropertyChangeListener has not return the correct value");
+			fail("The PropertyChangeListener has not return the correct value");
 		}
 	}
 	
@@ -783,9 +791,10 @@ public class ChannelTest {
 		c.destroy();
 		bean.destroy();
 		
-		if(mcount != 4){ // 5 because while connecting the listener gets fired for the actual value
-			Assert.fail("Not all monitors fired correctly");
+		if(!(mcount == 4 | mcount == 5)){ // 5 because while connecting the listener gets fired for the actual value
+			fail("Not all monitors fired correctly");
 		}
+//		assertEquals("Not all monitors fired correctly", 4, mcount);
 	}
 	
 	

@@ -4,21 +4,23 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import gov.aps.jca.CAException;
+import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
+import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
 import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
-import ch.psi.jcae.impl.DefaultChannel;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 public class CompleteAnnotationExample {
 
 	public static void main(String[] args) throws CAException, InterruptedException, TimeoutException, ChannelException, ExecutionException {
 		// Get channel factory
-        DefaultChannelService service = new DefaultChannelService();
+        ChannelService service = new DefaultChannelService();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
         
@@ -41,12 +43,12 @@ public class CompleteAnnotationExample {
  * Container class
  */
 class ChannelBeanContainerComplete {
-
+	
 	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private DefaultChannel<Double> current;
+	private Channel<Double> current;
 	
 	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private DefaultChannel<String> unit;
+	private Channel<String> unit;
 
 	@CaPreInit
 	public void preInit(){
@@ -68,17 +70,11 @@ class ChannelBeanContainerComplete {
 		// Code executed after destroying channels
 	}
 	
-	/**
-	 * @return the current
-	 */
-	public DefaultChannel<Double> getCurrent() {
+	public Channel<Double> getCurrent() {
 		return current;
 	}
 	
-	/**
-	 * @return unit of the current
-	 */
-	public DefaultChannel<String> getUnit() {
+	public Channel<String> getUnit() {
 		return unit;
 	}
 }
