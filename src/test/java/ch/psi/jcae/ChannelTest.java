@@ -422,9 +422,7 @@ public class ChannelTest {
 			Thread.sleep(5);
 			Double v = channel2.getValue();
 			
-			if(!v.equals(value)){
-				fail(String.format("Set value [%s] does not equal retrieved value [%s]", value, v));
-			}
+			assertEquals(value, v);
 		}
 		
 		// Reset value to old value
@@ -795,9 +793,10 @@ public class ChannelTest {
 		c.destroy();
 		bean.destroy();
 		
-		if(mcount != 4){ // 5 because while connecting the listener gets fired for the actual value
+		if(!(mcount == 4 | mcount == 5)){ // 5 because while connecting the listener gets fired for the actual value
 			fail("Not all monitors fired correctly");
 		}
+//		assertEquals("Not all monitors fired correctly", 4, mcount);
 	}
 	
 	

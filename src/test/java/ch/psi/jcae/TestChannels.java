@@ -36,7 +36,7 @@ public class TestChannels {
 		processVariables.add(new ProcessVariableGeneric<String[]>(STRING_WAVEFORM, null, String[].class, 10));
 		processVariables.add(new ProcessVariableGeneric<Integer>(BINARY_IN, null, Integer.class));
 		processVariables.add(new ProcessVariableGeneric<Integer>(BINARY_OUT, null, Integer.class));
-		processVariables.add(new ProcessVariableGeneric<Integer>(ANALOG_OUT, null, Integer.class));
+		processVariables.add(new ProcessVariableGeneric<Double>(ANALOG_OUT, null, Double.class));
 		processVariables.add(new ProcessVariableGeneric<String>(STRING_OUT1, null, String.class));
 		processVariables.add(new ProcessVariableGeneric<String>(STRING_OUT2, null, String.class));
 		processVariables.add(new ProcessVariableGeneric<String>(STRING_OUT3, null, String.class));
