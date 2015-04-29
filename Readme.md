@@ -4,6 +4,8 @@ JCAE is an easy to use ChannelAccess library abstracting the complexity of the J
 
 The package provides an easy to use ChannelAccess client as well as Server API (in package `ch.psi.jcae.cas`). 
 
+Jcae can be used to easily interface Epics via ChannelAccess within Matlab. Details about this can be found [here](Matlab.md).
+
 # Usage
 
 ## Prerequisites
@@ -502,6 +504,7 @@ To be able to build the package there are no prerequisites other than Java >= 1.
 
  * Use `./gradlew build` to create a new version of the package.
  * Use `./gradlew uploadArchives` to upload the jar into the PSI artifact repository
+ * Use `./gradlew fatJar` to create the all in one package for Matlab
 
 ## Channel Access Specification
 The specification can be found at: http://epics.cosylab.com/cosyjava/JCA-Common/Documentation/CAproto.html

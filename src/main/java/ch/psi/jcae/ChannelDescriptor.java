@@ -12,13 +12,13 @@ public class ChannelDescriptor<T> extends Descriptor<T> {
 		this.type = type;
 	}
 	
-	public ChannelDescriptor(Class<T> type, String name, Boolean monitored){
+	public ChannelDescriptor(Class<T> type, String name, boolean monitored){
 		this.name = name;
 		this.type = type;
 		this.monitored = monitored;
 	}
 	
-	public ChannelDescriptor(Class<T> type, String name, Boolean monitored, Integer size){
+	public ChannelDescriptor(Class<T> type, String name, boolean monitored, Integer size){
 		this.name = name;
 		this.type = type;
 		this.monitored = monitored;
@@ -32,13 +32,13 @@ public class ChannelDescriptor<T> extends Descriptor<T> {
 		this.type = getDataType(type);
 	}
 	
-	public ChannelDescriptor(String type, String name, Boolean monitored){
+	public ChannelDescriptor(String type, String name, boolean monitored){
 		this.name = name;
 		this.type = getDataType(type);
 		this.monitored = monitored;
 	}
 	
-	public ChannelDescriptor(String type, String name, Boolean monitored, Integer size){
+	public ChannelDescriptor(String type, String name, boolean monitored, Integer size){
 		this.name = name;
 		this.type = getDataType(type);
 		this.monitored = monitored;
