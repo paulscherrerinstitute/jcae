@@ -39,7 +39,7 @@ context.destroy()
 
 Before being able to create channels there need to be a context / channel service instance. For normal setups, ideally there should be only one context per Matlab application. The context can be configured via the above mentioned jcae.properties file (in there you can specify for example the epics address list) that is passed via the _java.opts_ configuration line. To create a context use:
 
-```
+```Matlab
 import ch.psi.jcae.*
 import ch.psi.jcae.impl.*
 context = DefaultChannelService()
@@ -47,7 +47,7 @@ context = DefaultChannelService()
 
 The context need to be destroyed at the end of the application via
 
-```
+```Matlab
 context.destroy()
 ```
 
@@ -72,7 +72,7 @@ If you require to explicitly fetch the value over the network use `getValue(true
  
 After you are done working with a channel close the channel via
 
-```
+```Matlab
 channel.destroy()
 ```
 
