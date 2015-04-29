@@ -12,7 +12,6 @@ import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
-import ch.psi.jcae.impl.DefaultChannel;
 import ch.psi.jcae.impl.DefaultChannelService;
 
 public class AnnotationExample {

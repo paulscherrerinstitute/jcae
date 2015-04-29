@@ -1,5 +1,0 @@
-file test.template {
-    {
-        P = MTEST-PC-JCAE:
-    }
-}

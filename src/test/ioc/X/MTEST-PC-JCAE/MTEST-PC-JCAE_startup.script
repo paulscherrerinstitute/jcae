@@ -1,4 +1,0 @@
-# Softioc for testing the Java JCA-E Library
-
-# Load test template
-dbLoadTemplate("MTEST-PC-JCAE_test.subs")
