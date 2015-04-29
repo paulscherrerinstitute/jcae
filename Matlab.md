@@ -27,7 +27,7 @@ There are absolutely no other dependencies that need to be met except including 
 
 After loading the required jar (see Overview above) channels can be created and read/written as follows:
 
-```
+```Matlab
 import ch.psi.jcae.*
 import ch.psi.jcae.impl.*
 context = DefaultChannelService()
