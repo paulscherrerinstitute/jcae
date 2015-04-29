@@ -46,7 +46,7 @@ uploadArchives {
 
 
 task fatJar(type: Jar) {
-    baseName = project.name + '-all'
+    baseName = project.name + '_all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
