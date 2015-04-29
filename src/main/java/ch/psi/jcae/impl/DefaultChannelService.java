@@ -238,7 +238,10 @@ public class DefaultChannelService implements ChannelService {
 				CaPreInit a = m.getAnnotation(CaPreInit.class);
 				
 				if(a != null){
+					boolean accessible = m.isAccessible();
+					m.setAccessible(true);
 					m.invoke(object);
+					m.setAccessible(accessible);
 				}
 			}
 			
@@ -322,7 +325,10 @@ public class DefaultChannelService implements ChannelService {
 				CaPostInit a = m.getAnnotation(CaPostInit.class);
 				
 				if(a != null){
+					boolean accessible = m.isAccessible();
+					m.setAccessible(true);
 					m.invoke(object);
+					m.setAccessible(accessible);
 				}
 			}
 			
@@ -353,7 +359,10 @@ public class DefaultChannelService implements ChannelService {
 				CaPreDestroy a = m.getAnnotation(CaPreDestroy.class);
 				
 				if(a != null){
+					boolean accessible = m.isAccessible();
+					m.setAccessible(true);
 					m.invoke(object);
+					m.setAccessible(accessible);
 				}
 			}
 			
@@ -395,7 +404,10 @@ public class DefaultChannelService implements ChannelService {
 				CaPostDestroy a = m.getAnnotation(CaPostDestroy.class);
 				
 				if(a != null){
+					boolean accessible = m.isAccessible();
+					m.setAccessible(true);
 					m.invoke(object);
+					m.setAccessible(accessible);
 				}
 			}
 			

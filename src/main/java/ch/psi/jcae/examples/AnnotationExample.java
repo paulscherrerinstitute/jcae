@@ -1,10 +1,14 @@
 package ch.psi.jcae.examples;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import gov.aps.jca.CAException;
+import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.annotation.CaChannel;
@@ -20,7 +24,10 @@ public class AnnotationExample {
         ChannelBeanContainer container = new ChannelBeanContainer();
         
         // Connect to channel(s) in the container
-        service.createAnnotatedChannels(container);
+        Map<String,String> macros = new HashMap<>();
+        macros.put("MACRO_1", "ARIDI");
+        macros.put("MACRO_2", "PCT");
+        service.createAnnotatedChannels(container, macros);
         
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
@@ -39,23 +46,17 @@ public class AnnotationExample {
  */
 class ChannelBeanContainer {
 
-	@CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
-	private DefaultChannel<Double> current;
+	@CaChannel(type=Double.class, name="${MACRO_1}-${MACRO_2}:CURRENT", monitor=true)
+	private Channel<Double> current;
 	
-	@CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
-	private DefaultChannel<String> unit;
+	@CaChannel(type=String.class, name="${MACRO_1}-${MACRO_2}:CURRENT.EGU", monitor=true)
+	private Channel<String> unit;
 
-	/**
-	 * @return the current
-	 */
-	public DefaultChannel<Double> getCurrent() {
+	public Channel<Double> getCurrent() {
 		return current;
 	}
-	
-	/**
-	 * @return unit of the current
-	 */
-	public DefaultChannel<String> getUnit() {
+
+	public Channel<String> getUnit() {
 		return unit;
 	}
 }

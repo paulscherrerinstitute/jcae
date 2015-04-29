@@ -7,7 +7,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -25,7 +24,6 @@ import ch.psi.jcae.impl.DefaultChannelService;
 import ch.psi.jcae.impl.type.ByteArrayString;
 import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
 import ch.psi.jcae.impl.type.DoubleTimestamp;
-import ch.psi.jcae.util.ComparatorDouble;
 
 /**
  * JUnit test case for testing the functionality of a <code>Channel</code>
