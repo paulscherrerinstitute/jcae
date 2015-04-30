@@ -66,7 +66,7 @@ channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT',
 channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT', true, 10))
 ```
 
-Supported types are: double, integer, short, float, byte, boolean, string and the respective array forms double[], integer[], short[], float[], byte[], boolean[], string[] .
+Supported types are: `double`, `integer`, `short`, `float`, `byte`, `boolean`, `string` and the respective array forms `double[]`, `integer[]`, `short[]`, `float[]`, `byte[]`, `boolean[]`, `string[]` .
 
 After creating a channel you are able to get and set values via the `getValue()` and `setValue(value)` methods. _Note_, if you created a channel with the monitored flag set true `getValue()` will not reach for the network to get the latest value of the channel but returns the latest update by a channel monitor.
 If you require to explicitly fetch the value over the network use `getValue(true)` (this should only be rare cases as most of the time its enough to get the cached value)
