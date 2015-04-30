@@ -3,7 +3,7 @@ Jcae can be used to easily interface Epics via ChannelAccess within Matlab. This
 
 The latest stable package can be downloaded [here](http://slsyoke4.psi.ch:8081/artifactory/releases/jcae_all-2.7.0.jar).
 
-The *prerequisites* for this package is *Matlab2015a* or later.
+The *prerequisites* for this package is *Matlab2015a* or later. There are absolutely no other dependencies beside that (just include the Jar as described below).
 
 To be able to use the package, include the full qualified path of the jar in the *javaclasspath.txt* within the Matlab home folder (ideally also copy the jar into this directory). For example:
 
@@ -21,7 +21,6 @@ Note that similar to the jar it has to be the full qualified path of the file!
 
 After altering the file(s) you need to restart Matlab.
 
-There are absolutely no other dependencies that need to be met except including the Jar!
 
 # Usage
 
