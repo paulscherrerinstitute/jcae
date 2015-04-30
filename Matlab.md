@@ -17,7 +17,7 @@ If you need to provide special ChannelAccess settings (e.g. special epics addres
 -Dch.psi.jcae.config.file=/Users/ebner/Documents/MATLAB/jcae.properties
 ```
 
-_Note:_ For Paul Scherrer Institute users there are a list of example configuration files for accessing the different facilities in [Environments.md](Environments.md).
+_Note:_ For Paul Scherrer Institute users there is a list of example configuration files for accessing the different facilities in [Environments.md](Environments.md).
 
 Note that similar to the jar it has to be the full qualified path of the file!
 
