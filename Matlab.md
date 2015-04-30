@@ -62,7 +62,12 @@ Here are some examples on how to create channels:
 channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT'))
 % Create monitored double channel
 channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT', true))
-% Create a channel for a double waveform/array of size 10
+
+
+% Create a channel for a double waveform/array - the size will be determined by the channel
+channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT', true))
+% Create a channel for a double waveform/array of specific size 10 
+% If the actual channel array is bigger you specify you would only retrieve the first 10 elements
 channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT', true, 10))
 ```
 
