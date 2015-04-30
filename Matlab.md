@@ -11,7 +11,7 @@ To be able to use the package, include the full qualified path of the jar in the
 /Users/ebner/Documents/MATLAB/jcae_all-2.7.0.jar
 ```
 
-If you need to provide special channel access settings, i.e. providing a jcae.properties file, create the file in the Matlab home folder, add the properties you need and add following line into `java.opts` (also located in the Matlab home folder - create if it doesn't exist):
+If you need to provide special ChannelAccess settings (e.g. special epics address list) you need to create/provide a jcae.properties file (e.g. in the Matlab home folder). Regarding the possible settings please refer to the corresponding section of this [Readme.md](Readme.md). After creating the file add following line into `java.opts` (also located in the Matlab home folder - create if it doesn't exist):
 
 ```
 -Dch.psi.jcae.config.file=/Users/ebner/Documents/MATLAB/jcae.properties
