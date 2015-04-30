@@ -63,7 +63,7 @@ channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT')
 % Create monitored double channel
 channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT', true))
 % Create a channel for a double waveform/array of size 10
-channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT', true, 10))
+channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT', true, 10))
 ```
 
 Supported types are: `double`, `integer`, `short`, `float`, `byte`, `boolean`, `string` and the respective array forms `double[]`, `integer[]`, `short[]`, `float[]`, `byte[]`, `boolean[]`, `string[]` .
