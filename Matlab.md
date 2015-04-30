@@ -69,6 +69,37 @@ After creating a channel you are able to get and set values via the `getValue()`
 If you require to explicitly fetch the value over the network use `getValue(true)` (this should only be rare cases as most of the time its enough to get the cached value)
 
 `Note` a polling loop within your Matlab application on a channel created with the monitored flag set *true* is perfectly fine and does not induce any load on the network.
+
+
+Beside the synchronous (i.e. blocking until the operation is done) versions of `getValue()` and `setValue(value)` there are also asynchronous calls. They are named `getValueAsync()` and `setValueAsync(value)`. Both functions immediately return with a handle for the opertation, i.e. a so called Future. The Future can be used to wait at any location in the script to wait for the completion of the operation and retrieve the final value of the channel.
+
+Example asynchronous get:
+
+```Matlab
+future = channel.getValueAsync()
+future_2 = channel_2.getValueAsync()
+
+% do some heavy work ...
+
+value_channel = future.get()
+value_channel_2 = future_2.get()
+```
+
+Example asynchronous put:
+
+```Matlab
+future = channel.setValueAsync(value_1) % this could, for example start some move of a motor ...
+future_2 = channel_2.setValueAsync(value_2)
+
+% do some heavy work ...
+heavy_work()
+% ... or simply sleep ...
+pause(10)
+% ... or simply do nothing ...
+
+future.get() % this will return the set value, i.e. value_1
+future_2.get() % this will return the set value, i.e. value_2
+```
  
 After you are done working with a channel close the channel via
 
