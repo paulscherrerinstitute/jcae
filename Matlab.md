@@ -1,17 +1,44 @@
 # Overview
-Jcae can be used to easily interface Epics via ChannelAccess within Matlab. This document describes how to do so within Matlab. On the exact jcae API details please refer to the general [Readme.md](Readme.md).
+Jcae can be used to easily interface Epics via Channel Access within Matlab. This document describes how to do so within Matlab. On the exact jcae API details please refer to the general [Readme.md](Readme.md).
 
 The latest stable package can be downloaded [here](http://slsyoke4.psi.ch:8081/artifactory/releases/jcae_all-2.7.0.jar).
 
 The *prerequisites* for this package is *Matlab2015a* or later. There are absolutely no other dependencies beside that (just include the Jar as described below).
 
+
+
+# Configuration
+
+To be able to use the library you have two options, a dynamic and a static one. The difference between the two options is that
+with dynamic you will *bundle* the library with your Matlab code, with the static one you will set the library one time globally
+for the Matlab instance.
+
+## Dynamic
+
+To get started with the library just copy the downloaded jar into the folder holding your Matlab code file. At the top of your .m file just add following line:
+
+```
+javaaddpath('jcae_all-2.7.0.jar')
+```
+
+If you need to provide/set special Channel Access settings you need to create/provide a jcae.properties file in the same directory than your .m file. After creating this file you need to add following statement after the first `javaaddpath` call:
+
+```
+java.lang.System.setProperty('ch.psi.jcae.config.file', 'jcae.properties')
+```
+
+Regarding the possible settings inside the *jcae.properties* file please refer to the corresponding section of this [Readme.md](Readme.md). For Paul Scherrer Institute users there is a list of example configuration files for accessing the different facilities in [Environments.md](Environments.md).
+
+
+
+## Static
 To be able to use the package, include the full qualified path of the jar in the *javaclasspath.txt* within the Matlab home folder (ideally also copy the jar into this directory). For example:
 
 ```
 /Users/ebner/Documents/MATLAB/jcae_all-2.7.0.jar
 ```
 
-If you need to provide special ChannelAccess settings (e.g. special epics address list) you need to create/provide a jcae.properties file (e.g. in the Matlab home folder). Regarding the possible settings please refer to the corresponding section of this [Readme.md](Readme.md). After creating the file add following line into *java.opts* (also located in the Matlab home folder - create if it doesn't exist):
+If you need to provide special Channel Access settings (e.g. special epics address list) you need to create/provide a jcae.properties file (e.g. in the Matlab home folder). Regarding the possible settings please refer to the corresponding section of this [Readme.md](Readme.md). After creating the file add following line into *java.opts* (also located in the Matlab home folder - create if it doesn't exist):
 
 ```
 -Dch.psi.jcae.config.file=/Users/ebner/Documents/MATLAB/jcae.properties
@@ -22,6 +49,7 @@ _Note:_ For Paul Scherrer Institute users there is a list of example configurati
 Note that similar to the jar it has to be the full qualified path of the file!
 
 After creating/altering the file(s) *javaclasspath.txt* and *java.opts* you need to restart Matlab.
+
 
 
 # Usage
