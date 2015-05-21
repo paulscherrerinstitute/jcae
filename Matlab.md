@@ -11,7 +11,7 @@ To be able to use the package, include the full qualified path of the jar in the
 /Users/ebner/Documents/MATLAB/jcae_all-2.7.0.jar
 ```
 
-If you need to provide special ChannelAccess settings (e.g. special epics address list) you need to create/provide a jcae.properties file (e.g. in the Matlab home folder). Regarding the possible settings please refer to the corresponding section of this [Readme.md](Readme.md). After creating the file add following line into `java.opts` (also located in the Matlab home folder - create if it doesn't exist):
+If you need to provide special ChannelAccess settings (e.g. special epics address list) you need to create/provide a jcae.properties file (e.g. in the Matlab home folder). Regarding the possible settings please refer to the corresponding section of this [Readme.md](Readme.md). After creating the file add following line into *java.opts* (also located in the Matlab home folder - create if it doesn't exist):
 
 ```
 -Dch.psi.jcae.config.file=/Users/ebner/Documents/MATLAB/jcae.properties
@@ -68,7 +68,7 @@ channel = context.createChannel(ChannelDescriptor('double', 'ARIDI-PCT:CURRENT',
 channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT', true))
 % Create a channel for a double waveform/array of specific size 10 
 % If the actual channel array is bigger you specify you would only retrieve the first 10 elements
-channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT', true, 10))
+channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT', true, java.lang.Integer(10)))
 ```
 
 Supported types are: `double`, `integer`, `short`, `float`, `byte`, `boolean`, `string` and the respective array forms `double[]`, `integer[]`, `short[]`, `float[]`, `byte[]`, `boolean[]`, `string[]` .
