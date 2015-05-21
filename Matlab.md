@@ -21,7 +21,7 @@ _Note:_ For Paul Scherrer Institute users there is a list of example configurati
 
 Note that similar to the jar it has to be the full qualified path of the file!
 
-After altering the file(s) you need to restart Matlab.
+After creating/altering the file(s) *javaclasspath.txt* and *java.opts* you need to restart Matlab.
 
 
 # Usage
