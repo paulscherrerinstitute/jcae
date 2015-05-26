@@ -18,7 +18,7 @@ for the Matlab instance.
 To get started with the library just copy the downloaded jar into the folder holding your Matlab code file. At the top of your .m file just add following line:
 
 ```
-javaclasspath('jcae_all-2.7.0.jar')
+javaaddpath('jcae_all-2.7.0.jar')
 ```
 
 If you need to provide/set special Channel Access settings you need to create/provide a jcae.properties file in the same directory than your .m file. After creating this file you need to add following statement after the first `javaaddpath` call:
@@ -195,7 +195,7 @@ context.destroyAnnotatedChannels(channels)
 
 If no macros are used simply call for creating the channels:
 
-```
+```matlab
 javaaddpath('.')
 channels = Channels()
 context.createAnnotatedChannels(channels)
