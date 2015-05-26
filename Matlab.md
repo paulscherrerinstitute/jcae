@@ -18,7 +18,7 @@ for the Matlab instance.
 To get started with the library just copy the downloaded jar into the folder holding your Matlab code file. At the top of your .m file just add following line:
 
 ```
-javaaddpath('jcae_all-2.7.0.jar')
+javaclasspath('jcae_all-2.7.0.jar')
 ```
 
 If you need to provide/set special Channel Access settings you need to create/provide a jcae.properties file in the same directory than your .m file. After creating this file you need to add following statement after the first `javaaddpath` call:
@@ -148,3 +148,55 @@ channel.destroy()
 ```
 
 There are various other ways to interact with a channel. However for more details on them have a look at the general [Readme.md](Readme.md).
+
+
+## Annotations
+
+Channels can be efficiently created in a one-go operation while using a Java class and Java annotations. To make use of this
+create a Java class like follows:
+
+
+```java
+import ch.psi.jcae.annotation.CaChannel;
+import ch.psi.jcae.Channel;
+
+public class Channels {
+        @CaChannel(name="${DEVICE}:CURRENT", type=Double.class, monitor=true)
+        public Channel<String> current;
+        @CaChannel(name="${DEVICE}:CUR-HOUR", type=Double.class, monitor=true)
+        public Channel<String> currentHour;
+        // ...
+}
+```
+
+After creating the file with all required channels you need to compile the file with `javac`. Therefore you need to switch to the commandline and execute following command:
+
+```bash
+javac -cp jcae_all-2.7.0.jar -source 1.7 -target 1.7 Channels.java
+```
+
+After compiling the class is ready to be used within Matlab. The channels can now be created as follows:
+
+
+```matlab
+javaaddpath('.')
+channels = Channels()
+
+import java.util.*
+macros = HashMap()
+macros.put('DEVICE','ARIDI-PCT')
+
+context.createAnnotatedChannels(channels, macros)
+
+channels.current.getValue()
+
+context.destroyAnnotatedChannels(channels)
+```
+
+If no macros are used simply call for creating the channels:
+
+```
+javaaddpath('.')
+channels = Channels()
+context.createAnnotatedChannels(channels)
+```
