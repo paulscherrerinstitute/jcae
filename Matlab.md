@@ -1,7 +1,7 @@
 # Overview
 Jcae can be used to easily interface Epics via Channel Access within Matlab. This document describes how to do so within Matlab. On the exact jcae API details please refer to the general [Readme.md](Readme.md).
 
-The latest stable package can be downloaded [here](http://slsyoke4.psi.ch:8081/artifactory/releases/jcae_all-2.7.0.jar).
+The latest stable package can be downloaded [here](http://slsyoke4.psi.ch:8081/artifactory/releases/jcae_all-2.7.1.jar).
 
 The *prerequisites* for this package is *Matlab2015a* or later. There are absolutely no other dependencies beside that (just include the Jar as described below).
 
@@ -18,7 +18,7 @@ for the Matlab instance.
 To get started with the library just copy the downloaded jar into the folder holding your Matlab code file. At the top of your .m file just add following line:
 
 ```
-javaaddpath('jcae_all-2.7.0.jar')
+javaaddpath('jcae_all-2.7.1.jar')
 ```
 
 If you need to provide/set special Channel Access settings you need to create/provide a jcae.properties file in the same directory than your .m file. After creating this file you need to add following statement after the first `javaaddpath` call:
@@ -35,7 +35,7 @@ Regarding the possible settings inside the *jcae.properties* file please refer t
 To be able to use the package, include the full qualified path of the jar in the *javaclasspath.txt* within the Matlab home folder (ideally also copy the jar into this directory). For example:
 
 ```
-/Users/ebner/Documents/MATLAB/jcae_all-2.7.0.jar
+/Users/ebner/Documents/MATLAB/jcae_all-2.7.1.jar
 ```
 
 If you need to provide special Channel Access settings (e.g. special epics address list) you need to create/provide a jcae.properties file (e.g. in the Matlab home folder). Regarding the possible settings please refer to the corresponding section of this [Readme.md](Readme.md). After creating the file add following line into *java.opts* (also located in the Matlab home folder - create if it doesn't exist):
@@ -196,7 +196,7 @@ public class Channels {
 After creating the file with all required channels you need to compile the file with `javac`. Therefore you need to switch to the commandline and execute following command:
 
 ```bash
-javac -cp jcae_all-2.7.0.jar -source 1.7 -target 1.7 Channels.java
+javac -cp jcae_all-2.7.1.jar -source 1.7 -target 1.7 Channels.java
 ```
 
 After compiling the class is ready to be used within Matlab. The channels can now be created as follows:

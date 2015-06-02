@@ -8,6 +8,8 @@ import ch.psi.jcae.impl.DefaultChannelService;
 import gov.aps.jca.CAException;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +28,14 @@ public class GetExample {
         String value = channel.getValue();
         Logger.getLogger(GetExample.class.getName()).log(Level.INFO, "{0}", value);
 
+        // Wait for a specific value
+        channel.waitForValueAsync("").get(1L, TimeUnit.SECONDS);
+        
+        Future<String> future = channel.waitForValueAsync("");
+        while(!future.isDone()){
+        	
+        }
+        
         // Disconnect from channel
         channel.destroy();
 
