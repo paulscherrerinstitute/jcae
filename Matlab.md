@@ -145,16 +145,16 @@ Waiting for channels to reach a certain value can be done as follows:
 
 ```matlab
 // Wait without timeout (i.e. forever)
-channel.waitForValue('world');
+channel.waitForValue('world')
 
 // Wait with timeout
-waitHandle = channel.waitForValueAsync('world').get(Long(10), java.util.concurrent.TimeUnit.SECONDS);
+waitHandle = channel.waitForValueAsync('world').get(Long(10), java.util.concurrent.TimeUnit.SECONDS)
 ```
 
 If you want to do stuff while waiting you can implement a busy loop like this:
 
 ```matlab
-waitfuture = channel.waitForValueAsync('world');
+waitfuture = channel.waitForValueAsync('world')
 while not(waitfuture.isDone())
     % do something
 end
