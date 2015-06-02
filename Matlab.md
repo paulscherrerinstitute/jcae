@@ -99,7 +99,7 @@ channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT
 channel = context.createChannel(ChannelDescriptor('double[]', 'ARIDI-PCT:CURRENT', true, java.lang.Integer(10)))
 ```
 
-Supported types are: `double`, `integer`, `short`, `float`, `byte`, `boolean`, `string` and the respective array forms `double[]`, `integer[]`, `short[]`, `float[]`, `byte[]`, `boolean[]`, `string[]` .
+Supported types are: `double`, `integer`, `short`, `float`, `byte`, `boolean`, `string` and the respective array forms `double[]`, `integer[]`, `int[]`, `short[]`, `float[]`, `byte[]`, `boolean[]`, `string[]` .
 
 After creating a channel you are able to get and set values via the `getValue()` and `setValue(value)` methods. _Note_, if you created a channel with the monitored flag set true `getValue()` will not reach for the network to get the latest value of the channel but returns the latest update by a channel monitor.
 If you require to explicitly fetch the value over the network use `getValue(true)` (this should only be rare cases as most of the time its enough to get the cached value)
@@ -140,6 +140,26 @@ pause(10)
 future.get() % this will return the set value, i.e. value_1
 future_2.get() % this will return the set value, i.e. value_2
 ```
+
+Waiting for channels to reach a certain value can be done as follows:
+
+```matlab
+// Wait without timeout (i.e. forever)
+channel.waitForValue("world");
+
+// Wait with timeout
+waitHandle = channel.waitForValueAsync("world").get(10L, java.util.concurrent.TimeUnit.SECONDS);
+```
+
+If you want to do stuff while waiting you can implement a busy loop like this:
+
+```matlab
+waitfuture = channel.waitForValueAsync("");
+while not(waitfuture.isDone())
+    % do something
+end
+```
+
  
 After you are done working with a channel close the channel via
 
@@ -165,6 +185,10 @@ public class Channels {
         public Channel<String> current;
         @CaChannel(name="${DEVICE}:CUR-HOUR", type=Double.class, monitor=true)
         public Channel<String> currentHour;
+
+        // Waveforms
+        @CaChannel(name="${DEVICE}:WAVEFORM", type=int[].class, monitor=false)
+        public Channel<int[]> value;
         // ...
 }
 ```

@@ -20,14 +20,14 @@ public class GetExample {
         ChannelService factory = new DefaultChannelService();
 
         // Connect to channel
-        Channel<String> bean = factory.createChannel(new ChannelDescriptor<String>(String.class, "ARIDI-PCT:CURRENT", true));
+        Channel<String> channel = factory.createChannel(new ChannelDescriptor<String>(String.class, "ARIDI-PCT:CURRENT", true));
 
         // Get value
-        String value = bean.getValue();
+        String value = channel.getValue();
         Logger.getLogger(GetExample.class.getName()).log(Level.INFO, "{0}", value);
 
         // Disconnect from channel
-        bean.destroy();
+        channel.destroy();
 
         // Close all connections
         factory.destroy();

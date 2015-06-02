@@ -60,6 +60,8 @@ public class ChannelDescriptor<T> extends Descriptor<T> {
 			return (Class<T>) Double.class;
 		case "integer":
 			return (Class<T>) Integer.class;
+		case "int":
+			return (Class<T>) Integer.class;
 		case "short":
 			return (Class<T>) Short.class;
 		case "float":
@@ -74,6 +76,8 @@ public class ChannelDescriptor<T> extends Descriptor<T> {
 		case "double[]":
 			return (Class<T>) double[].class;
 		case "integer[]":
+			return (Class<T>) int[].class;
+		case "int[]":
 			return (Class<T>) int[].class;
 		case "short[]":
 			return (Class<T>) short[].class;
