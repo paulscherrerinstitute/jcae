@@ -30,6 +30,16 @@ java.lang.System.setProperty('ch.psi.jcae.config.file', 'jcae.properties')
 Regarding the possible settings inside the *jcae.properties* file please refer to the corresponding section of this [Readme.md](Readme.md). For Paul Scherrer Institute users there is a list of example configuration files for accessing the different facilities in [Environments.md](Environments.md).
 
 
+In scripts that get executed several times in the same workspace use following construct to get rid of the Matlab warnings regarding re-adding to the classpath:
+
+```matlab
+if not(exist('java_classpath_set'))
+    javaaddpath('jcae_all-2.7.1.jar')
+    java.lang.System.setProperty('ch.psi.jcae.config.file', 'jcae.properties')
+    java_classpath_set=1
+end
+```
+
 
 ## Static
 To be able to use the package, include the full qualified path of the jar in the *javaclasspath.txt* within the Matlab home folder (ideally also copy the jar into this directory). For example:
