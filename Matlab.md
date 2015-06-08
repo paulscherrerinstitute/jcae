@@ -40,6 +40,14 @@ if not(exist('java_classpath_set'))
 end
 ```
 
+In more complex Matlab projects you might not want to have the library in the same place as your matlab files but on a sub/parent-folder. In this case use relative paths to refer to the library.
+
+```matlab
+javaaddpath('../jcae_all-2.7.1.jar')
+```
+
+For Windows users, keep in mind to use backslashes in the path `\` !
+
 
 ## Static
 To be able to use the package, include the full qualified path of the jar in the *javaclasspath.txt* within the Matlab home folder (ideally also copy the jar into this directory). For example:
