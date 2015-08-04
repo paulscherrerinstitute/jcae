@@ -193,7 +193,7 @@ public class CompositeChannel<T> implements Channel<T>{
 	@Override
 	public void put(T value) {
 		try {
-			setValue(value);
+			setValueNoWait(value);
 		} catch (InterruptedException | ExecutionException | ChannelException e) {
 			throw new RuntimeException(e);
 		}

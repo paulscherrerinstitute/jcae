@@ -638,7 +638,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	@Override
 	public void put(E value) {
 		try {
-			setValue(value);
+			setValueNoWait(value);
 		} catch (InterruptedException | ExecutionException | ChannelException e) {
 			throw new RuntimeException(e);
 		}
