@@ -1,4 +1,4 @@
-package ch.psi.jcae;
+package org.epics.ca;
 
 import ch.psi.jcae.impl.DefaultChannelService;
 
