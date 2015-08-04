@@ -55,6 +55,7 @@ public interface Channel<T> {
 	public void setMonitored(boolean monitored) throws ChannelException;
 	
 	public void destroy() throws ChannelException;
+	public void close();
 	
 	
 	public void addPropertyChangeListener( PropertyChangeListener l );

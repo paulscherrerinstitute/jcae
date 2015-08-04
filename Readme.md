@@ -2,7 +2,7 @@
 
 JCAE is an easy to use ChannelAccess library abstracting the complexity of the JCA and CAJ library and bringing ChannelAccess into the Java domain (i.e. use of Java types).
 
-The package provides an easy to use ChannelAccess client as well as Server API (in package `ch.psi.jcae.cas`). 
+The package provides an easy to use ChannelAccess client as well as Server API (in package `ch.psi.jcae.cas`).
 
 Jcae can be used to easily interface Epics via ChannelAccess within Matlab. Details about this can be found [here](Matlab.md).
 
@@ -29,19 +29,19 @@ compile name: 'ch.psi:jcae:<version to use>'
 ```
 
 ## Configuration
-The JCA Extension library/classes obtain its configuration from the central `jcae.properties` file. 
-_Note:_ In most cases no `jca.properties` file is needed! The `jcae.properties` file either need to reside inside 
+The JCA Extension library/classes obtain its configuration from the central `jcae.properties` file.
+_Note:_ In most cases no `jca.properties` file is needed! The `jcae.properties` file either need to reside inside
 the classpath of the application or need to be specified via the VM argument:
 
 ```
 -Dch.psi.jcae.config.file=myjcae.properties
 ```
 
-The `jcae.properties` file holds all configuration parameters needed by the factory classes that are provided within 
-the library. To uniquely identify which class is using the property, the property name has fully qualified class 
+The `jcae.properties` file holds all configuration parameters needed by the factory classes that are provided within
+the library. To uniquely identify which class is using the property, the property name has fully qualified class
 name as prefix.
 
-### ContextFactory
+### Context Specific
 
 | Property | Value | Description |
 | --- | --- | --- |
@@ -53,14 +53,14 @@ name as prefix.
 | ch.psi.jcae.ContextFactory.maxArrayBytes | | Number of maximum bytes that are used to transfer an array |
 | ch.psi.jcae.ContextFactory.serverPort | | Channel Access server port (if using a gateway this is usually 5062) |
 
-### ChannelFactory
+### Channel Creation Specific
 
 | Property | Value | Description |
 | --- | --- | --- |
 | ch.psi.jcae.ChannelFactory.timeout | 10000 | Timeout in milliseconds for creating a new channel |
 | ch.psi.jcae.ChannelFactory.retries | 0 | Retries for connecting to a channel |
 
-### ChannelBeanFactory
+### Channel Specific
 
 | Property | Value | Description |
 | --- | --- | --- |
@@ -79,17 +79,17 @@ service.destroy();
 ```
 
 ## Channel
-`ch.psi.jcae.Channel` is the major abstraction provided by the jcae Library. It introduces an object oriented abstraction 
-of an Epics channel and hides the complexity of the creation/usage/destruction of the channel. 
-The value of the channel can be easily accessed and modified via get and set methods. A Channel can be 
-created in two different modes. normal and monitor mode. In normal mode the value of the channel gets 
-collected (over the network) each time the get method is called. In monitor mode a monitor is established 
-for the channel that recognizes value changes and caches the value in a local variable. When the value of 
-the channel is accessed via the get method the cached value is returned instead of getting it explicitly 
+`ch.psi.jcae.Channel` is the major abstraction provided by the jcae Library. It introduces an object oriented abstraction
+of an Epics channel and hides the complexity of the creation/usage/destruction of the channel.
+The value of the channel can be easily accessed and modified via get and set methods. A Channel can be
+created in two different modes. normal and monitor mode. In normal mode the value of the channel gets
+collected (over the network) each time the get method is called. In monitor mode a monitor is established
+for the channel that recognizes value changes and caches the value in a local variable. When the value of
+the channel is accessed via the get method the cached value is returned instead of getting it explicitly
 (over the network).
 
 ### Usage
-The following section gives a short overview of the functionality of Channel and its usage. 
+The following section gives a short overview of the functionality of Channel and its usage.
 Examples are shown for the creation, usage and destruction.
 
 #### Creation
@@ -140,8 +140,8 @@ beand.waitForValue(1, c, 2000);
 ```
 
 #### Destruction
-As the Channel holds a Channel Access connection that need to be closed explicitly, 
-the destroy() need to be called explicitly on that object. After calling the destroy() method 
+As the Channel holds a Channel Access connection that need to be closed explicitly,
+the destroy() need to be called explicitly on that object. After calling the destroy() method
 of the channel object, the object must not be used any more!
 
 ```java
@@ -149,8 +149,8 @@ channel.destroy();
 ```
 
 #### Property Change Support
-One can register for Channel status changes via the standard JavaBean PropertyChangeSupport functionality. 
-To do so register/unregister an object that implements 
+One can register for Channel status changes via the standard JavaBean PropertyChangeSupport functionality.
+To do so register/unregister an object that implements
 PropertyChangeListener as follows:
 
 ```java
@@ -163,12 +163,12 @@ channel.addPropertyChangeListener(new PropertyChangeListener() {
             }
         });
 ```
-        
+
 For a Channel you can register for Channel.PROPERTY_VALUE and Channel.PROPERTY_CONNECTION changes.
 
 
 ## Annotations
-Jcae provides a way to annotate Channel declarations within Java classes. While annotating the declarations one does not need to explicitly create/connect the Channel any more. To be able to work with classes containing annotations, the annotated  Channels need to be connected via the ChannelService. This is done via the createAnnotatedChannels(...) function. While calling this function the factory establishes all connections and monitors of the annotated 
+Jcae provides a way to annotate Channel declarations within Java classes. While annotating the declarations one does not need to explicitly create/connect the Channel any more. To be able to work with classes containing annotations, the annotated  Channels need to be connected via the ChannelService. This is done via the createAnnotatedChannels(...) function. While calling this function the factory establishes all connections and monitors of the annotated
 Channels.
 
 Within annotations macros can be used (see examples section on how to use this). Macros are inserted into the name like this: `${MACRO}`. The replacement values for the macros need to be specified in the second parameter while calling the `createAnnotatedChannels(object, macro)` function.
@@ -201,7 +201,7 @@ channelService.destroyAnnotatedChannels(cbean);
 ```
 
 ### @CaChannel
-The CaChannel annotation can be used to annotate Channels or list of channels. 
+The CaChannel annotation can be used to annotate Channels or list of channels.
 The annotation takes following parameters:
 
 | Data Type | Name | Default Value | Description |
@@ -219,8 +219,8 @@ private <List<Channel<Double>> list;
 ```
 
 ### @CaPreInit
-Execute the annotated function(s) before initializing all Channels that are annotated 
-with @CaChannel. If multiple functions are annotated with @CaPreInit, the order of execution 
+Execute the annotated function(s) before initializing all Channels that are annotated
+with @CaChannel. If multiple functions are annotated with @CaPreInit, the order of execution
 is not guaranteed. The annotated method must NOT take any parameters!
 
 ```java
@@ -230,8 +230,8 @@ public void myPreInit(){
 ```
 
 ### @CaPostInit
-Execute the annotated function after initializing all Channels that are annotated with @CaChannel. 
-If multiple functions are annotated with @CaPostInit, the order of execution is not guaranteed. 
+Execute the annotated function after initializing all Channels that are annotated with @CaChannel.
+If multiple functions are annotated with @CaPostInit, the order of execution is not guaranteed.
 The annotated method must NOT take any parameters!
 
 ```java
@@ -241,8 +241,8 @@ public void postInit(){
 ```
 
 ### @CaPreDestroy
-Execute the annotated function(s) before destruction of all Channels that are annotated with @CaChannel. 
-If multiple functions are annotated with @CaPreDestroy, the order of execution is not guaranteed. 
+Execute the annotated function(s) before destruction of all Channels that are annotated with @CaChannel.
+If multiple functions are annotated with @CaPreDestroy, the order of execution is not guaranteed.
 The annotated method must NOT take any parameters!
 
 ```java
@@ -253,7 +253,7 @@ public void myPreDestroy(){
 
 ### @CaPostDestroy
 Execute the annotated function after destruction of all Channels that are annotated with @CaChannel.
-If multiple functions are annotated with @CaPostDestroy, the order of execution is not guaranteed. 
+If multiple functions are annotated with @CaPostDestroy, the order of execution is not guaranteed.
 The annotated method must NOT take any parameters!
 
 ```java
@@ -330,10 +330,10 @@ public class AsynchronousExample {
         // Get value
         Future<String> futureValue = channel.getValueAsync();
 //        Future<String> future = channel.setValueAsync("value");
-        
+
         // ... Do lots of stuff
         System.out.println("... doing heavy work ...");
-        
+
         String value = futureValue.get();
 //        String valueset = future.get();
         Logger.getLogger(AsynchronousExample.class.getName()).log(Level.INFO, "{0}", value);
@@ -421,20 +421,20 @@ public class AnnotationExample {
         ChannelService service = new DefaultChannelService();
 
         ChannelBeanContainer container = new ChannelBeanContainer();
-        
+
         // Connect to channel(s) in the container
         Map<String,String> macros = new HashMap<>();
         macros.put("MACRO_1", "ARIDI");
         macros.put("MACRO_2", "PCT");
         service.createAnnotatedChannels(container, macros);
-        
+
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
         Logger.getLogger(AnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
-        
+
         // Disconnect channel(s) in the container
         service.destroyAnnotatedChannels(container);
-        
+
         // Destroy context of the factory
         service.destroy();
     }
@@ -447,7 +447,7 @@ class ChannelBeanContainer {
 
     @CaChannel(type=Double.class, name="${MACRO_1}-${MACRO_2}:CURRENT", monitor=true)
     private Channel<Double> current;
-    
+
     @CaChannel(type=String.class, name="${MACRO_1}-${MACRO_2}:CURRENT.EGU", monitor=true)
     private Channel<String> unit;
 
@@ -488,17 +488,17 @@ public class CompleteAnnotationExample {
         ChannelService service = new DefaultChannelService();
 
         ChannelBeanContainerComplete container = new ChannelBeanContainerComplete();
-        
+
         // Connect to channel(s) in the container
         service.createAnnotatedChannels(container);
-        
+
         Double value = container.getCurrent().getValue();
         String unit = container.getUnit().getValue();
         Logger.getLogger(CompleteAnnotationExample.class.getName()).log(Level.INFO, "Current: {0} [{1}]", new Object[]{value, unit});
-        
+
         // Disconnect channel(s) in the container
         service.destroyAnnotatedChannels(container);
-        
+
         // Destroy context of the factory
         service.destroy();
     }
@@ -508,10 +508,10 @@ public class CompleteAnnotationExample {
  * Container class
  */
 class ChannelBeanContainerComplete {
-    
+
     @CaChannel(type=Double.class, name="ARIDI-PCT:CURRENT", monitor=true)
     private Channel<Double> current;
-    
+
     @CaChannel(type=String.class, name="ARIDI-PCT:CURRENT.EGU", monitor=true)
     private Channel<String> unit;
 
@@ -519,26 +519,26 @@ class ChannelBeanContainerComplete {
     public void preInit(){
         // Code executed before connecting the channels
     }
-    
+
     @CaPostInit
     public void postInit(){
         // Code executed after connecting channels
     }
-    
+
     @CaPreDestroy
     public void preDestroy(){
         // Code executed before destroying channels
     }
-    
+
     @CaPostDestroy
     public void postDestroy(){
         // Code executed after destroying channels
     }
-    
+
     public Channel<Double> getCurrent() {
         return current;
     }
-    
+
     public Channel<String> getUnit() {
         return unit;
     }

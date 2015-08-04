@@ -549,6 +549,16 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 			throw new ChannelException("Unable to destroy channel", e);
 		}
 	}
+	
+	@Override
+	public void close(){
+		try{
+			destroy();
+		}
+		catch(ChannelException e){
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
 	protected void finalize() throws Throwable {

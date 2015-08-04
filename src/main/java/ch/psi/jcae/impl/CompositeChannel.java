@@ -134,6 +134,16 @@ public class CompositeChannel<T> implements Channel<T>{
 		channel.destroy();
 		readback.destroy();
 	}
+	
+	@Override
+	public void close(){
+		try{
+			destroy();
+		}
+		catch(ChannelException e){
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener l) {

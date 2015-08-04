@@ -299,6 +299,16 @@ public class DummyChannel<T> implements Channel<T> {
 	public void destroy() throws ChannelException {
 		// do nothing
 	}
+	
+	@Override
+	public void close(){
+		try{
+			destroy();
+		}
+		catch(ChannelException e){
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener l) {
