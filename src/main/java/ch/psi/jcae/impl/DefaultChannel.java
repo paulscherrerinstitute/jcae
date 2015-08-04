@@ -614,5 +614,43 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	public Class<?> getFieldType() {
 		return Handlers.getFieldType(this.channel.getFieldType(), this.elementCount > 1);
 	}
+
+	@Override
+	public E get() {
+		try{
+			return getValue();
+		}
+		catch(ChannelException | InterruptedException | TimeoutException | ExecutionException e){
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public Future<E> getAsync() {
+
+		try {
+			return getValueAsync();
+		} catch (IllegalStateException | ChannelException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void put(E value) {
+		try {
+			setValue(value);
+		} catch (InterruptedException | ExecutionException | ChannelException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public Future<E> putAsync(E value) {
+		try {
+			return setValueAsync(value);
+		} catch (ChannelException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
 

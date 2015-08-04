@@ -18,6 +18,13 @@ public interface Channel<T> {
 	 */
 	public static final String PROPERTY_CONNECTED = "connected";
 	
+	// Compatibility function introduced to facilitate the migration to the ca library
+	public T get();
+	public Future<T> getAsync();
+	public void put(T value);
+	public Future<T> putAsync(T value);
+	
+	
 	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException;
 	public T getValue(boolean force) throws InterruptedException, TimeoutException, ChannelException, ExecutionException;
 	public Future<T> getValueAsync() throws IllegalStateException, ChannelException;

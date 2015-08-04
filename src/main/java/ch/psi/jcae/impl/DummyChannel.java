@@ -335,4 +335,42 @@ public class DummyChannel<T> implements Channel<T> {
 	public Class<?> getFieldType() {
 		return this.value != null ? this.value.getClass() : Object.class;
 	}
+
+	@Override
+	public T get() {
+		try{
+			return getValue();
+		}
+		catch(ChannelException | InterruptedException | TimeoutException | ExecutionException e){
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public Future<T> getAsync() {
+
+		try {
+			return getValueAsync();
+		} catch (IllegalStateException | ChannelException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void put(T value) {
+		try {
+			setValue(value);
+		} catch (InterruptedException | ExecutionException | ChannelException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public Future<T> putAsync(T value) {
+		try {
+			return setValueAsync(value);
+		} catch (ChannelException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
