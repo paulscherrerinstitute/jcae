@@ -436,6 +436,11 @@ public class DefaultChannelService implements ChannelService {
 	}
 	
 	@Override
+	public void close(){
+		destroy();
+	}
+	
+	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
 		destroy();

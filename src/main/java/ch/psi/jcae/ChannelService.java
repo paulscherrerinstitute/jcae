@@ -30,4 +30,5 @@ public interface ChannelService {
 	public boolean isDryrun();
 	
 	public void destroy();
+	public void close();
 }
