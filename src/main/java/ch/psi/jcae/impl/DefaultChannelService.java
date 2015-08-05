@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ import ch.psi.jcae.ChannelDescriptor;
 import ch.psi.jcae.ChannelException;
 import ch.psi.jcae.ChannelService;
 import ch.psi.jcae.CompositeChannelDescriptor;
+import ch.psi.jcae.Context;
 import ch.psi.jcae.Descriptor;
 import ch.psi.jcae.DummyChannelDescriptor;
 import ch.psi.jcae.annotation.CaChannel;
@@ -40,6 +42,36 @@ public class DefaultChannelService implements ChannelService {
 	private boolean dryrun;
 	private Map<String,String> globalMacros = new HashMap<String,String>();
 	
+	
+	/**
+	 * Constructor to programmatically set the libraries properties
+	 * @param properties
+	 */
+	public DefaultChannelService(Properties properties){
+		JcaeProperties jProperties = JcaeProperties.getInstance();
+		
+		if(properties.containsKey(Context.Configuration.EPICS_CA_ADDR_LIST.toString())){
+			jProperties.setAddressList(properties.getProperty(Context.Configuration.EPICS_CA_ADDR_LIST.toString()));
+		}
+		if(properties.containsKey(Context.Configuration.EPICS_CA_AUTO_ADDR_LIST.toString())){
+			jProperties.setAutoAddressList(properties.getProperty(Context.Configuration.EPICS_CA_AUTO_ADDR_LIST.toString()).equalsIgnoreCase("NO"));
+		}
+		if(properties.containsKey(Context.Configuration.EPICS_CA_MAX_ARRAY_BYTES.toString())){
+			jProperties.setMaxArrayBytes(properties.getProperty(Context.Configuration.EPICS_CA_MAX_ARRAY_BYTES.toString()));
+		}
+		if(properties.containsKey(Context.Configuration.EPICS_CA_SERVER_PORT.toString())){
+			jProperties.setServerPort(properties.getProperty(Context.Configuration.EPICS_CA_SERVER_PORT.toString()));
+		}
+		
+		
+		
+		try{
+			channelFactory = new JCAChannelFactory();
+		}
+		catch(CAException e){
+			throw new RuntimeException("Unable to initialize internal channel factory",e);
+		}
+	}
 	
 	public DefaultChannelService(){
 		this(false);

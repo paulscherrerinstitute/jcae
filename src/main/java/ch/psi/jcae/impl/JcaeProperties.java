@@ -21,10 +21,6 @@ import java.util.logging.Logger;
  */
 public class JcaeProperties {
 	
-	public enum Configuration { EPICS_CA_ADDR_LIST, EPICS_CA_AUTO_ADDR_LIST, EPICS_CA_CONN_TMO,
-		EPICS_CA_BEACON_PERIOD, EPICS_CA_REPEATER_PORT, EPICS_CA_SERVER_PORT,
-		EPICS_CA_MAX_ARRAY_BYTES };
-	
 	public final static String JCAE_CONFIG_FILE_ARGUMENT = "ch.psi.jcae.config.file";
 	
 	private static final Logger logger = Logger.getLogger(JcaeProperties.class.getName());
