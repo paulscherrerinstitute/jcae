@@ -652,5 +652,15 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public E get(boolean force) {
+		try{
+			return getValue(force);
+		}
+		catch(ChannelException | InterruptedException | TimeoutException | ExecutionException e){
+			throw new RuntimeException(e);
+		}
+	}
 }
 

@@ -208,4 +208,14 @@ public class CompositeChannel<T> implements Channel<T>{
 		}
 	}
 
+	@Override
+	public T get(boolean force) {
+		try{
+			return getValue(force);
+		}
+		catch(ChannelException | InterruptedException | TimeoutException | ExecutionException e){
+			throw new RuntimeException(e);
+		}
+	}
+
 }

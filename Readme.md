@@ -37,8 +37,7 @@ the classpath of the application or need to be specified via the VM argument:
 -Dch.psi.jcae.config.file=myjcae.properties
 ```
 
-The `jcae.properties` file holds all configuration parameters needed by the factory classes that are provided within
-the library. To uniquely identify which class is using the property, the property name has fully qualified class
+The `jcae.properties` file holds all configuration parameters needed by the library. To uniquely identify which class is using the property, the property name has fully qualified class
 name as prefix.
 
 ### Context Specific

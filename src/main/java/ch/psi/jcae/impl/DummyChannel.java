@@ -373,4 +373,14 @@ public class DummyChannel<T> implements Channel<T> {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public T get(boolean force) {
+		try{
+			return getValue(force);
+		}
+		catch(ChannelException | InterruptedException | TimeoutException | ExecutionException e){
+			throw new RuntimeException(e);
+		}
+	}
 }

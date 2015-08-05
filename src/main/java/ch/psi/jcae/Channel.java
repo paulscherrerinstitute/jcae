@@ -20,6 +20,7 @@ public interface Channel<T> {
 	
 	// Compatibility function introduced to facilitate the migration to the ca library
 	public T get();
+	public T get(boolean force); // If it is a monitored channel, force the get to go to the IOC
 	public Future<T> getAsync();
 	public void put(T value);
 	public Future<T> putAsync(T value);
