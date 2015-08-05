@@ -359,6 +359,15 @@ public class DummyChannel<T> implements Channel<T> {
 	@Override
 	public void put(T value) {
 		try {
+			setValue(value);
+		} catch (InterruptedException | ExecutionException | ChannelException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public void putNoWait(T value) {
+		try {
 			setValueNoWait(value);
 		} catch (InterruptedException | ExecutionException | ChannelException e) {
 			throw new RuntimeException(e);

@@ -24,6 +24,7 @@ public interface Channel<T> {
 	public Future<T> getAsync();
 	public void put(T value);
 	public Future<T> putAsync(T value);
+	public void putNoWait(T value);
 	
 	
 	public T getValue() throws InterruptedException, TimeoutException, ChannelException, ExecutionException;
