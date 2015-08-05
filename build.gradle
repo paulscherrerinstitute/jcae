@@ -4,12 +4,12 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.7
 
-version = '2.7.1'
+version = '2.8.0'
 
 repositories {
     mavenCentral()
-    maven { url "http://slsyoke4.psi.ch:8081/artifactory/libs-releases" }
-    maven { url "http://slsyoke4.psi.ch:8081/artifactory/libs-snapshots" }
+    maven { url "http://artifacts.psi.ch/artifactory/libs-releases" }
+    maven { url "http://artifacts.psi.ch/artifactory/libs-snapshots" }
 }
 
 dependencies {
@@ -35,7 +35,7 @@ artifacts {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "http://slsyoke4.psi.ch:8081/artifactory/libs-snapshots-local"){
+            repository(url: "http://artifacts.psi.ch/artifactory/libs-snapshots-local"){
             	authentication(userName: "upload", password: "{DESede}eWKHxAtQ2Dc=")
             }
             pom.groupId = 'ch.psi'
