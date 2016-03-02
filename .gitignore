@@ -7,3 +7,4 @@ ch.psi.jcae.iml
 .settings
 .classpath
 .gradle
+/.nb-gradle/
