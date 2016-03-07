@@ -23,6 +23,7 @@ public class SetFuture<T> implements PutListener, Future<T>
 	
 	private final CountDownLatch latch = new CountDownLatch(1);
 	private T value;
+        CAStatus status;
 
 	public SetFuture(T value){
 		this.value=value;
@@ -30,13 +31,12 @@ public class SetFuture<T> implements PutListener, Future<T>
 	
 	@Override
 	public void putCompleted(PutEvent ev) {
-	    if(ev.getStatus() == CAStatus.NORMAL){
-	    	latch.countDown();
-	    }
-	    else{
+            status = ev.getStatus();
+	    if(ev.getStatus() != CAStatus.NORMAL){
 	    	logger.warning("Set failed with status: "+ev.getStatus());
 //	    	latch.notifyAll();
 	    }
+            latch.countDown();
 	}
 
 	
@@ -62,6 +62,9 @@ public class SetFuture<T> implements PutListener, Future<T>
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
 		latch.await();
+                if (status != CAStatus.NORMAL){
+                    throw new RuntimeException(status.getMessage());
+                }                
 		return value;
 	}
 
@@ -73,6 +76,9 @@ public class SetFuture<T> implements PutListener, Future<T>
 		if(!latch.await(timeout, unit)){
 			throw new TimeoutException("Timeout occured while setting value to channel");
 		}
+                if (status != CAStatus.NORMAL){
+                    throw new RuntimeException(status.getMessage());
+                }                
 		return value;
 	}
 

@@ -28,6 +28,7 @@ import ch.psi.jcae.annotation.CaPostDestroy;
 import ch.psi.jcae.annotation.CaPostInit;
 import ch.psi.jcae.annotation.CaPreDestroy;
 import ch.psi.jcae.annotation.CaPreInit;
+import gov.aps.jca.dbr.DBRType;
 
 /**
  * Factory class for creating ChannelBean objects (more easily).
@@ -95,6 +96,22 @@ public class DefaultChannelService implements ChannelService {
 	}
 	
 	
+        Class getDefaultType(gov.aps.jca.Channel channel){
+            int size = channel.getElementCount();
+            if (channel.getFieldType() == DBRType.DOUBLE){
+                return size>1 ? double[].class: Double.class;
+            } if (channel.getFieldType() == DBRType.FLOAT){
+                return size>1 ? float[].class: Float.class;
+            } if (channel.getFieldType() == DBRType.INT){
+                return size>1 ? int[].class: Integer.class;
+            } if (channel.getFieldType() == DBRType.SHORT){
+                return size>1 ? short[].class: Short.class;
+            } if (channel.getFieldType() == DBRType.BYTE){
+                return size>1 ? byte[].class: Byte.class;
+            }                                     
+            return String.class; //DBRType.STRING and DBRType.ENUM
+        }
+        
 	/**
 	 * Create ChannelBean object of the specified type. A new Channel object will be created 
 	 * for each new bean (even if the channel theoretically already exists)
@@ -116,8 +133,15 @@ public class DefaultChannelService implements ChannelService {
 		if (descriptor instanceof ChannelDescriptor) {
 			ChannelDescriptor<T> d = (ChannelDescriptor<T>) descriptor;
 			try {
-				gov.aps.jca.Channel channel = channelFactory.createChannel(d.getName());
-				ca = new DefaultChannel<T>(d.getType(), channel, d.getSize(), d.getMonitored());
+                            gov.aps.jca.Channel channel = channelFactory.createChannel(d.getName());
+                            if (d.getType() == null){                                
+                                if (descriptor.getSize()==null){
+                                    d.setSize(channel.getElementCount());
+                                }
+                                ca = new DefaultChannel(getDefaultType(channel), channel, d.getSize(), d.getMonitored());
+                            } else {
+                                ca = new DefaultChannel<T>(d.getType(), channel, d.getSize(), d.getMonitored());
+                            }
 			} catch (CAException e){
 				throw new ChannelException("Unable to create channel " + d.getName(), e);
 			} catch( ExecutionException e){
