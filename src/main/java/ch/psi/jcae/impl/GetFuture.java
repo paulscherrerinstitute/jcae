@@ -86,7 +86,7 @@ public class GetFuture<T> implements GetListener, Future<T>
 	public T get() throws InterruptedException, ExecutionException {
 		latch.await();
                 if (status != CAStatus.NORMAL){
-                    throw new ChannelAccessException(status);
+                    throw new RuntimeException(status.getMessage());
                 }
 		return value;
 	}
@@ -101,7 +101,7 @@ public class GetFuture<T> implements GetListener, Future<T>
 	   		throw new TimeoutException("Timeout ["+timeout+"] occured while getting value"); // from which channel ?
 	   	}
                 if (status != CAStatus.NORMAL){
-                    throw new ChannelAccessException(status);
+                    throw new RuntimeException(status.getMessage());
                 }                
 		return value;
 	}

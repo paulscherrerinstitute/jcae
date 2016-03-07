@@ -63,7 +63,7 @@ public class SetFuture<T> implements PutListener, Future<T>
 	public T get() throws InterruptedException, ExecutionException {
 		latch.await();
                 if (status != CAStatus.NORMAL){
-                    throw new ChannelAccessException(status);
+                    throw new RuntimeException(status.getMessage());
                 }                
 		return value;
 	}
@@ -77,7 +77,7 @@ public class SetFuture<T> implements PutListener, Future<T>
 			throw new TimeoutException("Timeout occured while setting value to channel");
 		}
                 if (status != CAStatus.NORMAL){
-                    throw new ChannelAccessException(status);
+                    throw new RuntimeException(status.getMessage());
                 }                
 		return value;
 	}

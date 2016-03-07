@@ -5,6 +5,7 @@ apply plugin: 'maven'
 sourceCompatibility = 1.7
 
 version = '2.9.0'
+group = 'ch.psi'
 
 repositories {
     mavenCentral()
