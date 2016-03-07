@@ -28,6 +28,7 @@ public class GetFuture<T> implements GetListener, Future<T>
 	 */
     private T value;
     private Class<T> type;
+    CAStatus status;
     
     private final CountDownLatch latch = new CountDownLatch(1);
     
@@ -38,21 +39,19 @@ public class GetFuture<T> implements GetListener, Future<T>
     @SuppressWarnings("unchecked")
 	@Override
     public void getCompleted(GetEvent ev) {
-    	
+    	status = ev.getStatus();
     	try{
     		value = (T) Handlers.HANDLERS.get(type).getValue(ev.getDBR());
     	}
     	catch(CAStatusException e){
     		e.printStackTrace();
     	}
-	    
-	    if (ev.getStatus() == CAStatus.NORMAL){
-		    latch.countDown();
-	    }
-	    else{
+	
+	    if (ev.getStatus() != CAStatus.NORMAL){		    
 	    	logger.warning("Get failed with status: "+ev.getStatus());
 //	    	latch.notifyAll();
 	    }
+            latch.countDown();
 	}
     
 
@@ -86,6 +85,9 @@ public class GetFuture<T> implements GetListener, Future<T>
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
 		latch.await();
+                if (status != CAStatus.NORMAL){
+                    throw new RuntimeException(status.getMessage());
+                }
 		return value;
 	}
 
@@ -98,6 +100,9 @@ public class GetFuture<T> implements GetListener, Future<T>
 		if(!latch.await(timeout, unit)){
 	   		throw new TimeoutException("Timeout ["+timeout+"] occured while getting value"); // from which channel ?
 	   	}
+                if (status != CAStatus.NORMAL){
+                    throw new RuntimeException(status.getMessage());
+                }                
 		return value;
 	}
 }
