@@ -29,6 +29,7 @@ public class GetFuture<T> implements GetListener, Future<T>
     private T value;
     private Class<T> type;
     CAStatus status;
+    Exception exception;
     
     private final CountDownLatch latch = new CountDownLatch(1);
     
@@ -38,20 +39,18 @@ public class GetFuture<T> implements GetListener, Future<T>
     
     @SuppressWarnings("unchecked")
 	@Override
-    public void getCompleted(GetEvent ev) {
-    	status = ev.getStatus();
-    	try{
-    		value = (T) Handlers.HANDLERS.get(type).getValue(ev.getDBR());
-    	}
-    	catch(CAStatusException e){
-    		e.printStackTrace();
-    	}
-	
-	    if (ev.getStatus() != CAStatus.NORMAL){		    
-	    	logger.warning("Get failed with status: "+ev.getStatus());
-//	    	latch.notifyAll();
-	    }
-            latch.countDown();
+        public void getCompleted(GetEvent ev) {
+            try{
+                status = ev.getStatus();
+                value = (T) Handlers.HANDLERS.get(type).getValue(ev.getDBR());
+                if (ev.getStatus() != CAStatus.NORMAL){		    
+                    logger.warning("Get failed with status: "+ev.getStatus());
+                }
+            } catch(Exception ex){
+                exception = ex;
+            } finally{
+                latch.countDown();
+            }
 	}
     
 
@@ -85,6 +84,9 @@ public class GetFuture<T> implements GetListener, Future<T>
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
 		latch.await();
+                if (exception != null){
+                    throw new RuntimeException("Error occured while getting value: " + exception.getMessage());
+                }
                 if (status != CAStatus.NORMAL){
                     throw new RuntimeException(status.getMessage());
                 }
@@ -98,8 +100,11 @@ public class GetFuture<T> implements GetListener, Future<T>
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		
 		if(!latch.await(timeout, unit)){
-	   		throw new TimeoutException("Timeout ["+timeout+"] occured while getting value"); // from which channel ?
+                    throw new TimeoutException("Timeout ["+timeout+"] occured while getting value"); // from which channel ?
 	   	}
+                if (exception != null){
+                    throw new RuntimeException("Error occured while getting value: " + exception.getMessage());
+                }
                 if (status != CAStatus.NORMAL){
                     throw new RuntimeException(status.getMessage());
                 }                
