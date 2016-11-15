@@ -6,10 +6,19 @@ import java.util.Date;
 
 import ch.psi.jcae.cas.TimeHelper;
 
-public class TimestampValue {
+public class TimestampValue<T> {
 
+        private T value;
 	private long timestamp;
 	private long nanosecondOffset;
+        
+	public T getValue() {
+		return value;
+	}
+	public void setValue(T value) {
+            this.value = value;
+        }        
+        
 
 	/**
 	 * Converts the TimeStamp into java date and time
@@ -66,4 +75,5 @@ public class TimestampValue {
 	public void setNanosecondOffset(long nanosecondOffset) {
 		this.nanosecondOffset = nanosecondOffset;
 	}
+                        
 }

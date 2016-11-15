@@ -24,6 +24,7 @@ public class SetFuture<T> implements PutListener, Future<T>
 	private final CountDownLatch latch = new CountDownLatch(1);
 	private T value;
         CAStatus status;
+        Exception exception;
 
 	public SetFuture(T value){
 		this.value=value;
@@ -31,12 +32,16 @@ public class SetFuture<T> implements PutListener, Future<T>
 	
 	@Override
 	public void putCompleted(PutEvent ev) {
-            status = ev.getStatus();
-	    if(ev.getStatus() != CAStatus.NORMAL){
-	    	logger.warning("Set failed with status: "+ev.getStatus());
-//	    	latch.notifyAll();
-	    }
-            latch.countDown();
+            try{
+                status = ev.getStatus();
+                if(ev.getStatus() != CAStatus.NORMAL){
+                    logger.warning("Set failed with status: "+ev.getStatus());
+                }
+            } catch(Exception ex){
+                exception = ex;
+            } finally {
+                latch.countDown();
+            }
 	}
 
 	
@@ -62,6 +67,9 @@ public class SetFuture<T> implements PutListener, Future<T>
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
 		latch.await();
+                if (exception != null){
+                    throw new RuntimeException("Error occured while setting value: " + exception.getMessage());
+                }
                 if (status != CAStatus.NORMAL){
                     throw new RuntimeException(status.getMessage());
                 }                
@@ -74,8 +82,11 @@ public class SetFuture<T> implements PutListener, Future<T>
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		if(!latch.await(timeout, unit)){
-			throw new TimeoutException("Timeout occured while setting value to channel");
+                    throw new TimeoutException("Timeout occured while setting value to channel");
 		}
+                if (exception != null){
+                    throw new RuntimeException("Error occured while setting value: " + exception.getMessage());
+                }
                 if (status != CAStatus.NORMAL){
                     throw new RuntimeException(status.getMessage());
                 }                
