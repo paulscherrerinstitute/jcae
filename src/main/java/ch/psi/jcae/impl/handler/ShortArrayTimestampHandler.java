@@ -27,6 +27,7 @@ public class ShortArrayTimestampHandler implements Handler<ShortArrayTimestamp> 
 		DBR_TIME_Short v = ((DBR_TIME_Short) dbr.convert(this.getDBRType()));
 		t.setValue(v.getShortValue());
 		t.setTime(v.getTimeStamp());
+                t.setSeverity(v.getSeverity().getValue());
 		return t;
 	}
 

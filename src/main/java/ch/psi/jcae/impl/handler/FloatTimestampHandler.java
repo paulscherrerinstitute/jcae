@@ -27,6 +27,7 @@ public class FloatTimestampHandler implements Handler<FloatTimestamp> {
 		DBR_TIME_Float v = ((DBR_TIME_Float) dbr.convert(this.getDBRType()));
 		t.setValue(v.getFloatValue()[0]);
 		t.setTime(v.getTimeStamp());
+                t.setSeverity(v.getSeverity().getValue());
 		return t;
 	}
 

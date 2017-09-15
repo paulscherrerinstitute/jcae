@@ -15,12 +15,12 @@ public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((DoubleTimestamp) value).getValue());
+		channel.put(((DoubleArrayTimestamp) value).getValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((DoubleTimestamp) value).getValue(), listener);
+		channel.put(((DoubleArrayTimestamp) value).getValue(), listener);
 	}
 
 	@Override
@@ -29,6 +29,7 @@ public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp
 		DBR_TIME_Double v = ((DBR_TIME_Double) dbr.convert(this.getDBRType()));
 		t.setValue(v.getDoubleValue());
 		t.setTime(v.getTimeStamp());
+                t.setSeverity(v.getSeverity().getValue());
 		return t;
 	}
 

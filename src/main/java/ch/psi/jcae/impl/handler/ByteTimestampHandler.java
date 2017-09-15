@@ -27,6 +27,7 @@ public class ByteTimestampHandler implements Handler<ByteTimestamp> {
 		DBR_TIME_Byte v = ((DBR_TIME_Byte) dbr.convert(this.getDBRType()));
 		t.setValue(v.getByteValue()[0]);
 		t.setTime(v.getTimeStamp());
+                t.setSeverity(v.getSeverity().getValue());
 		return t;
 	}
 

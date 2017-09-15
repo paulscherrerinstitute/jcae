@@ -11,6 +11,7 @@ public class TimestampValue<T> {
         private T value;
 	private long timestamp;
 	private long nanosecondOffset;
+        private int severity;
         
 	public T getValue() {
 		return value;
@@ -19,7 +20,13 @@ public class TimestampValue<T> {
             this.value = value;
         }        
         
-
+	public int getSeverity() {
+            return severity;
+	}
+	public void setSeverity(int value) {
+            this.severity = value;
+        }      
+        
 	/**
 	 * Converts the TimeStamp into java date and time
 	 * 

@@ -42,6 +42,7 @@ public class BooleanArrayTimestampHandler implements Handler<BooleanArrayTimesta
 		}
 		bt.setValue(value);
 		bt.setTime(vt.getTimeStamp());
+                bt.setSeverity(vt.getSeverity().getValue());
 		return bt;
 	}
 

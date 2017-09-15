@@ -77,7 +77,7 @@ public class JCAChannelFactory {
 			try{
 				CountDownLatch latch = new CountDownLatch(1);
 				
-				Channel channel = context.createChannel(channelName, new ConnectListener(latch));
+				Channel channel = context.createChannel(channelName, new ConnectListener(latch));                                
 				context.flushIO();
 				
 				boolean t;
