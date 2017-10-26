@@ -47,13 +47,13 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	private Monitor monitor;
 	private ConnectionListener listener;
 	private Channel channel;
-	private Integer elementCount;
+	private Integer elementCount;        
 
 	private final AtomicReference<E> value = new AtomicReference<E>();
 
 	private boolean connected = false;
 	private boolean monitored = false;
-
+        
 	/**
 	 * Constructor - Create a ChannelBean for the specified Channel. A Monitor
 	 * is attached to the Channel if the <code>monitored</code> parameter is
@@ -170,7 +170,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 			try {
 				GetFuture<E> listener = new GetFuture<E>(this.type);
 				channel.get(Handlers.HANDLERS.get(type).getDBRType(), elementCount, listener);
-				channel.getContext().flushIO();
+				channel.getContext().flushIO();                                
 				return listener;
 			} catch (CAException e) {
 				throw new ChannelException("Unable to set value to channel: " + channel.getName(), e);
@@ -483,7 +483,7 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 
 		try {
 
-			monitor = channel.addMonitor(Handlers.HANDLERS.get(type).getDBRType(), elementCount, Monitor.VALUE, new MonitorListener() {
+			monitor = channel.addMonitor(Handlers.HANDLERS.get(type).getDBRType(), elementCount, Monitor.VALUE, new MonitorListener() {                        
 
 				@SuppressWarnings("unchecked")
 				@Override

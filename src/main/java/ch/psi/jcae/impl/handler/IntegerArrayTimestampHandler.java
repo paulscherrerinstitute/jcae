@@ -28,6 +28,7 @@ public class IntegerArrayTimestampHandler implements Handler<IntegerArrayTimesta
 		DBR_TIME_Int v = ((DBR_TIME_Int) dbr.convert(this.getDBRType()));
 		t.setValue(v.getIntValue());
 		t.setTime(v.getTimeStamp());
+                t.setSeverity(v.getSeverity().getValue());
 		return t;
 	}
 

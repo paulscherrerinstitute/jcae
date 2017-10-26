@@ -27,11 +27,12 @@ public class DoubleTimestampHandler implements Handler<DoubleTimestamp> {
 		DBR_TIME_Double v = ((DBR_TIME_Double) dbr.convert(this.getDBRType()));
 		t.setValue(v.getDoubleValue()[0]);
 		t.setTime(v.getTimeStamp());
+                t.setSeverity(v.getSeverity().getValue());
 		return t;
 	}
 
 	@Override
 	public DBRType getDBRType() {
-		return DBR_TIME_Double.TYPE;
+		return DBR_TIME_Double.TYPE;                
 	}
 }
