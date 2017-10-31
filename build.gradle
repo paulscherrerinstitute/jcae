@@ -4,7 +4,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.7
 
-version = '2.9.2'
+version = '2.9.3'
 group = 'ch.psi'
 
 repositories {

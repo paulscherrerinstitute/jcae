@@ -95,8 +95,20 @@ public class DefaultChannelService implements ChannelService {
 		}
 	}
 	
+        public Class getDefaultType(String channelName) throws ChannelException, InterruptedException{                                                                        
+            try {
+                gov.aps.jca.Channel channel = channelFactory.createChannel(channelName);
+                Class ret = getDefaultType(channel);
+                gov.aps.jca.Context c = channel.getContext();
+                channel.destroy();
+                c.flushIO();
+                return ret;
+            } catch (CAException e) {
+                    throw new ChannelException(e);
+            }                                        
+        }
 	
-        Class getDefaultType(gov.aps.jca.Channel channel){
+        public static Class getDefaultType(gov.aps.jca.Channel channel){
             int size = channel.getElementCount();
             if (channel.getFieldType() == DBRType.DOUBLE){
                 return size>1 ? double[].class: Double.class;
