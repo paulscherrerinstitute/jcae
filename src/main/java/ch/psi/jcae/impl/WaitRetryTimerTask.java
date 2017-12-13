@@ -47,7 +47,6 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 	
 	@Override
 	public synchronized void run() {
-		logger.info("Create/Replace wait monitor");
 		// Reset exception
 		exception = null; 
 		
