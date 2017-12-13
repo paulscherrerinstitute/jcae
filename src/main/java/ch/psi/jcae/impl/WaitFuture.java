@@ -92,7 +92,9 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 				}
 			}
 			else{
-				logger.warning("Monitor failed with status: "+event.getStatus());
+                                if (event.getStatus() !=null){
+                                        logger.warning("Monitor failed with status: "+event.getStatus());
+                                }
 	//			latch.notifyAll();
 			}
 		}

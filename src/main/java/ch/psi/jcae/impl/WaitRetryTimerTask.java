@@ -74,7 +74,9 @@ public class WaitRetryTimerTask<E> extends TimerTask {
 						}
 					}
 					else{
-						logger.warning("Monitor failed with status: "+event.getStatus());
+                                                if (event.getStatus() !=null){
+            						logger.warning("Monitor failed with status: "+event.getStatus());
+                                                }
 //						latch.notifyAll();
 					}
 				}
