@@ -8,6 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 import ch.psi.jcae.Channel;
 import ch.psi.jcae.ChannelException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Composit channel consisting of set and an readback value channel
@@ -80,11 +81,16 @@ public class CompositeChannel<T> implements Channel<T>{
 	}
 
 	@Override
-	public T waitForValue(T rvalue, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException {
-		return waitForValueAsync(rvalue, waitRetryPeriod).get();
+	public T waitForValue(T rvalue, long timeout) throws InterruptedException, ExecutionException, ChannelException, TimeoutException {
+		return waitForValueAsync(rvalue).get(timeout, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
+	public T waitForValue(T rvalue, long timeout, final Comparator<T> comparator) throws InterruptedException, ExecutionException, ChannelException, TimeoutException {
+		return waitForValueAsync(rvalue, comparator).get(timeout, TimeUnit.MILLISECONDS);
+	}
+
+        @Override
 	public T waitForValue(final T rvalue, final Comparator<T> comparator) throws InterruptedException, ExecutionException, ChannelException {
 		return waitForValueAsync(rvalue, comparator).get();
 	}

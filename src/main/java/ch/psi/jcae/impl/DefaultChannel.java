@@ -321,6 +321,11 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	}
 
 	@Override
+	public E waitForValue(E rvalue, long timeout, final Comparator<E> comparator) throws InterruptedException, ExecutionException, ChannelException, TimeoutException {
+		return waitForValueAsync(rvalue, comparator).get(timeout, TimeUnit.MILLISECONDS);
+	}
+
+        @Override
 	public E waitForValue(final E rvalue, final Comparator<E> comparator) throws InterruptedException, ExecutionException, ChannelException {
 		return waitForValueAsync(rvalue, comparator).get();
 	}

@@ -39,6 +39,7 @@ public interface Channel<T> {
 
 	public T waitForValue(T rvalue) throws InterruptedException, ExecutionException, ChannelException;
 	public T waitForValue(T rvalue, long timeout) throws InterruptedException, ExecutionException, ChannelException, TimeoutException;
+        public T waitForValue(T rvalue, long timeout, Comparator<T> comparator) throws InterruptedException, ExecutionException, ChannelException, TimeoutException;
 	public T waitForValue(T rvalue, Comparator<T> comparator) throws InterruptedException, ExecutionException, ChannelException;
 	public T waitForValue(T rvalue, Comparator<T> comparator, long waitRetryPeriod) throws InterruptedException, ExecutionException, ChannelException;
 	
