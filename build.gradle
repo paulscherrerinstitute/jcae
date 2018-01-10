@@ -36,7 +36,7 @@ artifacts {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "http://artifacts.psi.ch/artifactory/libs-snapshots-local"){
+            repository(url: "https://artifacts.psi.ch/artifactory/libs-snapshots-local"){
             	authentication(userName: "upload", password: "{DESede}eWKHxAtQ2Dc=")
             }
             pom.groupId = 'ch.psi'
