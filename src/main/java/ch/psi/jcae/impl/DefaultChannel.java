@@ -53,6 +53,19 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 
 	private boolean connected = false;
 	private boolean monitored = false;
+       
+        static volatile boolean isQueuedEventDispatcher;
+        static volatile boolean inMonitorCallback;
+        
+        static{
+            isQueuedEventDispatcher =  JcaeProperties.getInstance().isQueuedEventDispatcher();
+        }
+        
+        static void assertNotInMonitorCallback(){
+            if (inMonitorCallback){
+                    throw new RuntimeException("Unable to access channel from monitor callback thread");
+            }     
+        }
         
 	/**
 	 * Constructor - Create a ChannelBean for the specified Channel. A Monitor
@@ -166,14 +179,14 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 									// value
 			return new GetMonitoredFuture<E>(value.get());
 		}
-		else {
-			try {
+		else {                  
+			try {                          
 				GetFuture<E> listener = new GetFuture<E>(this.type);
 				channel.get(Handlers.HANDLERS.get(type).getDBRType(), elementCount, listener);
 				channel.getContext().flushIO();                                
 				return listener;
 			} catch (CAException e) {
-				throw new ChannelException("Unable to set value to channel: " + channel.getName(), e);
+				throw new ChannelException("Unable to get value from channel: " + channel.getName(), e);
 			}
 		}
 	}
@@ -495,11 +508,15 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 				public void monitorChanged(MonitorEvent event) {
 					if (event.getStatus() == CAStatus.NORMAL) {
 						try {
+                                                        //Only verifying if in monitor callback for QueuedEventDispatcher (single callbavck thread)
+                                                        inMonitorCallback = isQueuedEventDispatcher;
 							E v = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
 							propertyChangeSupport.firePropertyChange(PROPERTY_VALUE, value.getAndSet(v), v);
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "Exception occured while calling callback", e);
-						}
+						} finally{
+                                                    inMonitorCallback = false;
+                                                }
 					} else {
 						if (!((Channel) event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)) {
                                                     if (event.getStatus() !=null){

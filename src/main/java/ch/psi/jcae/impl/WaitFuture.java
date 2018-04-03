@@ -107,6 +107,7 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 
 	@Override
 	public E get() throws InterruptedException, ExecutionException {
+                DefaultChannel.assertNotInMonitorCallback();
 		try{
 			latch.await();
 		}
@@ -125,6 +126,7 @@ public class WaitFuture<E> implements MonitorListener, Future<E> {
 
 	@Override
 	public E get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                DefaultChannel.assertNotInMonitorCallback();
 		try{
 			boolean b = latch.await(timeout, unit);
 			if(!b){

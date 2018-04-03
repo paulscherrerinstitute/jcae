@@ -83,6 +83,7 @@ public class GetFuture<T> implements GetListener, Future<T>
 	 */
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
+                DefaultChannel.assertNotInMonitorCallback();
 		latch.await();
                 if (exception != null){
                     throw new RuntimeException("Error occured while getting value: " + exception.getMessage());
@@ -98,7 +99,7 @@ public class GetFuture<T> implements GetListener, Future<T>
 	 */
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		
+		DefaultChannel.assertNotInMonitorCallback();
 		if(!latch.await(timeout, unit)){
                     throw new TimeoutException("Timeout ["+timeout+"] occured while getting value"); // from which channel ?
 	   	}

@@ -66,6 +66,7 @@ public class SetFuture<T> implements PutListener, Future<T>
 	 */
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
+                DefaultChannel.assertNotInMonitorCallback();
 		latch.await();
                 if (exception != null){
                     throw new RuntimeException("Error occured while setting value: " + exception.getMessage());
@@ -81,6 +82,7 @@ public class SetFuture<T> implements PutListener, Future<T>
 	 */
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                DefaultChannel.assertNotInMonitorCallback();
 		if(!latch.await(timeout, unit)){
                     throw new TimeoutException("Timeout occured while setting value to channel");
 		}

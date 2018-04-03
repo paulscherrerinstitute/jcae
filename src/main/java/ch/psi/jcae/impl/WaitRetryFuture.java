@@ -77,6 +77,7 @@ public class WaitRetryFuture<T> implements Future<T>{
 
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
+                DefaultChannel.assertNotInMonitorCallback();
 		try {
 			latch.await();
 			return task.getValue();
@@ -100,6 +101,7 @@ public class WaitRetryFuture<T> implements Future<T>{
 
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                DefaultChannel.assertNotInMonitorCallback();
 		try {
 			boolean t = latch.await(timeout, TimeUnit.MILLISECONDS);
 			if (!t) {

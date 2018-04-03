@@ -70,7 +70,7 @@ public class JCAChannelFactory {
 		if(context==null){
 			context = JCAContextFactory.getInstance().createContext();
 		}
-		
+		DefaultChannel.assertNotInMonitorCallback();
 		int cnt = 0;
 		while (cnt <= properties.getConnectionRetries()) {
 			cnt++;
@@ -122,6 +122,7 @@ public class JCAChannelFactory {
 		if(context==null){
 			context = JCAContextFactory.getInstance().createContext();
 		}
+                DefaultChannel.assertNotInMonitorCallback();
 		
 		List<Channel> channels = new ArrayList<Channel>();
 		
