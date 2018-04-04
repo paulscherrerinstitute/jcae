@@ -54,15 +54,10 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 	private boolean connected = false;
 	private boolean monitored = false;
        
-        static volatile boolean isQueuedEventDispatcher;
-        static volatile boolean inMonitorCallback;
-        
-        static{
-            isQueuedEventDispatcher =  JcaeProperties.getInstance().isQueuedEventDispatcher();
-        }
+        static volatile Thread threadEventDispatcher;
         
         static void assertNotInMonitorCallback(){
-            if (inMonitorCallback){
+            if (Thread.currentThread() == threadEventDispatcher){
                     throw new RuntimeException("Unable to access channel from monitor callback thread");
             }     
         }
@@ -509,13 +504,13 @@ public class DefaultChannel<E> implements ch.psi.jcae.Channel<E> {
 					if (event.getStatus() == CAStatus.NORMAL) {
 						try {
                                                         //Only verifying if in monitor callback for QueuedEventDispatcher (single callbavck thread)
-                                                        inMonitorCallback = isQueuedEventDispatcher;
+                                                        threadEventDispatcher = Thread.currentThread();
 							E v = (E) Handlers.HANDLERS.get(type).getValue(event.getDBR());
 							propertyChangeSupport.firePropertyChange(PROPERTY_VALUE, value.getAndSet(v), v);
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "Exception occured while calling callback", e);
 						} finally{
-                                                    inMonitorCallback = false;
+                                                    threadEventDispatcher = null;
                                                 }
 					} else {
 						if (!((Channel) event.getSource()).getConnectionState().equals(ConnectionState.CLOSED)) {
