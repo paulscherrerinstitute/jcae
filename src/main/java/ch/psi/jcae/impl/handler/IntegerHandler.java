@@ -12,12 +12,12 @@ public class IntegerHandler implements Handler<Integer> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((Integer) value));
+		channel.put(((Number)value).intValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((Integer) value), listener);
+		channel.put(((Number)value).intValue(), listener);
 	}
 
 	@Override

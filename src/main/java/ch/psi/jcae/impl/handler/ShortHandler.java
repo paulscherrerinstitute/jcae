@@ -12,12 +12,12 @@ public class ShortHandler implements Handler<Short> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((Short) value));
+		channel.put(((Number)value).shortValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((Short) value), listener);
+		channel.put(((Number)value).shortValue(), listener);
 	}
 
 	@Override

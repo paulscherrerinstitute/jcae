@@ -12,12 +12,12 @@ public class FloatHandler implements Handler<Float> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((Float) value));
+		channel.put(((Number)value).floatValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((Float) value), listener);
+		channel.put(((Number)value).floatValue(), listener);
 	}
 
 	@Override

@@ -13,12 +13,12 @@ public class ShortTimestampHandler implements Handler<ShortTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((ShortTimestamp) value).getValue());
+		channel.put(((Number)((ShortTimestamp) value).getValue()).shortValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((ShortTimestamp) value).getValue(), listener);
+		channel.put(((Number)((ShortTimestamp) value).getValue()).shortValue(), listener);
 	}
 
 	@Override

@@ -14,12 +14,12 @@ public class IntegerTimestampHandler implements Handler<IntegerTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((IntegerTimestamp) value).getValue());
+		channel.put(((Number)((IntegerTimestamp) value).getValue()).intValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((IntegerTimestamp) value).getValue(), listener);
+		channel.put(((Number)((IntegerTimestamp) value).getValue()).intValue(), listener);
 	}
 
 	@Override

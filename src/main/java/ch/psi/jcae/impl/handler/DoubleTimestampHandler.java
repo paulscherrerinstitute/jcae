@@ -12,13 +12,13 @@ import gov.aps.jca.event.PutListener;
 public class DoubleTimestampHandler implements Handler<DoubleTimestamp> {
 
 	@Override
-	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((DoubleTimestamp) value).getValue());
+	public <E> void setValue(Channel channel, E  value) throws CAException {
+		channel.put(((Number)((DoubleTimestamp) value).getValue()).doubleValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((DoubleTimestamp) value).getValue(), listener);
+		channel.put(((Number)((DoubleTimestamp) value).getValue()).doubleValue(), listener);
 	}
 
 	@Override

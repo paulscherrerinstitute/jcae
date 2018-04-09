@@ -13,12 +13,12 @@ public class FloatTimestampHandler implements Handler<FloatTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((FloatTimestamp) value).getValue());
+		channel.put(((Number)((FloatTimestamp) value).getValue()).floatValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((FloatTimestamp) value).getValue(), listener);
+		channel.put(((Number)((FloatTimestamp) value).getValue()).floatValue(), listener);
 	}
 
 	@Override

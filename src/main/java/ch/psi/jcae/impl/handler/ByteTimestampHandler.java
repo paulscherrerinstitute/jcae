@@ -13,12 +13,12 @@ public class ByteTimestampHandler implements Handler<ByteTimestamp> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put((new byte[] { (Byte) value }));
+		channel.put(((Number)((ByteTimestamp) value).getValue()).byteValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put((new byte[] { (Byte) value }), listener);
+		channel.put(((Number)((ByteTimestamp) value).getValue()).byteValue(), listener);
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class ByteTimestampHandler implements Handler<ByteTimestamp> {
 		t.setValue(v.getByteValue()[0]);
 		t.setTime(v.getTimeStamp());
                 t.setSeverity(v.getSeverity().getValue());
-		return t;
+		return t;             
 	}
 
 	@Override

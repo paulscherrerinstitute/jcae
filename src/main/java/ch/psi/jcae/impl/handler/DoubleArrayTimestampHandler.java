@@ -7,9 +7,7 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_TIME_Double;
 import gov.aps.jca.event.PutListener;
-
 import ch.psi.jcae.impl.type.DoubleArrayTimestamp;
-import ch.psi.jcae.impl.type.DoubleTimestamp;
 
 public class DoubleArrayTimestampHandler implements Handler<DoubleArrayTimestamp> {
 

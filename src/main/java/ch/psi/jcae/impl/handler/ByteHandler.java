@@ -12,12 +12,12 @@ public class ByteHandler implements Handler<Byte> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put((new byte[] { (Byte) value }));
+		channel.put((new byte[] { ((Number)value).byteValue() }));
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put((new byte[] { (Byte) value }), listener);
+		channel.put((new byte[] {  ((Number)value).byteValue() }), listener);
 	}
 
 	@Override

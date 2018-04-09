@@ -12,12 +12,12 @@ public class DoubleHandler implements Handler<Double> {
 
 	@Override
 	public <E> void setValue(Channel channel, E value) throws CAException {
-		channel.put(((Double) value));
+		channel.put(((Number)value).doubleValue());
 	}
 
 	@Override
 	public <E> void setValue(Channel channel, E value, PutListener listener) throws CAException {
-		channel.put(((Double) value), listener);
+		channel.put(((Number)value).doubleValue(), listener);
 	}
 
 	@Override
