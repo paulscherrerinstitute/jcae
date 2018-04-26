@@ -44,18 +44,19 @@ public class JCAContextFactory {
 			configuration.addChild(edconf);
 		}
 		
-		if(properties.getMaxArrayBytes()!=null){
+		if((properties.getMaxArrayBytes()!=null) && (!properties.getMaxArrayBytes().trim().isEmpty())){
 			configuration.setAttribute("max_array_bytes", properties.getMaxArrayBytes());
-		}
+		}       
+                
+                if((properties.getMaxSendArrayBytes()!=null) && (!properties.getMaxSendArrayBytes().trim().isEmpty())){
+                    System.setProperty("com.cosylab.epics.caj.impl.CachedByteBufferAllocator.buffer_size", properties.getMaxSendArrayBytes());
+                }
 		
 		// Port specified in the jca.properties file does overwrite the SHELL VARIABLE
 		if(properties.getServerPort()!=null){
 			configuration.setAttribute("server_port", properties.getServerPort());
 		}
 
-//		// Increase buffer size
-//		System.setProperty("com.cosylab.epics.caj.impl.CachedByteBufferAllocator.buffer_size","32000");
-		
 		Context context;
 		try{
 			context = JCALibrary.getInstance().createContext(configuration);

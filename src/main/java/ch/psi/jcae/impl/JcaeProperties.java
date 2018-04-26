@@ -37,6 +37,7 @@ public class JcaeProperties {
 	private boolean addLocalBroadcastInterfaces = false;
 	private boolean queuedEventDispatcher = true;
 	private String maxArrayBytes = null;
+        private String maxSendArrayBytes = null;
 	private String serverPort = null;
 	/**
 	 * While waiting for a channel to get a certain value usually a monitor for the channel 
@@ -179,6 +180,9 @@ public class JcaeProperties {
 		if (bundle.keySet().contains(prefix + "maxArrayBytes")) {
 			maxArrayBytes = bundle.getProperty(prefix + "maxArrayBytes");
 		}
+		if (bundle.keySet().contains(prefix + "maxSendArrayBytes")) {
+			maxSendArrayBytes = bundle.getProperty(prefix + "maxSendArrayBytes");
+		}                
 		if (bundle.keySet().contains(prefix + "serverPort")) {
 			serverPort = bundle.getProperty(prefix + "serverPort");
 		}
@@ -346,6 +350,14 @@ public class JcaeProperties {
 	public void setMaxArrayBytes(String maxArrayBytes) {
 		this.maxArrayBytes = maxArrayBytes;
 	}
+        
+	public String getMaxSendArrayBytes() {
+		return maxSendArrayBytes;
+	}
+
+	public void setMaxSendArrayBytes(String maxSendArrayBytes) {
+		this.maxSendArrayBytes = maxSendArrayBytes;
+	}        
 
 	public long getChannelTimeout() {
 		return channelTimeout;
