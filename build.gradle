@@ -2,7 +2,6 @@ plugins {
     id "java-library"
     id "eclipse"
     id "maven-publish"
-    id "com.jfrog.bintray" version "1.8.4"
 }
 
 sourceCompatibility = 1.7
@@ -12,8 +11,6 @@ group = 'ch.psi'
 
 repositories {  
     mavenCentral()
-    maven { url "https://artifacts.psi.ch/artifactory/libs-releases" }
-    maven { url "https://artifacts.psi.ch/artifactory/libs-snapshots" }
 }
 
 dependencies {
@@ -31,7 +28,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-
 task fatJar(type: Jar) {
     archiveBaseName = project.name + '_all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -43,11 +39,21 @@ publishing {
     repositories {
         maven {
             credentials {
+                username githubUser 
+                password githubPwd
+            }
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/paulscherrerinstitute/jcae"
+        }        
+        maven {
+            credentials {
                 username artifactoryUser 
                 password artifactoryPwd
             }
+            name = "Artifactory"
             url = artifactoryUrlLibSnap
         }
+        
     }
 
     publications {
@@ -60,25 +66,4 @@ publishing {
             version version
         }
     }
-}
-    
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    publications = ['MyPublication'] 
-    override = true
-    publish = true
-    pkg {
-        repo = 'hltools'
-        name = project.name
-        userOrg = 'paulscherrerinstitute'
-        licenses = ['GPL-3.0']
-        vcsUrl = 'https://github.com/paulscherrerinstitute/jcae'
-        version {
-            name = project.version
-        }         
-    }
-}
-
-
-
+}        
